@@ -1549,43 +1549,46 @@ function showResult(r){
   showPage('pg-result');
 }
 
-// ==================== STORAGE (ENCRYPTED) ====================
-function _enc(obj){
-  const raw=JSON.stringify(obj);
-  // XOR + base64-like encoding with key rotation
-  const key=_SC._k;
-  let out='';
-  for(let i=0;i<raw.length;i++){
-    out+=String.fromCharCode(raw.charCodeAt(i)^key.charCodeAt(i%key.length));
-  }
-  return btoa(unescape(encodeURIComponent(out)));
-}
-function _dec(str){
+// ==================== FIREBASE CONFIG ====================
+// Firebase sozlamalari - o'zingiznikini qo'ying
+const FIREBASE_URL = 'https://dreamzone-XXXX-default-rtdb.firebaseio.com'; // <-- O'zgartiring!
+
+async function saveResult(r){
   try{
-    const raw=decodeURIComponent(escape(atob(str)));
-    const key=_SC._k;
-    let out='';
-    for(let i=0;i<raw.length;i++){
-      out+=String.fromCharCode(raw.charCodeAt(i)^key.charCodeAt(i%key.length));
-    }
-    return JSON.parse(out);
-  }catch(e){return [];}
+    // Firebase ga saqlash
+    const res = await fetch(`${FIREBASE_URL}/results.json`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(r)
+    });
+    if(!res.ok) throw new Error('Firebase xato');
+    showToast("Natija saqlandi ✓",'success');
+  } catch(e){
+    // Firebase ishlamasa, localStorage ga zaxira
+    console.warn('Firebase xato, localStorage ga saqlanmoqda');
+    const d = _localGet();
+    d.push(r);
+    localStorage.setItem('dz_backup', JSON.stringify(d));
+  }
 }
-function saveResult(r){
-  const d=getResults();
-  d.push(r);
-  localStorage.setItem('dz_results',_enc(d));
-  // Remove any plaintext leftovers
-  localStorage.removeItem('dz_results_plain');
+
+async function getResults(){
+  try{
+    const res = await fetch(`${FIREBASE_URL}/results.json`);
+    if(!res.ok) throw new Error('Firebase xato');
+    const data = await res.json();
+    if(!data) return [];
+    // Firebase object qaytaradi, array ga aylantiramiz
+    return Object.values(data).sort((a,b)=> new Date(b.raw)-new Date(a.raw));
+  } catch(e){
+    console.warn('Firebase xato, localStorage dan o\'qilyapti');
+    return _localGet();
+  }
 }
-function getResults(){
-  const raw=localStorage.getItem('dz_results');
-  if(!raw)return [];
-  // Try encrypted first, fallback for legacy plaintext then re-encrypt
-  const dec=_dec(raw);
-  if(dec.length>0)return dec;
-  try{const plain=JSON.parse(raw);if(Array.isArray(plain)&&plain.length>0){localStorage.setItem('dz_results',_enc(plain));return plain;}}catch(e){}
-  return [];
+
+function _localGet(){
+  try{ return JSON.parse(localStorage.getItem('dz_backup')||'[]'); }
+  catch(e){ return []; }
 }
 
 // ==================== ADMIN ====================
@@ -1614,9 +1617,10 @@ function switchTab(tab){
   if(tab==='writing')renderWritingPanel();
 }
 
-function renderAdmin(){
+async function renderAdmin(){
   if(!adminLoggedIn){showPage('pg-admin-login');return;}
-  const all=getResults();
+  document.getElementById('admin-stats').innerHTML=`<div style="color:var(--muted);padding:20px;grid-column:1/-1;text-align:center;">⏳ Yuklanmoqda...</div>`;
+  const all=await getResults();
   const today=new Date().toDateString();
   const avgPct=all.length?Math.round(all.reduce((a,r)=>a+r.pct,0)/all.length):0;
   const cheated=all.filter(r=>r.cheated).length;
@@ -1632,11 +1636,11 @@ function renderAdmin(){
     <div class="stat-card animate-5"><div class="stat-label">Writing Ishlari</div><div class="stat-value gold">${writingCount}</div></div>
     <div class="stat-card animate-6"><div class="stat-label">Buzilgan</div><div class="stat-value danger">${cheated}</div></div>
   `;
-  renderResultsTable();
+  renderResultsTable(all);
 }
 
-function renderResultsTable(){
-  const all=getResults();
+async function renderResultsTable(all){
+  if(!all) all=await getResults();
   const filtered=all.filter(r=>{
     const ms=!searchTerm||r.name.toLowerCase().includes(searchTerm)||r.phone.includes(searchTerm);
     const ml=!levelFilter||r.level===levelFilter;
@@ -1665,9 +1669,11 @@ function renderResultsTable(){
   }).join('');
 }
 
-function renderWritingPanel(){
-  const all=getResults().filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).reverse();
+async function renderWritingPanel(){
   const panel=document.getElementById('writing-panel');
+  panel.innerHTML='<div style="color:var(--muted);padding:20px;text-align:center;">⏳ Yuklanmoqda...</div>';
+  const allResults=await getResults();
+  const all=allResults.filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).reverse();
   if(!all.length){panel.innerHTML='<div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">✍️</div><div>Hali writing ishlari yo\'q</div></div>';return;}
   panel.innerHTML=all.map(r=>{
     const writings=Object.entries(r.writings||{}).filter(([k,v])=>v&&v!=='(Yozilmadi)');
@@ -1692,8 +1698,17 @@ function filterResults(val){searchTerm=val.toLowerCase();renderResultsTable();}
 function filterLevel(val){levelFilter=val;renderResultsTable();}
 
 function confirmClear(){
-  showConfirm('Barcha ma\'lumotlarni o\'chirish','Bu amalni ortga qaytarib bo\'lmaydi. Barcha natijalar o\'chiriladi.',(ok)=>{
-    if(ok){localStorage.removeItem('dz_results');searchTerm='';levelFilter='';renderAdmin();showToast('Barcha natijalar o\'chirildi.','error');}
+  showConfirm('Barcha ma\'lumotlarni o\'chirish','Bu amalni ortga qaytarib bo\'lmaydi. Barcha natijalar o\'chiriladi.',async(ok)=>{
+    if(ok){
+      try{
+        await fetch(`${FIREBASE_URL}/results.json`,{method:'DELETE'});
+        showToast('Barcha natijalar o\'chirildi.','error');
+      }catch(e){
+        showToast('Xato yuz berdi','error');
+      }
+      localStorage.removeItem('dz_backup');
+      searchTerm='';levelFilter='';renderAdmin();
+    }
   });
 }
 
