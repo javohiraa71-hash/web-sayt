@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dream Zone — English Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#C9A84C;--gold-light:#E8C97A;--gold-dim:rgba(201,168,76,0.15);
+  --dark:#080810;--dark2:#10101C;--dark3:#18182A;--dark4:#1E1E30;
+  --border:rgba(201,168,76,0.2);--border-soft:rgba(255,255,255,0.06);
+  --text:#F0EDE8;--text-soft:#C8C4BC;--muted:#7A7890;
+  --danger:#E05252;--danger-dim:rgba(224,82,82,0.15);
+  --success:#4CAF82;--success-dim:rgba(76,175,130,0.15);
+  --blue:#7EB3FF;--blue-dim:rgba(126,179,255,0.15);
+  --purple:#B87AFF;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--dark2);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+.page{display:none;min-height:100vh;}
+.page.active{display:flex;flex-direction:column;}
+
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--d,3s) ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:0.08;transform:scale(1);}50%{opacity:0.7;transform:scale(1.4);}}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:0.1;}
+.orb-1{width:600px;height:600px;background:var(--gold);top:-200px;right:-200px;}
+.orb-2{width:400px;height:400px;background:#4466FF;bottom:-100px;left:-100px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.94);}to{opacity:1;transform:scale(1);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+@keyframes shimmer{0%{background-position:-200% center;}100%{background-position:200% center;}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+
+.animate-1{animation:fadeUp 0.6s 0.0s ease both;}
+.animate-2{animation:fadeUp 0.6s 0.1s ease both;}
+.animate-3{animation:fadeUp 0.6s 0.2s ease both;}
+.animate-4{animation:fadeUp 0.6s 0.3s ease both;}
+.animate-5{animation:fadeUp 0.6s 0.4s ease both;}
+.animate-6{animation:fadeUp 0.6s 0.5s ease both;}
+
+/* LANDING */
+#pg-landing{background:var(--dark);justify-content:center;align-items:center;text-align:center;padding:60px 20px;position:relative;min-height:100vh;}
+.landing-inner{position:relative;z-index:1;max-width:720px;margin:auto;}
+.brand-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:100px;padding:8px 22px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:36px;background:var(--gold-dim);backdrop-filter:blur(10px);}
+.brand-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;}
+.hero-title{font-family:'Playfair Display',serif;font-size:clamp(64px,14vw,108px);font-weight:900;line-height:0.92;color:var(--text);letter-spacing:-2px;margin-bottom:8px;}
+.hero-title .gold-word{background:linear-gradient(135deg,var(--gold),var(--gold-light),var(--gold));background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 4s linear infinite;display:block;}
+.hero-sub{font-size:17px;color:var(--muted);margin:28px auto 52px;font-weight:300;line-height:1.8;max-width:480px;}
+.hero-buttons{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;margin-bottom:56px;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--gold),var(--gold-light));color:var(--dark);font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;padding:16px 40px;border-radius:100px;border:none;cursor:pointer;letter-spacing:0.3px;transition:all 0.25s;text-decoration:none;box-shadow:0 8px 32px rgba(201,168,76,0.35);}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(201,168,76,0.5);}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:500;font-size:15px;padding:15px 32px;border-radius:100px;border:1px solid var(--border-soft);cursor:pointer;transition:all 0.25s;}
+.btn-ghost:hover{border-color:var(--border);color:var(--text);}
+.divider{display:flex;align-items:center;gap:20px;margin:0 auto 40px;max-width:400px;}
+.divider-line-h{flex:1;height:1px;background:var(--border-soft);}
+.divider-text{font-size:12px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.levels-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;}
+.level-chip{border:1px solid var(--border-soft);border-radius:100px;padding:7px 18px;font-size:12px;color:var(--muted);letter-spacing:0.5px;transition:all 0.2s;background:rgba(255,255,255,0.02);}
+.level-chip:hover{border-color:var(--border);color:var(--gold);}
+
+/* FORM */
+.form-card{background:var(--dark2);border:1px solid var(--border);border-radius:24px;padding:48px 44px;width:100%;max-width:500px;position:relative;z-index:1;animation:scaleIn 0.4s ease both;box-shadow:0 40px 80px rgba(0,0,0,0.5);}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.6;}
+.form-eyebrow{font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.form-eyebrow::after{content:'';flex:1;height:1px;background:var(--border);}
+.form-title{font-family:'Playfair Display',serif;font-size:30px;color:var(--text);margin-bottom:6px;letter-spacing:-0.5px;}
+.form-subtitle{font-size:14px;color:var(--muted);margin-bottom:36px;line-height:1.6;}
+.field{margin-bottom:20px;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:9px;letter-spacing:0.8px;text-transform:uppercase;}
+.field input,.field select,.field textarea{width:100%;background:var(--dark3);border:1px solid var(--border-soft);border-radius:12px;padding:14px 18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;transition:all 0.2s;}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted);opacity:0.6;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);background:var(--dark4);box-shadow:0 0 0 3px rgba(201,168,76,0.1);}
+.field textarea{resize:vertical;min-height:120px;line-height:1.6;}
+.field select option{background:var(--dark3);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-error{color:var(--danger);font-size:12px;margin-top:7px;display:none;align-items:center;gap:5px;}
+.form-error.show{display:flex;}
+.btn-full{width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border:none;color:var(--dark);font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:all 0.25s;margin-top:8px;letter-spacing:0.3px;box-shadow:0 8px 24px rgba(201,168,76,0.3);}
+.btn-full:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(201,168,76,0.45);}
+.back-link{text-align:center;margin-top:20px;font-size:14px;color:var(--muted);cursor:pointer;transition:color 0.2s;}
+.back-link:hover{color:var(--text);}
+.back-link span{color:var(--gold);}
+
+/* LEVELS */
+#pg-levels{background:var(--dark);padding:40px 24px 100px;}
+.levels-header{text-align:center;margin-bottom:52px;}
+.welcome-name{font-size:12px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;display:block;}
+.levels-title{font-family:'Playfair Display',serif;font-size:clamp(32px,6vw,48px);margin-bottom:14px;letter-spacing:-1px;}
+.levels-desc{color:var(--muted);font-size:15px;line-height:1.6;}
+.levels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:1160px;margin:0 auto;}
+.level-card{background:var(--dark2);border:1px solid var(--border-soft);border-radius:22px;padding:32px 28px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;}
+.level-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:22px 22px 0 0;background:linear-gradient(90deg,var(--c1,var(--gold)),var(--c2,var(--gold-light)));transform:scaleX(0);transform-origin:left;transition:transform 0.35s ease;}
+.level-card:hover{border-color:var(--border);transform:translateY(-6px);box-shadow:0 24px 60px rgba(0,0,0,0.4);}
+.level-card:hover::after{transform:scaleX(1);}
+.level-number{font-size:10px;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.level-dot{width:8px;height:8px;border-radius:50%;background:var(--card-color,var(--gold));}
+.level-name{font-family:'Playfair Display',serif;font-size:26px;color:var(--text);margin-bottom:10px;letter-spacing:-0.3px;}
+.level-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:24px;}
+.level-meta{display:flex;gap:16px;font-size:12px;color:var(--muted);border-top:1px solid var(--border-soft);padding-top:18px;}
+.level-arrow{position:absolute;right:24px;bottom:28px;width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--gold);opacity:0;transition:all 0.25s;transform:translateX(-8px);}
+.level-card:hover .level-arrow{opacity:1;transform:translateX(0);}
+.btn-logout{background:transparent;border:1px solid var(--border-soft);color:var(--muted);padding:9px 20px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger);}
+
+/* TEST */
+#pg-test{background:var(--dark);flex-direction:column;}
+.test-header{background:rgba(16,16,28,0.95);border-bottom:1px solid var(--border-soft);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;backdrop-filter:blur(20px);}
+.test-level-name{font-family:'Playfair Display',serif;font-size:18px;letter-spacing:-0.3px;}
+.test-q-count{font-size:12px;color:var(--muted);background:var(--dark3);border:1px solid var(--border-soft);padding:4px 12px;border-radius:100px;margin-left:12px;}
+.timer-wrap{display:flex;align-items:center;gap:10px;}
+.timer-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.timer-display{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--gold);letter-spacing:2px;font-family:'DM Sans',sans-serif;min-width:88px;text-align:right;}
+.timer-display.warn{color:#FFA552;}
+.timer-display.danger{color:var(--danger);animation:pulse 1s infinite;}
+.test-progress-bar{height:2px;background:var(--dark3);}
+.test-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width 0.5s ease;}
+.test-body{flex:1;padding:40px 24px;max-width:780px;margin:0 auto;width:100%;}
+
+/* SECTION HEADER in test */
+.section-header{background:var(--dark3);border:1px solid var(--border-soft);border-radius:14px;padding:16px 22px;margin-bottom:28px;}
+.section-title{font-size:13px;font-weight:700;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px;}
+.section-desc{font-size:14px;color:var(--muted);}
+.section-points{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:0.5px;}
+
+/* QUESTION NUMBER */
+.q-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.q-number{font-size:11px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;}
+
+/* MULTIPLE CHOICE */
+.mc-question{margin-bottom:32px;}
+.mc-q-text{font-size:18px;font-weight:500;line-height:1.55;margin-bottom:18px;color:var(--text);}
+.mc-options{display:flex;flex-direction:column;gap:9px;}
+.option{background:var(--dark2);border:1px solid var(--border-soft);border-radius:12px;padding:14px 20px;cursor:pointer;transition:all 0.22s;font-size:14px;display:flex;align-items:center;gap:12px;user-select:none;}
+.option:hover{border-color:var(--border);background:rgba(201,168,76,0.05);transform:translateX(3px);}
+.option.selected{border-color:var(--gold);background:var(--gold-dim);}
+.option.correct{border-color:var(--success);background:var(--success-dim);pointer-events:none;}
+.option.wrong{border-color:var(--danger);background:var(--danger-dim);pointer-events:none;}
+.option.disabled{pointer-events:none;opacity:0.4;}
+.opt-letter{width:30px;height:30px;border-radius:8px;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;border:1px solid var(--border-soft);letter-spacing:0.5px;transition:all 0.2s;}
+.option.selected .opt-letter{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+.option.correct .opt-letter{background:var(--success);color:var(--dark);border-color:var(--success);}
+.option.wrong .opt-letter{background:var(--danger);color:white;border-color:var(--danger);}
+
+/* FILL IN THE BLANK */
+.fitb-question{margin-bottom:28px;}
+.fitb-text{font-size:17px;font-weight:500;line-height:2;color:var(--text);margin-bottom:10px;}
+.blank-input{background:var(--dark3);border:none;border-bottom:2px solid var(--border);padding:4px 12px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);outline:none;width:160px;margin:0 4px;border-radius:4px 4px 0 0;transition:all 0.2s;display:inline-block;}
+.blank-input:focus{border-bottom-color:var(--gold);background:rgba(201,168,76,0.05);}
+.blank-input.correct-ans{border-bottom-color:var(--success);background:var(--success-dim);color:var(--success);}
+.blank-input.wrong-ans{border-bottom-color:var(--danger);background:var(--danger-dim);color:var(--danger);}
+.fitb-feedback{font-size:13px;color:var(--muted);margin-top:6px;}
+.fitb-feedback .correct-word{color:var(--success);font-weight:600;}
+
+/* MATCHING */
+.matching-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;}
+.match-col{display:flex;flex-direction:column;gap:8px;}
+.match-col-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;padding-left:4px;}
+.match-item-a{background:var(--dark2);border:1px solid var(--border-soft);border-radius:10px;padding:12px 16px;font-size:14px;display:flex;align-items:center;gap:10px;}
+.match-num{width:26px;height:26px;border-radius:6px;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1px solid var(--border-soft);}
+.match-select{flex:1;background:var(--dark3);border:1px solid var(--border-soft);border-radius:8px;padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;cursor:pointer;transition:all 0.2s;appearance:none;text-align:center;}
+.match-select:focus{border-color:var(--gold);}
+.match-select.correct-sel{border-color:var(--success);background:var(--success-dim);}
+.match-select.wrong-sel{border-color:var(--danger);background:var(--danger-dim);}
+.match-item-b{background:var(--dark3);border:1px solid var(--border-soft);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--muted);}
+.match-letter{width:26px;height:26px;border-radius:6px;background:var(--dark4);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--gold);border:1px solid var(--border);margin-right:8px;}
+
+/* ERROR CORRECTION */
+.error-q{margin-bottom:24px;}
+.error-sentence{background:var(--dark2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 20px;font-size:15px;color:var(--text-soft);margin-bottom:10px;font-style:italic;}
+.error-input{background:var(--dark3);border:1px solid var(--border-soft);border-radius:10px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;width:100%;transition:all 0.2s;}
+.error-input:focus{border-color:var(--gold);background:var(--dark4);}
+.error-input.correct-ans{border-color:var(--success);background:var(--success-dim);}
+.error-input.wrong-ans{border-color:var(--danger);background:var(--danger-dim);}
+.error-label{font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:0.5px;}
+
+/* T/F */
+.tf-question{margin-bottom:20px;}
+.tf-text{font-size:15px;line-height:1.6;color:var(--text);margin-bottom:10px;}
+.tf-btns{display:flex;gap:8px;}
+.tf-btn{padding:9px 24px;border-radius:100px;border:1px solid var(--border-soft);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px;}
+.tf-btn:hover{border-color:var(--border);color:var(--text);}
+.tf-btn.sel-true{border-color:var(--success);background:var(--success-dim);color:var(--success);}
+.tf-btn.sel-false{border-color:var(--danger);background:var(--danger-dim);color:var(--danger);}
+.tf-btn.correct-tf{border-color:var(--success);background:var(--success-dim);color:var(--success);}
+.tf-btn.wrong-tf{border-color:var(--danger);background:var(--danger-dim);color:var(--danger);}
+
+/* WRITING */
+.writing-wrap{background:var(--dark2);border:1px solid var(--border-soft);border-radius:16px;padding:24px;}
+.writing-prompt{font-size:16px;color:var(--text);line-height:1.7;margin-bottom:20px;padding:16px;background:var(--dark3);border-radius:10px;border-left:3px solid var(--gold);}
+.writing-area{background:var(--dark3);border:1px solid var(--border-soft);border-radius:12px;padding:18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;width:100%;min-height:200px;line-height:1.7;transition:all 0.2s;resize:vertical;}
+.writing-area:focus{border-color:var(--gold);background:var(--dark4);}
+.writing-counter{font-size:12px;color:var(--muted);text-align:right;margin-top:8px;}
+
+/* NAV BUTTONS */
+.test-nav{display:flex;align-items:center;justify-content:space-between;margin-top:36px;padding-top:24px;border-top:1px solid var(--border-soft);}
+.btn-nav{background:transparent;border:1px solid var(--border-soft);color:var(--text-soft);padding:13px 28px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all 0.2s;}
+.btn-nav:hover:not(:disabled){border-color:var(--border);color:var(--text);}
+.btn-nav:disabled{opacity:0.25;cursor:not-allowed;}
+.btn-nav.primary{background:linear-gradient(135deg,var(--gold),var(--gold-light));border-color:transparent;color:var(--dark);font-weight:700;box-shadow:0 6px 20px rgba(201,168,76,0.3);}
+.btn-nav.primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 30px rgba(201,168,76,0.45);}
+
+/* CHECK BUTTON */
+.btn-check{background:var(--dark3);border:1px solid var(--border);color:var(--gold);padding:10px 24px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;margin-top:16px;letter-spacing:0.5px;}
+.btn-check:hover{background:var(--gold-dim);}
+
+/* FEEDBACK BOX */
+.feedback-box{margin-top:14px;border-radius:12px;padding:14px 18px;font-size:13px;line-height:1.7;display:none;animation:fadeUp 0.3s ease both;}
+.feedback-box.show{display:block;}
+.feedback-box.fb-correct{background:var(--success-dim);border:1px solid rgba(76,175,130,0.3);}
+.feedback-box.fb-wrong{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);}
+.fb-title{font-weight:700;margin-bottom:4px;font-size:12px;text-transform:uppercase;letter-spacing:1px;}
+.fb-title.ok{color:var(--success);}
+.fb-title.nok{color:var(--gold);}
+.fb-correct-answer{color:var(--success);font-weight:600;}
+
+/* RESULT */
+#pg-result{background:var(--dark);justify-content:center;align-items:center;padding:40px 20px;text-align:center;}
+.result-card{background:var(--dark2);border:1px solid var(--border);border-radius:28px;padding:56px 48px;max-width:560px;width:100%;position:relative;z-index:1;animation:scaleIn 0.5s ease both;box-shadow:0 40px 80px rgba(0,0,0,0.5);}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:28px 28px 0 0;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.result-icon{font-size:72px;margin-bottom:20px;display:block;animation:float 3s ease-in-out infinite;}
+.result-title{font-family:'Playfair Display',serif;font-size:34px;margin-bottom:16px;letter-spacing:-0.5px;}
+.result-score{font-size:80px;font-weight:800;color:var(--gold);line-height:1;letter-spacing:-3px;background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.result-total{font-size:14px;color:var(--muted);margin-bottom:36px;}
+.result-meta{background:var(--dark3);border:1px solid var(--border-soft);border-radius:14px;padding:20px 24px;margin-bottom:28px;text-align:left;}
+.meta-row{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:9px 0;border-bottom:1px solid var(--border-soft);}
+.meta-row:last-child{border-bottom:none;}
+.meta-row span:first-child{color:var(--muted);}
+.meta-row span:last-child{font-weight:600;}
+.result-note{font-size:12px;color:var(--muted);margin-top:18px;line-height:1.6;opacity:0.7;}
+
+/* ADMIN LOGIN */
+#pg-admin-login{background:var(--dark);justify-content:center;align-items:center;padding:40px 20px;}
+.admin-login-card{background:var(--dark2);border:1px solid var(--border);border-radius:24px;padding:48px 44px;width:100%;max-width:420px;position:relative;z-index:1;animation:scaleIn 0.4s ease both;box-shadow:0 40px 80px rgba(0,0,0,0.5);}
+.admin-login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0.6;}
+.admin-err{color:var(--danger);font-size:13px;margin-bottom:12px;min-height:20px;}
+
+/* ADMIN PANEL */
+#pg-admin{background:var(--dark);flex-direction:column;padding:40px 24px 60px;min-height:100vh;}
+.admin-wrap{max-width:1280px;margin:0 auto;width:100%;}
+.admin-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:36px;flex-wrap:wrap;gap:16px;}
+.admin-title{font-family:'Playfair Display',serif;font-size:34px;letter-spacing:-0.5px;}
+.admin-badge{background:var(--gold-dim);border:1px solid var(--border);border-radius:100px;padding:5px 16px;font-size:11px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-left:12px;}
+.admin-actions{display:flex;gap:10px;align-items:center;}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--dark2);border:1px solid var(--border-soft);border-radius:18px;padding:22px 24px;transition:border-color 0.2s;}
+.stat-card:hover{border-color:var(--border);}
+.stat-label{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.stat-value{font-size:36px;font-weight:700;color:var(--text);letter-spacing:-1px;}
+.stat-value.gold{color:var(--gold);}
+.stat-value.danger{color:var(--danger);}
+.stat-value.success{color:var(--success);}
+.stat-value.blue{color:var(--blue);}
+
+/* ADMIN TABS */
+.admin-tabs{display:flex;gap:0;border-bottom:1px solid var(--border-soft);margin-bottom:24px;}
+.admin-tab{padding:12px 24px;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;margin-bottom:-1px;font-family:'DM Sans',sans-serif;background:transparent;border-top:none;border-left:none;border-right:none;}
+.admin-tab:hover{color:var(--text);}
+.admin-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* TABLES */
+.admin-table-card{background:var(--dark2);border:1px solid var(--border-soft);border-radius:22px;overflow:hidden;}
+.admin-toolbar{padding:18px 24px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;background:rgba(255,255,255,0.01);}
+.search-wrap{position:relative;}
+.search-wrap::before{content:'🔍';position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;filter:grayscale(1) opacity(0.4);}
+.search-input{background:var(--dark3);border:1px solid var(--border-soft);border-radius:100px;padding:9px 20px 9px 40px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;width:260px;transition:all 0.2s;}
+.search-input:focus{border-color:var(--border);}
+.filter-select{background:var(--dark3);border:1px solid var(--border-soft);border-radius:100px;padding:9px 36px 9px 20px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;cursor:pointer;transition:all 0.2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237A7890' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+table{width:100%;border-collapse:collapse;}
+thead{background:var(--dark3);}
+th{padding:14px 18px;text-align:left;font-size:11px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;font-weight:600;}
+td{padding:14px 18px;font-size:13px;border-top:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+tbody tr{transition:background 0.15s;}
+tbody tr:hover td{background:rgba(201,168,76,0.03);}
+.badge{display:inline-block;padding:4px 12px;border-radius:100px;font-size:11px;letter-spacing:0.5px;font-weight:600;white-space:nowrap;}
+.badge-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,168,76,0.25);}
+.badge-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(126,179,255,0.25);}
+.badge-green{background:var(--success-dim);color:var(--success);border:1px solid rgba(76,175,130,0.25);}
+.badge-red{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(224,82,82,0.25);}
+.badge-purple{background:rgba(184,122,255,0.15);color:var(--purple);border:1px solid rgba(184,122,255,0.25);}
+.score-bar-wrap{display:flex;align-items:center;gap:10px;}
+.score-bar-track{width:60px;height:5px;border-radius:3px;background:var(--dark3);overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:3px;}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.btn-danger{background:transparent;border:1px solid rgba(224,82,82,0.35);color:var(--danger);padding:9px 20px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.btn-danger:hover{background:var(--danger-dim);}
+.btn-export{background:transparent;border:1px solid var(--border);color:var(--gold);padding:9px 20px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.btn-export:hover{background:var(--gold-dim);}
+
+/* WRITING PANEL in admin */
+.writing-panel{background:var(--dark2);border:1px solid var(--border-soft);border-radius:22px;overflow:hidden;}
+.writing-entry{padding:24px;border-bottom:1px solid var(--border-soft);}
+.writing-entry:last-child{border-bottom:none;}
+.writing-entry-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+.writing-entry-name{font-weight:700;font-size:15px;}
+.writing-entry-meta{font-size:12px;color:var(--muted);}
+.writing-entry-text{background:var(--dark3);border-radius:10px;padding:16px;font-size:14px;line-height:1.7;color:var(--text-soft);white-space:pre-wrap;}
+
+/* OVERLAY */
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.97);z-index:9999;display:none;align-items:center;justify-content:center;text-align:center;padding:40px;backdrop-filter:blur(20px);}
+.overlay.show{display:flex;animation:fadeIn 0.3s ease;}
+.overlay-card{background:var(--dark2);border:1px solid rgba(224,82,82,0.4);border-radius:28px;padding:52px 44px;max-width:440px;}
+.overlay-icon{font-size:56px;margin-bottom:20px;}
+.overlay-title{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:12px;color:var(--danger);}
+.overlay-text{color:var(--muted);font-size:15px;line-height:1.65;margin-bottom:28px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:8888;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
+.modal-overlay.show{display:flex;animation:fadeIn 0.2s ease;}
+.modal-card{background:var(--dark2);border:1px solid var(--border);border-radius:24px;padding:40px 36px;max-width:380px;width:100%;text-align:center;animation:scaleIn 0.3s ease both;}
+.modal-title{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:10px;}
+.modal-text{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:28px;}
+.modal-btns{display:flex;gap:12px;}
+.modal-btns button{flex:1;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--dark2);border:1px solid var(--border);border-radius:14px;padding:14px 22px;font-size:14px;color:var(--text);z-index:9998;display:flex;align-items:center;gap:10px;box-shadow:0 16px 40px rgba(0,0,0,0.4);transform:translateY(20px);opacity:0;transition:all 0.3s;max-width:320px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(76,175,130,0.4);}
+.toast.error{border-color:rgba(224,82,82,0.4);}
+
+/* SECTION PROGRESS */
+.section-progress{display:flex;gap:6px;margin-bottom:28px;flex-wrap:wrap;}
+.sec-pip{height:4px;border-radius:2px;flex:1;background:var(--dark3);min-width:30px;transition:background 0.3s;}
+.sec-pip.done{background:var(--gold);}
+.sec-pip.active{background:var(--gold-light);}
+
+@media(max-width:640px){
+  .form-row{grid-template-columns:1fr;}
+  .form-card,.result-card,.admin-login-card{padding:32px 24px;}
+  .test-header{padding:12px 16px;}
+  .test-body{padding:24px 16px 32px;}
+  .matching-wrap{grid-template-columns:1fr;}
+  .result-score{font-size:64px;}
+  .admin-title{font-size:26px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  th,td{padding:10px 12px;}
+  .search-input{width:180px;}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg"></span></div>
+
+<div class="modal-overlay" id="confirm-modal">
+  <div class="modal-card">
+    <div class="modal-title" id="confirm-title">Ishonchingiz komilmi?</div>
+    <div class="modal-text" id="confirm-text">Bu amalni ortga qaytarib bo'lmaydi.</div>
+    <div class="modal-btns">
+      <button class="btn-nav" onclick="closeConfirm(false)">Bekor qilish</button>
+      <button class="btn-danger" onclick="closeConfirm(true)">Ha, davom etish</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="cheat-overlay">
+  <div class="overlay-card">
+    <div class="overlay-icon">⚠️</div>
+    <div class="overlay-title">Test Tugadi</div>
+    <div class="overlay-text" id="cheat-message">Siz sahifadan chiqdingiz yoki boshqa ilova ochdingiz.</div>
+    <button class="btn-primary" onclick="finishTestEarly()">Natijani Ko'rish →</button>
+  </div>
+</div>
+
+<!-- ==================== LANDING ==================== -->
+<div class="page active" id="pg-landing">
+  <div class="landing-inner" style="position:relative;z-index:1;margin:auto;padding:60px 20px;">
+    <div class="brand-badge animate-1">English Center</div>
+    <h1 class="hero-title animate-2">Dream<span class="gold-word">Zone</span></h1>
+    <p class="hero-sub animate-3">O'zingizning ingliz tili darajangizni aniqlang.<br>Professional test tizimi bilan o'lchang va rivojlaning.</p>
+    <div class="hero-buttons animate-4">
+      <button class="btn-primary" onclick="showPage('pg-register')">Ro'yxatdan O'tish →</button>
+      <button class="btn-ghost" onclick="showPage('pg-admin-login')">Admin Panel</button>
+    </div>
+    <div class="divider animate-5"><div class="divider-line-h"></div><div class="divider-text">Darajalar</div><div class="divider-line-h"></div></div>
+    <div class="levels-chips animate-6">
+      <span class="level-chip">Elementary</span>
+      <span class="level-chip">Pre-Intermediate</span>
+      <span class="level-chip">Intermediate</span>
+      <span class="level-chip">CEFR Multilevel</span>
+      <span class="level-chip">Pre-IELTS</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== REGISTER ==================== -->
+<div class="page" id="pg-register">
+  <div style="margin:auto;padding:40px 20px;width:100%;display:flex;justify-content:center;align-items:center;flex:1;">
+    <div class="form-card">
+      <div class="form-eyebrow">Dream Zone</div>
+      <h2 class="form-title">Ro'yxatdan O'tish</h2>
+      <p class="form-subtitle">Testni boshlash uchun ma'lumotlaringizni kiriting</p>
+      <div class="form-row">
+        <div class="field"><label>Ism</label><input type="text" id="reg-first" placeholder="Ali"><div class="form-error" id="err-first">⚠ Ism kiriting</div></div>
+        <div class="field"><label>Familya</label><input type="text" id="reg-last" placeholder="Valiyev"><div class="form-error" id="err-last">⚠ Familya kiriting</div></div>
+      </div>
+      <div class="field"><label>Yosh</label><input type="number" id="reg-age" placeholder="20" min="5" max="80"><div class="form-error" id="err-age">⚠ To'g'ri yosh kiriting (5–80)</div></div>
+      <div class="field"><label>Telefon Raqam</label><input type="tel" id="reg-phone" placeholder="+998 90 123 45 67"><div class="form-error" id="err-phone">⚠ Telefon raqam kiriting</div></div>
+      <button class="btn-full" onclick="registerUser()">Davom Etish →</button>
+      <div class="back-link" onclick="showPage('pg-landing')">← <span>Orqaga</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== LEVELS ==================== -->
+<div class="page" id="pg-levels">
+  <div style="max-width:1160px;margin:0 auto;width:100%;padding:32px 24px 0;display:flex;justify-content:flex-end;">
+    <button class="btn-logout" onclick="logoutUser()">← Chiqish</button>
+  </div>
+  <div class="levels-header" style="padding:40px 24px 0;position:relative;z-index:1;">
+    <span class="welcome-name" id="welcome-txt">Xush kelibsiz</span>
+    <h2 class="levels-title">Daraja Tanlang</h2>
+    <p class="levels-desc">O'z darajangizga mos testni boshlang.</p>
+  </div>
+  <div class="levels-grid" id="levels-grid" style="position:relative;z-index:1;padding:0 24px;"></div>
+</div>
+
+<!-- ==================== TEST ==================== -->
+<div class="page" id="pg-test">
+  <div class="test-header">
+    <div style="display:flex;align-items:center;">
+      <div class="test-level-name" id="test-level-title">Test</div>
+      <div class="test-q-count" id="test-q-count">Qism 1</div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer-label">VAQT</div>
+      <div class="timer-display" id="timer-display">60:00</div>
+    </div>
+  </div>
+  <div class="test-progress-bar"><div class="test-progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div class="test-body" id="test-body-content"></div>
+</div>
+
+<!-- ==================== RESULT ==================== -->
+<div class="page" id="pg-result">
+  <div style="position:relative;z-index:1;margin:auto;padding:40px 20px;display:flex;justify-content:center;align-items:center;width:100%;">
+    <div class="result-card">
+      <span class="result-icon" id="result-icon">🏆</span>
+      <h2 class="result-title" id="result-title">Natija</h2>
+      <div class="result-score" id="result-score">0</div>
+      <div class="result-total" id="result-total">/ 0 ball</div>
+      <div class="result-meta" id="result-meta"></div>
+      <button class="btn-full" onclick="showPage('pg-levels')" style="margin-top:0;">Boshqa Daraja →</button>
+      <div class="result-note">✓ Natijangiz va writing qismingiz admin paneliga saqlandi.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADMIN LOGIN ==================== -->
+<div class="page" id="pg-admin-login">
+  <div style="margin:auto;padding:40px 20px;width:100%;display:flex;justify-content:center;align-items:center;flex:1;">
+    <div class="admin-login-card">
+      <div class="form-eyebrow">Dream Zone</div>
+      <h2 class="form-title">Admin Panel</h2>
+      <p class="form-subtitle">Kirish uchun ma'lumotlarni kiriting</p>
+      <div class="field"><label>Login</label><input type="text" id="admin-user" placeholder="admin"></div>
+      <div class="field"><label>Parol</label><input type="password" id="admin-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+      <div class="admin-err" id="admin-err"></div>
+      <button class="btn-full" onclick="adminLogin()">Kirish →</button>
+      <div class="back-link" onclick="showPage('pg-landing')">← <span>Bosh sahifa</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADMIN PANEL ==================== -->
+<div class="page" id="pg-admin">
+  <div class="admin-wrap">
+    <div class="admin-topbar">
+      <div><h2 class="admin-title">Admin Panel<span class="admin-badge">Dream Zone</span></h2></div>
+      <div class="admin-actions">
+        <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+        <button class="btn-danger" onclick="confirmClear()">Tozalash</button>
+        <button class="btn-logout" onclick="adminLogout()">Chiqish</button>
+      </div>
+    </div>
+    <div class="stats-grid" id="admin-stats"></div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchTab('results')" id="tab-results">📋 Test Natijalari</button>
+      <button class="admin-tab" onclick="switchTab('writing')" id="tab-writing">✍️ Writing Ishlari</button>
+    </div>
+    <div id="tab-content-results">
+      <div class="admin-table-card">
+        <div class="admin-toolbar">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <div class="search-wrap"><input class="search-input" type="text" placeholder="Ism yoki telefon..." oninput="filterResults(this.value)" id="search-input"></div>
+            <select class="filter-select" onchange="filterLevel(this.value)" id="level-filter">
+              <option value="">Barcha darajalar</option>
+              <option>Elementary</option><option>Pre-Intermediate</option>
+              <option>Intermediate</option><option>CEFR Multilevel</option><option>Pre-IELTS</option>
+            </select>
+          </div>
+          <div id="admin-result-count" style="font-size:13px;color:var(--muted);"></div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>#</th><th>Ism Familya</th><th>Yosh</th><th>Telefon</th><th>Daraja</th><th>Ball</th><th>Foiz</th><th>Holat</th><th>Sana</th></tr></thead>
+            <tbody id="results-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div id="tab-content-writing" style="display:none;">
+      <div class="writing-panel" id="writing-panel"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== TEST DATA ====================
+
+const TESTS = {
+  elementary: {
+    id:'elementary', name:'Elementary', color:'#7EB3FF', c2:'#B0D4FF',
+    desc:'Asosiy grammatika va kundalik muloqot. Aralash vazifalar.',
+    sections: [
+      {
+        id:'s1', title:'Grammar: is/are/have/has', type:'fitb',
+        instructions:'Complete the sentences. Use is/are or have/has.',
+        questions:[
+          {id:'e1q1', text:'My sisters ___ both very pretty.', answer:'are', hint:'subject: My sisters (plural)'},
+          {id:'e1q2', text:'My little sister, Rosie, ___ only ten.', answer:'is', hint:'subject: Rosie (singular)'},
+          {id:'e1q3', text:'Our house ___ a big garden.', answer:'has', hint:'to possess = have/has'},
+          {id:'e1q4', text:'Our parents both ___ jobs in town.', answer:'have', hint:'subject: Our parents (plural)'},
+          {id:'e1q5', text:'My school ___ 20 classrooms.', answer:'has', hint:'school = singular'},
+          {id:'e1q6', text:'I ___ a lot of friends.', answer:'have', hint:'I + have'},
+          {id:'e1q7', text:'We ___ all very happy at school.', answer:'are', hint:'We = are'},
+        ]
+      },
+      {
+        id:'s2', title:'Prepositions', type:'mc',
+        instructions:"Choose the correct preposition: at / in / on / last / yesterday",
+        questions:[
+          {id:'e2q1', q:'I went there ___ month.', opts:['at','in','on','last'], ans:3},
+          {id:'e2q2', q:'___ Wednesday', opts:['at','in','on','last'], ans:2},
+          {id:'e2q3', q:'___ 8 o\'clock', opts:['at','in','on','last'], ans:0},
+          {id:'e2q4', q:'___ the morning', opts:['at','in','on','yesterday'], ans:1},
+          {id:'e2q5', q:'I went there ___ June 3rd', opts:['at','in','on','last'], ans:2},
+          {id:'e2q6', q:'___ the weekend', opts:['at','in','on','last'], ans:2},
+          {id:'e2q7', q:'___ Monday morning', opts:['at','in','on','last'], ans:2},
+        ]
+      },
+      {
+        id:'s3', title:'Question Words', type:'mc',
+        instructions:'Choose the correct question word: when / where / what / who / how / how much / how long',
+        questions:[
+          {id:'e3q1', q:"Freya: '___ are you doing?' Evie: 'Oh, I'm planning my holiday.'", opts:['When','Where','What','Who'], ans:2},
+          {id:'e3q2', q:"F: 'Oh, ___ are you going?'", opts:['when','where','what','who'], ans:1},
+          {id:'e3q3', q:"F: '___ are you leaving?'", opts:['When','Where','What','Who'], ans:0},
+          {id:'e3q4', q:"F: '___ are you going with?'", opts:['When','Where','What','Who'], ans:3},
+          {id:'e3q5', q:"F: '___ are you staying?'", opts:['When','Where','What','Who'], ans:1},
+          {id:'e3q6', q:"F: '___ is it going to cost?'", opts:['When','Where','How much','How long'], ans:2},
+          {id:'e3q7', q:"F: '___ are you going to travel?'", opts:['How','Where','When','What'], ans:0},
+        ]
+      },
+      {
+        id:'s4', title:'Find the Mistake', type:'error',
+        instructions:'Find and correct the mistake in each sentence.',
+        questions:[
+          {id:'e4q1', sentence:'What are you doing this evening?', instruction:'Correct: "What I you doing this evening?" — find the mistake', answer:'are', hint:'To be: "What are you doing"'},
+          {id:'e4q2', sentence:"I'm going to see some friends tonight.", instruction:"Correct: \"I'm going see some friends tonight.\"", answer:'going to see', hint:"going to + verb"},
+          {id:'e4q3', sentence:'When are they going to France?', instruction:'"When they going to France?"', answer:'are they', hint:'Question: are they'},
+          {id:'e4q4', sentence:'She is seeing the doctor tomorrow.', instruction:'"She seeing the doctor tomorrow."', answer:'is seeing', hint:'Present continuous: is + verb-ing'},
+          {id:'e4q5', sentence:"I'm going to the cinema on Saturday evening.", instruction:'"I going to the cinema on Saturday evening."', answer:"I'm going", hint:"I'm going = I am going"},
+        ]
+      },
+      {
+        id:'s5', title:'Past Simple Verbs', type:'fitb',
+        instructions:'Write the Past Simple form of the verbs.',
+        questions:[
+          {id:'e5q1', text:'get → ___', answer:'got'},
+          {id:'e5q2', text:'buy → ___', answer:'bought'},
+          {id:'e5q3', text:'have → ___', answer:'had'},
+          {id:'e5q4', text:'meet → ___', answer:'met'},
+          {id:'e5q5', text:'do → ___', answer:'did'},
+          {id:'e5q6', text:'go → ___', answer:'went'},
+          {id:'e5q7', text:'see → ___', answer:'saw'},
+          {id:'e5q8', text:'leave → ___', answer:'left'},
+        ]
+      },
+      {
+        id:'s6', title:'True or False — Reading', type:'tf',
+        instructions:"Read: David Beckham is a world famous footballer. His wife Victoria has a fashion business. They have four children: Brooklyn, Romeo, Cruz, and Harper. Victoria's sister Louise has a fashion boutique and Brooklyn works there on Saturdays. Romeo is a fashion model for Burberry. They have four houses in London, California, Dubai and France. David works for UNICEF.",
+        questions:[
+          {id:'e6q1', text:"The Beckhams' children are all boys.", answer:false},
+          {id:'e6q2', text:'David Beckham is a footballer and works for UNICEF.', answer:true},
+          {id:"e6q3", text:"David's wife, Victoria, is a fashion model.", answer:false},
+          {id:'e6q4', text:"Their daughter is a model for Burberry.", answer:false},
+          {id:'e6q5', text:"Brooklyn sometimes works in a shop.", answer:true},
+          {id:'e6q6', text:"Louise is David's sister.", answer:false},
+          {id:'e6q7', text:"They have houses in England and America.", answer:false},
+          {id:'e6q8', text:"They all like family time at home.", answer:true},
+        ]
+      },
+      {
+        id:'s7', title:'Writing: A Letter', type:'writing',
+        instructions:'Write a letter to your parents about your holiday. Write at least 80 words.',
+        prompt:'Dear Mum and Dad,\n\nWrite about: where you are, what the weather is like, what you have done, what you plan to do, and say when you will come home.',
+        minWords: 80
+      }
+    ]
+  },
+
+  'pre-intermediate': {
+    id:'pre-intermediate', name:'Pre-Intermediate', color:'#C9A84C', c2:'#E8C97A',
+    desc:'Grammatika, so\'z boyligi va reading. 100 ta savol.',
+    sections: [
+      {
+        id:'pi1', title:'Grammar', type:'mc',
+        instructions:'Tick (✓) the suitable answer.',
+        questions:[
+          {id:'pi1q1', q:"What's _____ job?", opts:['your','yours','you'], ans:0},
+          {id:'pi1q2', q:"The traffic is _____ than it was many years ago.", opts:['badder','more bad','worse'], ans:2},
+          {id:'pi1q3', q:"I've _____ washed the floor. It's wet.", opts:['already','just','yet'], ans:0},
+          {id:'pi1q4', q:"He has the same car _____ his sister.", opts:['as','like','than'], ans:0},
+          {id:'pi1q5', q:"The girl on the picture _____ a blue dress.", opts:['wears','wearing','is wearing'], ans:2},
+          {id:'pi1q6', q:"My mother doesn't enjoy _____ by plane.", opts:['travel','travelling','to travel'], ans:1},
+          {id:'pi1q7', q:"I can't come to the cinema because I _____ to study.", opts:['must','have','has'], ans:1},
+          {id:'pi1q8', q:"What would you do if you _____ the Loch Ness monster?", opts:['saw','will see','see'], ans:0},
+          {id:'pi1q9', q:"My brother _____ glasses.", opts:['used to wear','use to wear','used to wearing'], ans:0},
+          {id:'pi1q10', q:'"My father loves Jazz" "_____!"', opts:['So I do','So am I','So do I'], ans:2},
+        ]
+      },
+      {
+        id:'pi2', title:'For or Since', type:'mc',
+        instructions:'Choose: For or Since.',
+        questions:[
+          {id:'pi2q1', q:"They've known each other _____ a long time.", opts:['For','Since'], ans:0},
+          {id:'pi2q2', q:"She's studied English literature _____ five years.", opts:['For','Since'], ans:0},
+          {id:'pi2q3', q:"He's been married _____ last September.", opts:['For','Since'], ans:1},
+          {id:'pi2q4', q:"You've worn these old trainers every day _____ Christmas!", opts:['For','Since'], ans:1},
+          {id:'pi2q5', q:"I've been working in London _____ 1998.", opts:['For','Since'], ans:1},
+        ]
+      },
+      {
+        id:'pi3', title:'Irregular Verbs', type:'fitb',
+        instructions:'Write the missing form (Infinitive, Simple Past, or Past Participle).',
+        questions:[
+          {id:'pi3q1', text:'to ___ / broke / broken', answer:'break'},
+          {id:'pi3q2', text:'to come / ___ / come', answer:'came'},
+          {id:'pi3q3', text:'to cost / ___ / cost', answer:'cost'},
+          {id:'pi3q4', text:'to ___ / built / built', answer:'build'},
+          {id:'pi3q5', text:'to eat / ate / ___', answer:'eaten'},
+          {id:'pi3q6', text:'to find / ___ / found', answer:'found'},
+          {id:'pi3q7', text:'to ___ / took / taken', answer:'take'},
+          {id:'pi3q8', text:'to know / knew / ___', answer:'known'},
+          {id:'pi3q9', text:'to ___ / saw / seen', answer:'see'},
+          {id:'pi3q10', text:'to put / ___ / put', answer:'put'},
+        ]
+      },
+      {
+        id:'pi4', title:'Opposite Adjectives', type:'fitb',
+        instructions:"Write the OPPOSITE adjective.",
+        questions:[
+          {id:'pi4q1', text:'rude → ___', answer:'polite'},
+          {id:'pi4q2', text:'noisy → ___', answer:'quiet'},
+          {id:'pi4q3', text:'possible → ___', answer:'impossible'},
+          {id:'pi4q4', text:'dangerous → ___', answer:'safe'},
+          {id:'pi4q5', text:'patient → ___', answer:'impatient'},
+        ]
+      },
+      {
+        id:'pi5', title:'Adjectives -ed/-ing', type:'fitb',
+        instructions:'Complete with the correct adjective (first letter given).',
+        questions:[
+          {id:'pi5q1', text:'I saw a really i_____ TV programme last night.', answer:'interesting', hint:'-ing adjective: the programme was interesting'},
+          {id:'pi5q2', text:'She failed her exams, so she feels a bit d_____.', answer:'disappointed', hint:'-ed adjective: she feels disappointed'},
+          {id:'pi5q3', text:'My job is very b_____. I only do the photocopying.', answer:'boring', hint:'-ing: the job is boring'},
+          {id:'pi5q4', text:'We had a very r_____ holiday. We just lay in the sun.', answer:'relaxing', hint:'-ing: the holiday was relaxing'},
+          {id:'pi5q5', text:'I work too much. Now I feel really t_____.', answer:'tired', hint:'-ed: I feel tired'},
+        ]
+      },
+      {
+        id:'pi6', title:'Word Order — Questions', type:'fitb',
+        instructions:'Re-order the words to make correct questions.',
+        questions:[
+          {id:'pi6q1', text:'doing / weekend / this / what / you / are → ___', answer:'What are you doing this weekend?'},
+          {id:'pi6q2', text:'English / year / you / next / going / study / to / are → ___', answer:'Are you going to study English next year?'},
+          {id:'pi6q3', text:'think / do / who / will / elections / next / you / win / the → ___', answer:'Who do you think will win the next elections?'},
+          {id:'pi6q4', text:'you / dreams / how / your / remember / do / often → ___', answer:'How often do you remember your dreams?'},
+          {id:'pi6q5', text:'rain / think / tomorrow / will / you / do / it → ___', answer:'Do you think it will rain tomorrow?'},
+        ]
+      },
+      {
+        id:'pi7', title:'Vocabulary: Parts of the Body', type:'mc',
+        instructions:'Choose the correct answer.',
+        questions:[
+          {id:'pi7q1', q:'This connects your head to your body.', opts:['head','neck','knee','eyes'], ans:1},
+          {id:'pi7q2', q:'This is between your hand and your arm.', opts:['neck','elbow','wrist','finger'], ans:2},
+          {id:'pi7q3', q:'You see with these.', opts:['ears','hair','eyes','cheeks'], ans:2},
+          {id:'pi7q4', q:'You use this to smell.', opts:['nose','eye','head','finger'], ans:0},
+          {id:'pi7q5', q:'This is the upper part of your leg.', opts:['toe','ankle','knee','thigh'], ans:3},
+        ]
+      },
+      {
+        id:'pi8', title:'Plural Nouns', type:'fitb',
+        instructions:'Write the plural form.',
+        questions:[
+          {id:'pi8q1', text:'child → ___', answer:'children'},
+          {id:'pi8q2', text:'party → ___', answer:'parties'},
+          {id:'pi8q3', text:'glass → ___', answer:'glasses'},
+          {id:'pi8q4', text:'way → ___', answer:'ways'},
+          {id:'pi8q5', text:'church → ___', answer:'churches'},
+          {id:'pi8q6', text:'tooth → ___', answer:'teeth'},
+          {id:'pi8q7', text:'sandwich → ___', answer:'sandwiches'},
+          {id:'pi8q8', text:'key → ___', answer:'keys'},
+          {id:'pi8q9', text:'toy → ___', answer:'toys'},
+          {id:'pi8q10', text:'baby → ___', answer:'babies'},
+        ]
+      },
+      {
+        id:'pi9', title:'Relative Clauses', type:'mc',
+        instructions:'Complete with WHO, WHICH, or WHERE.',
+        questions:[
+          {id:'pi9q1', q:"It's the person _____ serves you in a café.", opts:['WHO','WHICH','WHERE'], ans:0},
+          {id:'pi9q2', q:"It's the kind of food _____ keeps vampires away.", opts:['WHO','WHICH','WHERE'], ans:1},
+          {id:'pi9q3', q:"It's a place _____ you can buy books.", opts:['WHO','WHICH','WHERE'], ans:2},
+          {id:'pi9q4', q:"It's a place _____ you can borrow books.", opts:['WHO','WHICH','WHERE'], ans:2},
+          {id:'pi9q5', q:"It's a thing _____ you use to open doors.", opts:['WHO','WHICH','WHERE'], ans:1},
+        ]
+      },
+      {
+        id:'pi10', title:'Reading: True or False', type:'tf',
+        instructions:"Read: Lady Morton (100 years old) has driven for nearly 80 years without a driving test. Last week she had her first accident — she hit a traffic island in Edinburgh when she took her new Nissan Micra for a drive. The car had no lights. She wasn't badly hurt and the car wasn't badly damaged. She plans to continue driving. She bought her first car in 1927.",
+        questions:[
+          {id:'pi10q1', text:'Lady Morton has had a lot of accidents.', answer:false},
+          {id:'pi10q2', text:'She bought a Nissan Micra.', answer:false, hint:'It was given to her as a present'},
+          {id:'pi10q3', text:"She couldn't see the traffic island because she didn't have her lights on.", answer:false, hint:'The traffic island had no lights'},
+          {id:'pi10q4', text:"She wasn't badly hurt.", answer:true},
+          {id:'pi10q5', text:"After her latest accident she needs a new car.", answer:false},
+          {id:'pi10q6', text:"She thinks she's a safe driver.", answer:true},
+          {id:'pi10q7', text:"The amount of traffic isn't a problem for her.", answer:true},
+        ]
+      },
+      {
+        id:'pi11', title:'Writing: Your Favourite Holiday', type:'writing',
+        instructions:'Describe your favourite holiday. Why is it special for you? Write at least 80 words.',
+        prompt:'Describe your favourite holiday:\n• Where did you go?\n• Who did you go with?\n• What did you do?\n• Why is it special/memorable for you?',
+        minWords: 80
+      }
+    ]
+  },
+
+  intermediate: {
+    id:'intermediate', name:'Intermediate', color:'#E07AC9', c2:'#FFB3EA',
+    desc:'Murakkab grammatika, so\'z boyligi va xatolarni tuzatish.',
+    sections: [
+      {
+        id:'im1', title:'Verb Tenses', type:'fitb',
+        instructions:'Put the verbs into the correct tense and form (positive or negative).',
+        questions:[
+          {id:'im1q1', text:"Johanna wasn't born (born) in the US. She _____ (speak) Portuguese.", answer:"doesn't speak", hint:"Present Simple negative"},
+          {id:'im1q2', text:"In the photo, Johanna _____ (carry) some books.", answer:'is carrying', hint:'Present Continuous'},
+          {id:'im1q3', text:"Garlen _____ (be) French.", answer:"isn't", hint:"Present Simple negative"},
+          {id:'im1q4', text:"At the moment he _____ (live) with three other teachers.", answer:'is living', hint:'Present Continuous'},
+          {id:'im1q5', text:"Garlen _____ (like) living on his own.", answer:"doesn't like", hint:'Present Simple negative'},
+          {id:'im1q6', text:"Anna and Don _____ (live) in England at the moment.", answer:'are living', hint:'Present Continuous'},
+          {id:'im1q7', text:"They _____ (finish) university last year.", answer:'finished', hint:'Past Simple'},
+        ]
+      },
+      {
+        id:'im2', title:'Adjective Matching', type:'matching',
+        instructions:'Match the adjective in A with a synonym in B.',
+        pairs:[
+          {a:'difficult', b:'hard'},
+          {a:'correct', b:'right'},
+          {a:'happy', b:'pleased'},
+          {a:'clever', b:'intelligent'},
+          {a:'scared', b:'frightened'},
+          {a:'unusual', b:'strange'},
+          {a:'big', b:'large'},
+          {a:'famous', b:'well-known'},
+          {a:'handsome', b:'good-looking'},
+          {a:'lovely', b:'wonderful'},
+        ]
+      },
+      {
+        id:'im3', title:'Past Continuous', type:'fitb',
+        instructions:'Complete the sentences with the Past Continuous form of the verb in brackets.',
+        questions:[
+          {id:'im3q1', text:"I _____ (watch) TV when my parents came home.", answer:'was watching'},
+          {id:'im3q2', text:"Tom _____ (study) for his test yesterday at seven o'clock.", answer:'was studying'},
+          {id:'im3q3', text:"The boys _____ (play) football when it started to rain.", answer:'were playing'},
+          {id:'im3q4', text:"The dogs _____ (bark) at midnight last night.", answer:'were barking'},
+          {id:'im3q5', text:"The baby _____ (not sleep) when we went to bed.", answer:"wasn't sleeping"},
+          {id:'im3q6', text:"You _____ (not ride) your bicycle when I saw you.", answer:"weren't riding"},
+          {id:'im3q7', text:"My parents _____ (leave) the house when I got home.", answer:'were leaving'},
+          {id:'im3q8', text:"When I phoned my friend, she _____ (eat) supper.", answer:'was eating'},
+        ]
+      },
+      {
+        id:'im4', title:'Someone/Anyone/Everyone etc.', type:'mc',
+        instructions:'Complete each pair of sentences with the correct word.',
+        questions:[
+          {id:'im4q1', q:"There's _____ on the phone for you.", opts:['someone','anyone'], ans:0},
+          {id:'im4q2', q:"Did _____ ring me last night?", opts:['someone','anyone'], ans:1},
+          {id:'im4q3', q:"She has _____ — a rich husband and a big house.", opts:['everything','nothing'], ans:0},
+          {id:'im4q4', q:"He has _____ — not a penny to his name.", opts:['everything','nothing'], ans:1},
+          {id:'im4q5', q:"I can't find my keys! I've looked _____.", opts:['somewhere','everywhere'], ans:1},
+          {id:'im4q6', q:"I want to go on holiday — _____ hot.", opts:['somewhere','everywhere'], ans:0},
+          {id:'im4q7', q:"'Who did you speak to at the party?' '_____ . I just stayed for ten minutes.'", opts:['Anyone','No one'], ans:1},
+          {id:'im4q8', q:"I couldn't see _____ I knew at the party, so I left.", opts:['anyone','no one'], ans:0},
+          {id:'im4q9', q:"It was a great concert! _____ enjoyed it.", opts:['Someone','Everyone'], ans:1},
+          {id:'im4q10', q:"Could _____ lend me £20 till the end of the week?", opts:['someone','everyone'], ans:0},
+        ]
+      },
+      {
+        id:'im5', title:'Error Correction', type:'error',
+        instructions:'Correct the mistakes in the sentences.',
+        questions:[
+          {id:'im5q1', sentence:"I haven't seen that new film already.", instruction:"Find the error with the adverb", answer:"I haven't seen that new film yet.", hint:"'already' → 'yet' with Present Perfect negative"},
+          {id:'im5q2', sentence:"Jim hasn't yet retired.", instruction:"This is actually correct — re-read carefully", answer:"Jim hasn't retired yet.", hint:"Position: yet goes at the end"},
+          {id:'im5q3', sentence:"He works in the same school for 20 years.", instruction:"Tense error", answer:"He has worked in the same school for 20 years.", hint:"Duration to now → Present Perfect"},
+          {id:'im5q4', sentence:"I have studied at this school for September.", instruction:"Preposition error", answer:"I have studied at this school since September.", hint:"Point in time → 'since'"},
+          {id:'im5q5', sentence:"My grandfather died since ten years.", instruction:"Preposition/tense error", answer:"My grandfather died ten years ago.", hint:"Past Simple + ago"},
+          {id:'im5q6', sentence:"He has lived in London until he died last year.", instruction:"Tense error", answer:"He lived in London until he died last year.", hint:"Finished past period → Simple Past"},
+          {id:'im5q7', sentence:"Dave's not here. He's been to Spain on holiday.", instruction:"Present Perfect form error", answer:"Dave's not here. He's gone to Spain on holiday.", hint:"He's gone = he's still there; been = returned"},
+          {id:'im5q8', sentence:"You look suntanned! Where have you gone?", instruction:"Have + been/gone error", answer:"You look suntanned! Where have you been?", hint:"'been' because they've returned"},
+        ]
+      },
+      {
+        id:'im6', title:'for / since / ago', type:'mc',
+        instructions:'Complete the sentences with for, since, or ago.',
+        questions:[
+          {id:'im6q1', q:"I've known Justin _____ we were at school together.", opts:['for','since','ago'], ans:1},
+          {id:'im6q2', q:"We met 20 years _____.", opts:['for','since','ago'], ans:2},
+          {id:'im6q3', q:"Where have you been? I haven't seen you _____ ages!", opts:['for','since','ago'], ans:0},
+          {id:'im6q4', q:"I haven't played tennis _____ a while.", opts:['for','since','ago'], ans:0},
+          {id:'im6q5', q:"I've been on a diet _____ March.", opts:['for','since','ago'], ans:1},
+        ]
+      },
+      {
+        id:'im7', title:'Infinitive or -ing', type:'fitb',
+        instructions:'Complete the sentences with infinitive (to+verb) or -ing form.',
+        questions:[
+          {id:'im7q1', text:"I need _____ (get) a job.", answer:'to get', hint:"need + to infinitive"},
+          {id:'im7q2', text:"I hope _____ (earn) a lot of money.", answer:'to earn', hint:"hope + to infinitive"},
+          {id:'im7q3', text:"I started _____ (learn) English two years ago.", answer:'learning', hint:"start + -ing or to+inf"},
+          {id:'im7q4', text:"We decided _____ (buy) a new car.", answer:'to buy', hint:"decide + to infinitive"},
+          {id:'im7q5', text:"I stopped _____ (learn) the piano when I was ten.", answer:'learning', hint:"stop + -ing (give up)"},
+          {id:'im7q6', text:"She enjoys _____ (visit) new countries.", answer:'visiting', hint:"enjoy + -ing"},
+          {id:'im7q7', text:"I'm thinking of _____ (go) travelling.", answer:'going', hint:"preposition + -ing"},
+          {id:'im7q8', text:"I'm fed up with _____ (do) the same thing every day.", answer:'doing', hint:"preposition + -ing"},
+          {id:'im7q9', text:"I'm looking forward to _____ (finish) work.", answer:'finishing', hint:"look forward to + -ing"},
+        ]
+      },
+      {
+        id:'im8', title:'Comparative / Superlative', type:'fitb',
+        instructions:'Complete with the comparative or superlative form of the adjective.',
+        questions:[
+          {id:'im8q1', text:"Today is much _____ (cold) than yesterday.", answer:'colder'},
+          {id:'im8q2', text:"Grace is _____ (intelligent) in the class.", answer:'the most intelligent'},
+          {id:'im8q3', text:"Madrid is _____ (hot) than London.", answer:'hotter'},
+          {id:'im8q4', text:"I got _____ (bad) grade in the class.", answer:'the worst'},
+          {id:'im8q5', text:"Spanish is _____ (easy) to learn than Chinese.", answer:'easier'},
+          {id:'im8q6', text:"Shanghai is _____ (modern) than Singapore.", answer:'more modern'},
+          {id:'im8q7', text:"Your car is much _____ (expensive) than mine.", answer:'more expensive'},
+          {id:'im8q8', text:"Charles de Gaulle is one of _____ (busy) airports in the world.", answer:'the busiest'},
+        ]
+      },
+      {
+        id:'im9', title:'Writing: Your Favourite Holiday', type:'writing',
+        instructions:'Describe your favorite holiday. Why is it special for you? Write at least 120 words.',
+        prompt:'Write about your favourite holiday:\n• Where did you go and when?\n• Who were you with?\n• What did you do? What was most memorable?\n• Why was it special?\n\nUse a variety of tenses and vocabulary.',
+        minWords:120
+      }
+    ]
+  },
+
+  cefr: {
+    id:'cefr', name:'CEFR Multilevel', color:'#E05252', c2:'#FF9A9A',
+    desc:"Xalqaro CEFR standartiga asoslangan to'liq daraja testi. 50 savol.",
+    sections: [
+      {
+        id:'cf1', title:'Grammar & Vocabulary (1–15)', type:'mc',
+        instructions:'Circle the correct answers.',
+        questions:[
+          {id:'cf1q1', q:"___ you interested in sport?", opts:['Be','Am','Is','Are'], ans:3},
+          {id:'cf1q2', q:"My ___ is a writer and his books are very popular.", opts:['aunt','uncle','sister','mother'], ans:1},
+          {id:'cf1q3', q:"Paul is very ___. He's very good at art.", opts:['honest','friendly','polite','creative'], ans:3},
+          {id:'cf1q4', q:"We live in the city centre and our house ___ have a big garden.", opts:["doesn't","isn't","aren't","don't"], ans:0},
+          {id:'cf1q5', q:"I ___ arrive at school before nine o'clock.", opts:['has to','have to',"doesn't have to","haven't to"], ans:1},
+          {id:'cf1q6', q:"The beach was very crowded ___ Monday.", opts:['in','on','at','to'], ans:1},
+          {id:'cf1q7', q:"You ___ eat all that cake! It isn't good for you.", opts:["don't","may not","shouldn't","will not"], ans:2},
+          {id:'cf1q8', q:"Cathy ___ a game on her computer at the moment.", opts:['plays','is playing','to play','play'], ans:1},
+          {id:'cf1q9', q:"There ___ a lot of people outside the school.", opts:['are','is','be','am'], ans:0},
+          {id:'cf1q10', q:"___ you like to come out with us tonight?", opts:['Do','Would','Are','Will'], ans:1},
+          {id:'cf1q11', q:"How ___ time have we got to do this exercise?", opts:['long','many','much','quick'], ans:2},
+          {id:'cf1q12', q:"Turn ___ and you'll see the museum on the left.", opts:['on the right','rightly','by the right','right'], ans:3},
+          {id:'cf1q13', q:"Don't forget to get ___ the bus at Station Road.", opts:['out','off','over','down'], ans:1},
+          {id:'cf1q14', q:"Tom got the ___ marks in the class for his homework.", opts:['worse','worst','baddest','most bad'], ans:1},
+          {id:'cf1q15', q:"There wasn't ___ milk for breakfast so I had toast.", opts:['a','some','the','any'], ans:3},
+        ]
+      },
+      {
+        id:'cf2', title:'Grammar & Vocabulary (16–30)', type:'mc',
+        instructions:'Continue circling the correct answers.',
+        questions:[
+          {id:'cf2q1', q:"My sister ___ speak French when she was only six years old.", opts:['was','should','could','had'], ans:2},
+          {id:'cf2q2', q:"Did you ___ shopping after school yesterday?", opts:['went','goed','going','go'], ans:3},
+          {id:'cf2q3', q:"I ___ five emails before school today.", opts:['sent','sended','did send','was send'], ans:0},
+          {id:'cf2q4', q:"Our teacher speaks English to us so that we can understand her.", opts:['slow','slower','more slow','slowly'], ans:3},
+          {id:'cf2q5', q:"Quick – get the food inside! It ___ any moment.", opts:['rains','is raining','is going to rain','can rain'], ans:2},
+          {id:'cf2q6', q:"I ___ the new Batman film yet. Is it any good?", opts:["haven't seen","didn't see","don't see","am not seen"], ans:0},
+          {id:'cf2q7', q:"I hope you ___ a good time at the moment in Greece!", opts:['are having','have','have had','had'], ans:0},
+          {id:'cf2q8', q:"I wanted to see Harry. How long ago ___?", opts:['he left','has he left','did he leave','could he leave'], ans:2},
+          {id:'cf2q9', q:"Do students in your country have to stand ___ when the teacher arrives?", opts:['on','at','in','up'], ans:3},
+          {id:'cf2q10', q:"Which train ___ for when I saw you on the platform?", opts:['did you wait','were you waiting','have you waited','are you waiting'], ans:1},
+          {id:'cf2q11', q:"You ___ hurry as we've still got twenty minutes.", opts:["mustn't","can't","may not","needn't"], ans:3},
+          {id:'cf2q12', q:"That car is ___ dangerous to drive.", opts:['too','enough','not enough','the worst'], ans:0},
+          {id:'cf2q13', q:"I ___ you in the café at about 4.30.", opts:["'ll see","am going to see","am seeing","see"], ans:0},
+          {id:'cf2q14', q:"My father has been a pilot ___ twenty years.", opts:['since','for','until','by'], ans:1},
+          {id:'cf2q15', q:"I really enjoy ___ new languages.", opts:['to learn','learning','learn','learned'], ans:1},
+        ]
+      },
+      {
+        id:'cf3', title:'Grammar (31–50)', type:'mc',
+        instructions:'Continue circling the correct answers.',
+        questions:[
+          {id:'cf3q1', q:"If we ___ in the countryside, we'd have much better views.", opts:['lived','were live','would live','live'], ans:0},
+          {id:'cf3q2', q:"I wish Joe ___ to Hawaii on holiday. They're talking about an eruption.", opts:["doesn't go","didn't go","hasn't gone","hadn't gone"], ans:1},
+          {id:'cf3q3', q:"Could I possibly ___ some money for the bus fare home?", opts:['lend','owe','borrow','need'], ans:2},
+          {id:'cf3q4', q:"Sam asked me if I ___ a lift home after the concert.", opts:['had wanted','wanted','would want','want'], ans:0},
+          {id:'cf3q5', q:"People say that an avalanche ___ by loud noises in the area.", opts:['causes','has caused','is causing','is caused'], ans:3},
+          {id:'cf3q6', q:"Three cars ___ in a bad accident on the motorway.", opts:['are involving','involve','have involved','have been involved'], ans:3},
+          {id:'cf3q7', q:"I ___ for arriving so late but I was caught in a traffic jam.", opts:['sorry','regret','apologise','afraid'], ans:2},
+          {id:'cf3q8', q:"Look out for a petrol station because we're going to run ___ of petrol.", opts:['down','out','off','through'], ans:1},
+          {id:'cf3q9', q:"I didn't realize how long ___ since we last met.", opts:['it had been','it was been','it was being','it is been'], ans:0},
+          {id:'cf3q10', q:"The girls ___ to each other since the film started.", opts:['talked','were talking','are talking','have been talking'], ans:3},
+          {id:'cf3q11', q:"By the time I hand in this project, I ___ on it for three weeks!", opts:["'ll be working","'ll have been working","have worked","'ll work"], ans:1},
+          {id:'cf3q12', q:"Jonah's just fallen down and there's ___ everywhere.", opts:['bone','blood','skin','cut'], ans:1},
+          {id:'cf3q13', q:"I really wish people ___ dump litter in front of our house.", opts:["won't","wouldn't","haven't","don't"], ans:1},
+          {id:'cf3q14', q:"You should be very proud ___ what you've achieved.", opts:['of','on','to','for'], ans:0},
+          {id:'cf3q15', q:"That's the office ___ my dad works.", opts:['who','where','that','which'], ans:1},
+          {id:'cf3q16', q:"The studio lights went out while the footballer ___.", opts:['had been interviewed','was interviewed','was being interviewed','was interviewing'], ans:2},
+          {id:'cf3q17', q:"The company told Ruth that they'd emailed her the job details the ___ day.", opts:['last','before','previous','earlier'], ans:2},
+          {id:'cf3q18', q:"I must remember ___ Ed to take notes for me while I'm away.", opts:['ask','to ask','asking','for asking'], ans:1},
+          {id:'cf3q19', q:"If I'd gone to the sales yesterday, I ___ one of those cheap bags.", opts:['could have bought','had bought','would buy','bought'], ans:0},
+          {id:'cf3q20', q:"___ people know this but our school is being inspected today.", opts:['Little','Any','None','Few'], ans:3},
+        ]
+      },
+      {
+        id:'cf4', title:'Reading: True or False', type:'tf',
+        instructions:"Read the text about female referees. An unusual job! Referees have a very difficult job — they must make quick decisions in fast-moving games. Pat Dunn was the first woman in the UK to referee a men's football match. The Football Association refused her a certificate for a long time, even though she had passed the exams. She finally got permission in 1976. Today there are some famous female referees like Bibiana Steinhaus from Germany, who refereed the final of the Women's Football World Cup. The article is printed in a magazine.",
+        questions:[
+          {id:'cf4q1', text:'The article is from a magazine.', answer:true},
+          {id:'cf4q2', text:'The writer says that women are better referees than men.', answer:false},
+          {id:'cf4q3', text:'Pat Dunn is still alive today.', answer:false},
+          {id:'cf4q4', text:"Pat didn't get her referee certificate immediately.", answer:true},
+          {id:'cf4q5', text:'Bibiana Steinhaus played in a football final.', answer:false},
+        ]
+      },
+      {
+        id:'cf5', title:'Writing: Describe a time when you felt happy', type:'writing',
+        instructions:'Describe a time when you felt really happy. What happened? Write at least 150 words.',
+        prompt:'Think about a time when you felt very happy.\n\n• When and where did it happen?\n• Who were you with?\n• What happened exactly?\n• Why did it make you so happy?\n• How did you feel afterwards?\n\nUse a variety of tenses and CEFR-level vocabulary.',
+        minWords:150
+      }
+    ]
+  },
+
+  'pre-ielts': {
+    id:'pre-ielts', name:'Pre-IELTS', color:'#FF8C5A', c2:'#FFBFA0',
+    desc:'IELTS imtihoniga tayyorlanish. Vocabulary, Passive, Conditionals, Reading.',
+    sections: [
+      {
+        id:'ielts1', title:'Vocabulary (1–20)', type:'mc',
+        instructions:'Choose the most suitable answer.',
+        questions:[
+          {id:'ielts1q1', q:"The house is ______ wood.", opts:['made of','built by','looked like','got'], ans:0},
+          {id:'ielts1q2', q:"The man owns three hotels. He's very ________.", opts:['healthy','unique','wealthy','poor'], ans:2},
+          {id:'ielts1q3', q:"We need more ________ like Elon Musk in society.", opts:['poor people','frugal people','wealthy','generous'], ans:3},
+          {id:'ielts1q4', q:"I do not have enough ______ to make this dish.", opts:['fur','hamburgers','stories','spices'], ans:3},
+          {id:'ielts1q5', q:"We should try to _______ the amount of electricity we use.", opts:['create','include','reduce','taste'], ans:2},
+          {id:'ielts1q6', q:"The body and mind _______ well to healthy exercise.", opts:['care','respond','reaction','look after'], ans:1},
+          {id:'ielts1q7', q:"In some cultures, you should not ask ______ questions such as a person's age.", opts:['international','normal','personal','tropical'], ans:2},
+          {id:'ielts1q8', q:"Most ______, like ants, are very strong for their size.", opts:['mammals','insects','birds','reptiles'], ans:1},
+          {id:'ielts1q9', q:"Bill is a very _______ guy in our school.", opts:['famous','well-known','popular','spectacular'], ans:2},
+          {id:'ielts1q10', q:"No one told me that locking the door at night was my _______.", opts:['activity','diversity','misery','responsibility'], ans:3},
+          {id:'ielts1q11', q:"The copy _______ in our office broke down last week.", opts:['machine','press','shop','thing'], ans:0},
+          {id:'ielts1q12', q:"Bob likes films. He's a big film _____.", opts:['man','buff','fan','fancy'], ans:1},
+          {id:'ielts1q13', q:"_______ is more important at my school than mathematics.", opts:['Athletes','Athletically','Athletics'], ans:2},
+          {id:'ielts1q14', q:"My doctor told me to _______ the amount of coffee I drink.", opts:['ruin','reduce','spread','grow'], ans:1},
+          {id:'ielts1q15', q:"Everyone has two _______. They look like beans.", opts:['intestines','stomachs','hobbies','kidneys'], ans:3},
+          {id:'ielts1q16', q:"The police finished their _______.", opts:['evidence','condition','behavior','investigation'], ans:3},
+          {id:'ielts1q17', q:"Miyazaki's movies ________ fantasy and reality in an original way.", opts:['add','combine','detect','investigate'], ans:1},
+          {id:'ielts1q18', q:"Please close the curtains. The sunlight is too _______.", opts:['bright','enormous','ordinary','serious'], ans:0},
+          {id:'ielts1q19', q:"When my dog shows good ______, I give him a snack.", opts:['activity','light','taste','behavior'], ans:3},
+          {id:'ielts1q20', q:"The _______ finished their investigation.", opts:['police','evidences','conditions','behaviors'], ans:0},
+        ]
+      },
+      {
+        id:'ielts2', title:'Passive Voice', type:'fitb',
+        instructions:"Make these sentences passive. Use Present Perfect Passive.",
+        questions:[
+          {id:'ielts2q1', text:"They have made hundreds of employees redundant → Hundreds of employees _____ redundant.", answer:'have been made', hint:'have been + past participle'},
+          {id:'ielts2q2', text:"Do you know if they have completed the tunnel yet? → Do you know if the tunnel _____ yet?", answer:'has been completed'},
+          {id:'ielts2q3', text:"The people of the region have chosen a new mayor. → A new mayor _____.", answer:'has been chosen'},
+          {id:'ielts2q4', text:"They have made huge improvements in drug development. → Huge improvements _____.", answer:'have been made'},
+          {id:'ielts2q5', text:"Teenagers have voted Michael Jackson as one of the best singers. → Michael Jackson _____ as one of the best singers.", answer:'has been voted'},
+          {id:'ielts2q6', text:"Can you tell me if they have delivered my parcel? → Can you tell me if my parcel _____?", answer:'has been delivered'},
+        ]
+      },
+      {
+        id:'ielts3', title:'Vocabulary Matching', type:'matching',
+        instructions:'Match the words to their meanings.',
+        pairs:[
+          {a:'slums', b:'very poor area to live in'},
+          {a:'frail', b:'weak, usually because of old age'},
+          {a:'passion', b:'a strong interest or hobby'},
+          {a:'extinct', b:'no longer existing as a species'},
+          {a:'chaos', b:'complete disorder and confusion'},
+          {a:'relaxing', b:'making you feel calm and less stressed'},
+          {a:'demanding', b:'needing a lot of effort or skill'},
+          {a:'accustomed', b:'used to something (accustomed to)'},
+        ]
+      },
+      {
+        id:'ielts4', title:'Conditionals', type:'fitb',
+        instructions:'Fill in the blanks with the correct conditional form.',
+        questions:[
+          {id:'ielts4q1', text:"If the weather had been better, we _____ (come) by bike.", answer:'would have come', hint:'3rd conditional'},
+          {id:'ielts4q2', text:"If you were older, you _____ (go) to the party.", answer:'could go', hint:'2nd conditional'},
+          {id:'ielts4q3', text:"If Alice _____ (have) more money, she would go to Africa.", answer:'had', hint:'2nd conditional'},
+          {id:'ielts4q4', text:"John's mother _____ (have) more time for him if he does the washing up.", answer:'will have', hint:'1st conditional'},
+          {id:'ielts4q5', text:"If Steven had taken his camera, he _____ (take) nice pictures.", answer:'would have taken', hint:'3rd conditional'},
+          {id:'ielts4q6', text:"They will stay longer in Paris if they _____ (find) a cheap hotel.", answer:'find', hint:'1st conditional'},
+          {id:'ielts4q7', text:"If Brian _____ (like) horses, he could ride well.", answer:'liked', hint:'2nd conditional'},
+          {id:'ielts4q8', text:"If Sarah _____ (not eat) so much junk food, she could have been in the hockey team.", answer:"hadn't eaten", hint:'3rd conditional'},
+          {id:'ielts4q9', text:"He can write good stories if he _____ (feel) like it.", answer:'feels', hint:'1st conditional'},
+          {id:'ielts4q10', text:"If you listened carefully, you _____ (know) about it.", answer:'would know', hint:'2nd conditional'},
+        ]
+      },
+      {
+        id:'ielts5', title:'Verb Patterns', type:'mc',
+        instructions:'Choose the correct verb pattern.',
+        questions:[
+          {id:'ielts5q1', q:"Sally _________ having an en-suite bathroom.", opts:['loved','wanted','hoped'], ans:0},
+          {id:'ielts5q2', q:"She is ________ staying two more days.", opts:['planning','looking forward to','hoping'], ans:1},
+          {id:'ielts5q3', q:"She _____ to climb up to the top bunk bed.", opts:['Tried','enjoyed','remembered'], ans:0},
+          {id:'ielts5q4', q:"They fell out with each other, so they stopped _____ to each other.", opts:['talk','to talk','talking'], ans:2},
+        ]
+      },
+      {
+        id:'ielts6', title:'Reading: Bangkok Travel Guide', type:'tf',
+        instructions:"Read: Bangkok is the capital of Thailand. The Khao San Road was a famous traveller spot (noisy, not very Thai). Phra Kanong offers authentic street markets but it's not as convenient for tourist sites — though it has a Skytrain to the Grand Palace in 20 minutes. Bangkok's traffic is a nightmare. Better to use the express boat river taxi or the Skytrain. Thai street food is among the best in the world for around $5. Key sights: Wat Pho (Giant Buddha), Grand Palace, Chatuchak market, snake farm.",
+        questions:[
+          {id:'ielts6q1', text:"One night is enough time to see Bangkok.", answer:false},
+          {id:'ielts6q2', text:"Khao San Road is an authentic Thai area of the city.", answer:false},
+          {id:'ielts6q3', text:"Phra Kanong is further away from the main tourist sites than Khao San Road.", answer:true},
+          {id:'ielts6q4', text:"The river boat taxis often get stuck in traffic too.", answer:false},
+          {id:'ielts6q5', text:"Taking the Skytrain is a faster way to see the city than going by taxi.", answer:true},
+          {id:'ielts6q6', text:"You need to choose where to eat carefully, as not everywhere is good.", answer:false},
+        ]
+      },
+      {
+        id:'ielts7', title:'Writing: IELTS Task 2 Style', type:'writing',
+        instructions:"Write an IELTS Task 2 style essay. Write at least 200 words. Give reasons and examples.",
+        prompt:'Some people think that in the modern world we have become more dependent on each other, while others think that people have become more independent.\n\nDiscuss both views and give your own opinion.\n\n• Discuss the view that people are more dependent on each other\n• Discuss the view that people are more independent\n• Give your own opinion with examples\n• Write at least 200 words',
+        minWords:200
+      }
+    ]
+  }
+};
+
+const LEVELS_LIST = [
+  {id:'elementary', name:'Elementary', desc:'Asosiy grammatika va kundalik muloqot. Aralash vazifalar.', color:'#7EB3FF', c2:'#B0D4FF'},
+  {id:'pre-intermediate', name:'Pre-Intermediate', desc:"O'rta darajaga tayyorlanuvchilar uchun. 100 savol.", color:'#C9A84C', c2:'#E8C97A'},
+  {id:'intermediate', name:'Intermediate', desc:'Murakkab grammatika, matching va error correction.', color:'#E07AC9', c2:'#FFB3EA'},
+  {id:'cefr', name:'CEFR Multilevel', desc:"Xalqaro standart bo'yicha to'liq daraja testi. 50 savol.", color:'#E05252', c2:'#FF9A9A'},
+  {id:'pre-ielts', name:'Pre-IELTS', desc:"IELTS imtihoniga tayyorlanish uchun maxsus test.", color:'#FF8C5A', c2:'#FFBFA0'},
+];
+
+// ==================== STATE ====================
+let currentUser=null, currentLevel=null, currentSectionIdx=0;
+let sectionAnswers={}, writingTexts={};
+let timer=null, timeLeft=3600, testStarted=false, testFinished=false;
+let searchTerm='', levelFilter='', confirmCallback=null, adminLoggedIn=false;
+let currentTab='results';
+// ==================== SECURITY ====================
+// Credentials stored as hashed values only
+const _SC = (function(){
+  function _h(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0;}return h.toString(16);}
+  return {_u:_h('admin'), _p:_h('dreamzone2024'), _k:'dz_'+_h('dreamzone_secret_salt_2024').slice(0,8)};
+})();
+
+// Disable console data inspection
+(function(){
+  const _noop=()=>{};
+  const _w=()=>"[Protected]";
+  try{
+    Object.defineProperty(window,'_results',{get:()=>undefined,set:_noop});
+  }catch(e){}
+  // Detect devtools open
+  let _dd=false;
+  const _dt=setInterval(()=>{
+    const t=new Date();
+    debugger;
+    if(new Date()-t>100&&!_dd){
+      _dd=true;
+      if(typeof adminLoggedIn!=='undefined'&&adminLoggedIn){
+        adminLoggedIn=false;
+        if(typeof showPage==='function')showPage('pg-landing');
+      }
+    }
+  },1500);
+  // Block right-click everywhere (not just during test)
+  document.addEventListener('contextmenu',e=>e.preventDefault());
+  // Block common keyboard shortcuts
+  document.addEventListener('keydown',e=>{
+    if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U'))e.preventDefault();
+  });
+})();
+
+// ==================== STARS ====================
+(function(){const c=document.getElementById('stars');for(let i=0;i<140;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.8+0.4;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;opacity:${Math.random()*0.4+0.08}`;c.appendChild(s);}})();
+
+// ==================== UTILS ====================
+function showToast(msg,type='default'){const t=document.getElementById('toast');document.getElementById('toast-icon').textContent=type==='success'?'✓':type==='error'?'✗':'ℹ';document.getElementById('toast-msg').textContent=msg;t.className='toast '+type;setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3200);}
+function showConfirm(title,text,cb){confirmCallback=cb;document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-text').textContent=text;document.getElementById('confirm-modal').classList.add('show');}
+function closeConfirm(ok){document.getElementById('confirm-modal').classList.remove('show');if(confirmCallback)confirmCallback(ok);confirmCallback=null;}
+function norm(s){return String(s).toLowerCase().trim().replace(/[?.!,]/g,'').replace(/\s+/g,' ');}
+function checkAns(userAns,correctAns){
+  const u=norm(userAns), c=norm(correctAns);
+  if(u===c)return true;
+  const alts=c.split('|');
+  return alts.some(a=>u===a.trim());
+}
+
+// ==================== NAVIGATION ====================
+function showPage(id){
+  if(id==='pg-admin'&&!adminLoggedIn){id='pg-admin-login';}
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='pg-levels')renderLevels();
+  if(id==='pg-admin')renderAdmin();
+}
+
+// ==================== REGISTER ====================
+function registerUser(){
+  let ok=true;
+  const first=document.getElementById('reg-first').value.trim();
+  const last=document.getElementById('reg-last').value.trim();
+  const age=parseInt(document.getElementById('reg-age').value);
+  const phone=document.getElementById('reg-phone').value.trim();
+  const setE=(id,show)=>{const e=document.getElementById(id);show?e.classList.add('show'):e.classList.remove('show');};
+  setE('err-first',!first);if(!first)ok=false;
+  setE('err-last',!last);if(!last)ok=false;
+  setE('err-age',!age||age<5||age>80);if(!age||age<5||age>80)ok=false;
+  setE('err-phone',!phone||phone.length<7);if(!phone||phone.length<7)ok=false;
+  if(!ok)return;
+  currentUser={first,last,age,phone,fullName:`${first} ${last}`};
+  document.getElementById('welcome-txt').textContent=`Xush kelibsiz, ${first}!`;
+  showToast("Ro'yxatdan o'tdingiz!",'success');
+  showPage('pg-levels');
+}
+
+// ==================== LEVELS ====================
+function renderLevels(){
+  const g=document.getElementById('levels-grid');
+  g.innerHTML=LEVELS_LIST.map((l,i)=>`
+    <div class="level-card" onclick="startTest('${l.id}')" style="--card-color:${l.color};animation:fadeUp 0.5s ${i*0.07}s ease both;opacity:0;">
+      <div class="level-number"><span class="level-dot" style="background:${l.color}"></span>Daraja ${i+1}</div>
+      <div class="level-name">${l.name}</div>
+      <div class="level-desc">${l.desc}</div>
+      <div class="level-meta"><div>⏱ 60 daqiqa</div><div>📝 ${TESTS[l.id].sections.length} bo'lim</div></div>
+      <div class="level-arrow" style="color:${l.color};background:${l.color}22;border-color:${l.color}44;">→</div>
+    </div>`).join('');
+}
+function logoutUser(){showConfirm("Chiqishni xohlaysizmi?","Daraja tanlash sahifasidan chiqasiz.",(ok)=>{if(ok){currentUser=null;showPage('pg-landing');}});}
+
+// ==================== TEST ====================
+function startTest(levelId){
+  currentLevel=TESTS[levelId];
+  currentSectionIdx=0;
+  sectionAnswers={};
+  writingTexts={};
+  timeLeft=3600;
+  testFinished=false;
+  testStarted=true;
+  currentLevel.sections.forEach(s=>{
+    if(s.type==='mc'||s.type==='tf'){sectionAnswers[s.id]={};}
+    else if(s.type==='fitb'||s.type==='error'){sectionAnswers[s.id]={};}
+    else if(s.type==='matching'){sectionAnswers[s.id]={};}
+    else if(s.type==='writing'){writingTexts[s.id]='';}
+  });
+  document.getElementById('test-level-title').textContent=currentLevel.name;
+  showPage('pg-test');
+  renderSection();
+  startTimer();
+  setupAntiCheat();
+}
+
+function renderSection(){
+  const sec=currentLevel.sections[currentSectionIdx];
+  const total=currentLevel.sections.length;
+  document.getElementById('test-q-count').textContent=`Bo'lim ${currentSectionIdx+1} / ${total}`;
+  document.getElementById('progress-fill').style.width=((currentSectionIdx+1)/total*100)+'%';
+
+  const body=document.getElementById('test-body-content');
+
+  // Section pips
+  const pips=currentLevel.sections.map((_,i)=>`<div class="sec-pip ${i<currentSectionIdx?'done':i===currentSectionIdx?'active':''}"></div>`).join('');
+
+  let html=`<div class="section-progress">${pips}</div>`;
+  html+=`<div class="section-header">
+    <div class="section-title">Bo'lim ${currentSectionIdx+1}: ${sec.title}</div>
+    <div class="section-desc">${sec.instructions}</div>
+  </div>`;
+
+  if(sec.type==='mc') html+=renderMC(sec);
+  else if(sec.type==='fitb') html+=renderFITB(sec);
+  else if(sec.type==='matching') html+=renderMatching(sec);
+  else if(sec.type==='error') html+=renderError(sec);
+  else if(sec.type==='tf') html+=renderTF(sec);
+  else if(sec.type==='writing') html+=renderWriting(sec);
+
+  html+=`<div class="test-nav">
+    <button class="btn-nav" id="btn-prev" onclick="prevSection()" ${currentSectionIdx===0?'disabled':''}>← Oldingi</button>
+    <button class="btn-nav primary" id="btn-next" onclick="nextSection()">${currentSectionIdx===total-1?'Testni Yakunlash ✓':'Keyingi →'}</button>
+  </div>`;
+
+  body.innerHTML=html;
+
+  // Restore saved answers
+  restoreAnswers(sec);
+}
+
+// ===== MC =====
+function renderMC(sec){
+  return sec.questions.map((q,qi)=>{
+    const saved=sectionAnswers[sec.id][q.id];
+    const answered=saved!==undefined;
+    const letters=['A','B','C','D','E'];
+    const opts=q.opts.map((o,oi)=>{
+      let cls='option';
+      if(answered){if(oi===q.ans)cls+=' correct';else if(oi===saved)cls+=' wrong';else cls+=' disabled';}
+      return `<div class="${cls}" onclick="selectMC('${sec.id}','${q.id}',${oi},${q.ans})">
+        <div class="opt-letter">${letters[oi]}</div><span>${o}</span></div>`;
+    }).join('');
+    return `<div class="mc-question">
+      <div class="mc-q-text"><span style="color:var(--muted);font-size:13px;margin-right:8px;">${qi+1}.</span>${q.q}</div>
+      <div class="mc-options" id="opts-${q.id}">${opts}</div>
+    </div>`;
+  }).join('');
+}
+function selectMC(secId,qId,chosen,correct){
+  if(sectionAnswers[secId][qId]!==undefined)return;
+  sectionAnswers[secId][qId]=chosen;
+  const wrap=document.getElementById('opts-${qId}'.replace('${qId}',qId));
+  if(!wrap)return;
+  const sec=currentLevel.sections.find(s=>s.id===secId);
+  wrap.parentElement.outerHTML=renderMCQuestion(sec.questions.find(q=>q.id===qId),sec,secId,sec.questions.indexOf(sec.questions.find(q=>q.id===qId)));
+}
+function renderMCQuestion(q,sec,secId,qi){
+  const saved=sectionAnswers[sec.id][q.id];
+  const answered=saved!==undefined;
+  const letters=['A','B','C','D','E'];
+  const opts=q.opts.map((o,oi)=>{
+    let cls='option';
+    if(answered){if(oi===q.ans)cls+=' correct';else if(oi===saved)cls+=' wrong';else cls+=' disabled';}
+    return `<div class="${cls}" onclick="selectMC('${secId}','${q.id}',${oi},${q.ans})">
+      <div class="opt-letter">${letters[oi]}</div><span>${o}</span></div>`;
+  }).join('');
+  return `<div class="mc-question">
+    <div class="mc-q-text"><span style="color:var(--muted);font-size:13px;margin-right:8px;">${qi+1}.</span>${q.q}</div>
+    <div class="mc-options" id="opts-${q.id}">${opts}</div>
+  </div>`;
+}
+
+// ===== FITB =====
+function renderFITB(sec){
+  return `<div>${sec.questions.map((q,qi)=>`
+    <div class="fitb-question" id="fitb-${q.id}">
+      <div class="fitb-text">${qi+1}. ${q.text.replace('___',`<input class="blank-input" id="inp-${q.id}" placeholder="..." onblur="checkFITB('${sec.id}','${q.id}',this)" onkeydown="if(event.key==='Enter')this.blur()">`)}</div>
+      <div class="fitb-feedback" id="fb-${q.id}"></div>
+    </div>`).join('')}</div>`;
+}
+function checkFITB(secId,qId,el){
+  const sec=currentLevel.sections.find(s=>s.id===secId);
+  const q=sec.questions.find(q=>q.id===qId);
+  if(!q||!el.value.trim())return;
+  const correct=checkAns(el.value,q.answer);
+  sectionAnswers[secId][qId]=el.value.trim();
+  el.className='blank-input '+(correct?'correct-ans':'wrong-ans');
+  const fb=document.getElementById('fb-'+qId);
+  if(fb){
+    if(correct){fb.innerHTML='<span style="color:var(--success);font-weight:600;">✓ To\'g\'ri!</span>';}
+    else{fb.innerHTML=`<span style="color:var(--danger);">✗</span> To'g'ri javob: <span class="correct-word">${q.answer}</span>${q.hint?` — <em style="color:var(--muted)">${q.hint}</em>`:''}`;}}
+}
+
+// ===== MATCHING =====
+function renderMatching(sec){
+  const shuffledB=[...sec.pairs.map(p=>p.b)].sort(()=>Math.random()-0.5);
+  sec._shuffledB=shuffledB;
+  const leftCols=sec.pairs.map((p,i)=>`
+    <div class="match-item-a">
+      <div class="match-num">${i+1}</div>
+      <span style="flex:1;font-size:14px;">${p.a}</span>
+      <select class="match-select" id="match-${sec.id}-${i}" onchange="saveMatch('${sec.id}',${i},this.value)">
+        <option value="">— tanlang —</option>
+        ${shuffledB.map((b,bi)=>`<option value="${bi}">${b}</option>`).join('')}
+      </select>
+    </div>`).join('');
+  const rightCols=shuffledB.map((b,i)=>`
+    <div class="match-item-b" style="display:flex;align-items:center;">
+      <div class="match-letter">${['a','b','c','d','e','f','g','h','i','j'][i]}</div>
+      <span>${b}</span>
+    </div>`).join('');
+  return `<div class="matching-wrap">
+    <div class="match-col"><div class="match-col-title">A — Adjective</div>${leftCols}</div>
+    <div class="match-col"><div class="match-col-title">B — Synonym</div>${rightCols}</div>
+  </div>
+  <button class="btn-check" onclick="checkMatching('${sec.id}')">✓ Tekshirish</button>
+  <div class="feedback-box" id="match-fb-${sec.id}"></div>`;
+}
+function saveMatch(secId,idx,val){
+  if(!sectionAnswers[secId])sectionAnswers[secId]={};
+  sectionAnswers[secId][idx]=val;
+}
+function checkMatching(secId){
+  const sec=currentLevel.sections.find(s=>s.id===secId);
+  let correct=0;
+  sec.pairs.forEach((p,i)=>{
+    const sel=document.getElementById(`match-${secId}-${i}`);
+    const chosen=parseInt(sel.value);
+    const correctIdx=sec._shuffledB.indexOf(p.b);
+    if(chosen===correctIdx){sel.className='match-select correct-sel';correct++;}
+    else{sel.className='match-select wrong-sel';sel.disabled=true;}
+  });
+  const fb=document.getElementById('match-fb-'+secId);
+  const pct=Math.round(correct/sec.pairs.length*100);
+  fb.className='feedback-box show '+(pct>=70?'fb-correct':'fb-wrong');
+  fb.innerHTML=`<div class="fb-title ${pct>=70?'ok':'nok'}">${pct>=70?'✓ Yaxshi!':'Qisman to\'g\'ri'}</div>${correct} / ${sec.pairs.length} juft to'g'ri (${pct}%)`;
+  sectionAnswers[secId]._score=correct;
+  sectionAnswers[secId]._total=sec.pairs.length;
+}
+
+// ===== ERROR CORRECTION =====
+function renderError(sec){
+  return `<div>${sec.questions.map((q,qi)=>`
+    <div class="error-q">
+      <div class="error-label">${qi+1}. Xatoni toping va to'g'rilang:</div>
+      <div class="error-sentence">${q.sentence}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${q.instruction}</div>
+      <input class="error-input" id="err-inp-${q.id}" placeholder="To'g'ri javobingizni yozing..." onblur="checkError('${sec.id}','${q.id}',this)">
+      <div class="fitb-feedback" id="err-fb-${q.id}"></div>
+    </div>`).join('')}</div>`;
+}
+function checkError(secId,qId,el){
+  const sec=currentLevel.sections.find(s=>s.id===secId);
+  const q=sec.questions.find(q=>q.id===qId);
+  if(!q||!el.value.trim())return;
+  const correct=checkAns(el.value,q.answer);
+  sectionAnswers[secId][qId]=el.value.trim();
+  el.className='error-input '+(correct?'correct-ans':'wrong-ans');
+  const fb=document.getElementById('err-fb-'+qId);
+  if(fb){
+    if(correct)fb.innerHTML='<span style="color:var(--success);font-weight:600;">✓ To\'g\'ri!</span>';
+    else fb.innerHTML=`<span style="color:var(--danger);">✗</span> To'g'ri: <span class="correct-word">${q.answer}</span>${q.hint?` — <em style="color:var(--muted)">${q.hint}</em>`:''}`;
+  }
+}
+
+// ===== TRUE/FALSE =====
+function renderTF(sec){
+  return `<div>${sec.questions.map((q,qi)=>`
+    <div class="tf-question" id="tf-${q.id}">
+      <div class="tf-text"><strong>${qi+1}.</strong> ${q.text}</div>
+      <div class="tf-btns">
+        <button class="tf-btn" id="tf-t-${q.id}" onclick="selectTF('${sec.id}','${q.id}',true,${q.answer})">TRUE</button>
+        <button class="tf-btn" id="tf-f-${q.id}" onclick="selectTF('${sec.id}','${q.id}',false,${q.answer})">FALSE</button>
+      </div>
+      <div class="fitb-feedback" id="tf-fb-${q.id}"></div>
+    </div>`).join('')}</div>`;
+}
+function selectTF(secId,qId,chosen,correct){
+  if(sectionAnswers[secId][qId]!==undefined)return;
+  sectionAnswers[secId][qId]=chosen;
+  const isCorrect=chosen===correct;
+  const tb=document.getElementById('tf-t-'+qId);
+  const fb2=document.getElementById('tf-f-'+qId);
+  tb.disabled=true; fb2.disabled=true;
+  if(chosen){tb.className='tf-btn '+(isCorrect?'correct-tf':'wrong-tf');}
+  else{fb2.className='tf-btn '+(isCorrect?'correct-tf':'wrong-tf');}
+  if(!isCorrect){
+    const right=correct?document.getElementById('tf-t-'+qId):document.getElementById('tf-f-'+qId);
+    right.className='tf-btn correct-tf';
+  }
+  const fb=document.getElementById('tf-fb-'+qId);
+  if(fb)fb.innerHTML=isCorrect?'<span style="color:var(--success);font-size:13px;">✓ To\'g\'ri!</span>':`<span style="color:var(--danger);font-size:13px;">✗ To'g'ri javob: ${correct?'TRUE':'FALSE'}</span>`;
+}
+
+// ===== WRITING =====
+function renderWriting(sec){
+  const saved=writingTexts[sec.id]||'';
+  return `<div class="writing-wrap">
+    <div class="writing-prompt">${sec.prompt.replace(/\n/g,'<br>')}</div>
+    <textarea class="writing-area" id="writing-${sec.id}" placeholder="Bu yerda javobingizni yozing..." oninput="saveWriting('${sec.id}',this)">${saved}</textarea>
+    <div class="writing-counter" id="wc-${sec.id}">0 so'z (minimum: ${sec.minWords})</div>
+  </div>`;
+}
+function saveWriting(secId,el){
+  writingTexts[secId]=el.value;
+  const words=el.value.trim().split(/\s+/).filter(w=>w.length>0).length;
+  const sec=currentLevel.sections.find(s=>s.id===secId);
+  const min=sec?sec.minWords:80;
+  const wc=document.getElementById('wc-'+secId);
+  if(wc)wc.innerHTML=`${words} so'z <span style="color:${words>=min?'var(--success)':'var(--muted)'}">(minimum: ${min}${words>=min?' ✓':''})</span>`;
+}
+
+// ===== RESTORE =====
+function restoreAnswers(sec){
+  if(sec.type==='fitb'){
+    sec.questions.forEach(q=>{
+      const val=sectionAnswers[sec.id][q.id];
+      if(val){const el=document.getElementById('inp-'+q.id);if(el){el.value=val;checkFITB(sec.id,q.id,el);}}
+    });
+  } else if(sec.type==='error'){
+    sec.questions.forEach(q=>{
+      const val=sectionAnswers[sec.id][q.id];
+      if(val){const el=document.getElementById('err-inp-'+q.id);if(el){el.value=val;checkError(sec.id,q.id,el);}}
+    });
+  } else if(sec.type==='tf'){
+    sec.questions.forEach(q=>{
+      const val=sectionAnswers[sec.id][q.id];
+      if(val!==undefined)selectTF(sec.id,q.id,val,q.answer);
+    });
+  } else if(sec.type==='writing'){
+    const val=writingTexts[sec.id];
+    if(val){const el=document.getElementById('writing-'+sec.id);if(el){el.value=val;saveWriting(sec.id,el);}}
+  }
+}
+
+// ==================== SECTION NAV ====================
+function prevSection(){
+  if(currentSectionIdx>0){currentSectionIdx--;renderSection();window.scrollTo(0,0);}
+}
+function nextSection(){
+  const total=currentLevel.sections.length;
+  if(currentSectionIdx===total-1){
+    showConfirm('Testni yakunlash','Barcha bo\'limlarni topshirdingizmi? Testni yakunlaysizmi?',(ok)=>{if(ok)finishTest();});
+  } else {
+    currentSectionIdx++;renderSection();window.scrollTo(0,0);
+  }
+}
+
+// ==================== TIMER ====================
+function startTimer(){
+  if(timer)clearInterval(timer);
+  timer=setInterval(()=>{
+    if(testFinished){clearInterval(timer);return;}
+    timeLeft--;
+    const m=Math.floor(timeLeft/60),s=timeLeft%60;
+    const el=document.getElementById('timer-display');
+    if(el){el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      el.className='timer-display'+(timeLeft<=120?' danger':timeLeft<=300?' warn':'');}
+    if(timeLeft<=0){clearInterval(timer);finishTest();}
+  },1000);
+}
+
+// ==================== ANTI-CHEAT ====================
+function setupAntiCheat(){
+  document.addEventListener('visibilitychange',handleVis);
+}
+function handleVis(){if(!testStarted||testFinished)return;if(document.hidden)showCheatOverlay('Siz boshqa tabga o\'tdingiz. Test avtomatik tugadi.');}
+function showCheatOverlay(msg){if(testFinished)return;clearInterval(timer);document.getElementById('cheat-message').textContent=msg;document.getElementById('cheat-overlay').classList.add('show');}
+function finishTestEarly(){document.getElementById('cheat-overlay').classList.remove('show');finishTest(true);}
+
+// ==================== FINISH ====================
+function finishTest(cheated=false){
+  if(testFinished)return;
+  testFinished=true;testStarted=false;clearInterval(timer);
+  document.removeEventListener('visibilitychange',handleVis);
+
+  // Calculate score
+  let totalPoints=0, earnedPoints=0;
+  currentLevel.sections.forEach(sec=>{
+    if(sec.type==='mc'){
+      sec.questions.forEach(q=>{totalPoints++;if(sectionAnswers[sec.id][q.id]===q.ans)earnedPoints++;});
+    } else if(sec.type==='fitb'){
+      sec.questions.forEach(q=>{totalPoints++;const v=sectionAnswers[sec.id][q.id];if(v&&checkAns(v,q.answer))earnedPoints++;});
+    } else if(sec.type==='tf'){
+      sec.questions.forEach(q=>{totalPoints++;if(sectionAnswers[sec.id][q.id]===q.answer)earnedPoints++;});
+    } else if(sec.type==='matching'){
+      const sc=sectionAnswers[sec.id]._score||0;
+      const t=sectionAnswers[sec.id]._total||sec.pairs.length;
+      totalPoints+=t;earnedPoints+=sc;
+    } else if(sec.type==='error'){
+      sec.questions.forEach(q=>{totalPoints++;const v=sectionAnswers[sec.id][q.id];if(v&&checkAns(v,q.answer))earnedPoints++;});
+    }
+    // writing: not counted in score
+  });
+
+  const pct=totalPoints?Math.round(earnedPoints/totalPoints*100):0;
+  const timeUsed=3600-timeLeft;
+  const mins=Math.floor(timeUsed/60),secs=timeUsed%60;
+  const now=new Date();
+
+  // Collect writing texts
+  const writings={};
+  currentLevel.sections.filter(s=>s.type==='writing').forEach(s=>{
+    writings[s.title]=writingTexts[s.id]||'(Yozilmadi)';
+  });
+
+  const result={
+    id:Date.now(),
+    name:currentUser.fullName,
+    first:currentUser.first,last:currentUser.last,
+    age:currentUser.age,phone:currentUser.phone,
+    level:currentLevel.name,
+    earned:earnedPoints,total:totalPoints,pct,
+    timeUsed:`${mins}:${String(secs).padStart(2,'0')}`,
+    cheated,writings,
+    date:now.toLocaleDateString('uz-UZ')+' '+now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'}),
+    raw:now.toISOString()
+  };
+  saveResult(result);
+  showResult(result);
+}
+
+function showResult(r){
+  const icon=r.pct>=90?'💎':r.pct>=75?'🏆':r.pct>=60?'🥇':r.pct>=45?'🥈':r.pct>=30?'🥉':'📚';
+  const title=r.pct>=75?'Ajoyib natija!':r.pct>=60?'Tabriklaymiz!':r.pct>=40?'Yaxshi harakat!':'Ko\'proq mashq qiling!';
+  document.getElementById('result-icon').textContent=icon;
+  document.getElementById('result-title').textContent=title;
+  document.getElementById('result-score').textContent=r.earned;
+  document.getElementById('result-total').textContent=`/ ${r.total} ball • ${r.pct}%`;
+  document.getElementById('result-meta').innerHTML=`
+    <div class="meta-row"><span>Ism Familya</span><span>${r.name}</span></div>
+    <div class="meta-row"><span>Telefon</span><span>${r.phone}</span></div>
+    <div class="meta-row"><span>Daraja</span><span>${r.level}</span></div>
+    <div class="meta-row"><span>Sarflangan vaqt</span><span>${r.timeUsed}</span></div>
+    <div class="meta-row"><span>Writing</span><span style="color:var(--gold)">${Object.keys(r.writings||{}).length} ta ish saqlandi</span></div>
+    <div class="meta-row"><span>Holat</span><span style="color:${r.cheated?'var(--danger)':'var(--success)'}">${r.cheated?'⚠️ Buzilgan':'✅ To\'liq'}</span></div>
+  `;
+  showPage('pg-result');
+}
+
+// ==================== STORAGE (ENCRYPTED) ====================
+function _enc(obj){
+  const raw=JSON.stringify(obj);
+  // XOR + base64-like encoding with key rotation
+  const key=_SC._k;
+  let out='';
+  for(let i=0;i<raw.length;i++){
+    out+=String.fromCharCode(raw.charCodeAt(i)^key.charCodeAt(i%key.length));
+  }
+  return btoa(unescape(encodeURIComponent(out)));
+}
+function _dec(str){
+  try{
+    const raw=decodeURIComponent(escape(atob(str)));
+    const key=_SC._k;
+    let out='';
+    for(let i=0;i<raw.length;i++){
+      out+=String.fromCharCode(raw.charCodeAt(i)^key.charCodeAt(i%key.length));
+    }
+    return JSON.parse(out);
+  }catch(e){return [];}
+}
+function saveResult(r){
+  const d=getResults();
+  d.push(r);
+  localStorage.setItem('dz_results',_enc(d));
+  // Remove any plaintext leftovers
+  localStorage.removeItem('dz_results_plain');
+}
+function getResults(){
+  const raw=localStorage.getItem('dz_results');
+  if(!raw)return [];
+  // Try encrypted first, fallback for legacy plaintext then re-encrypt
+  const dec=_dec(raw);
+  if(dec.length>0)return dec;
+  try{const plain=JSON.parse(raw);if(Array.isArray(plain)&&plain.length>0){localStorage.setItem('dz_results',_enc(plain));return plain;}}catch(e){}
+  return [];
+}
+
+// ==================== ADMIN ====================
+function adminLogin(){
+  const u=document.getElementById('admin-user').value.trim();
+  const p=document.getElementById('admin-pass').value;
+  const err=document.getElementById('admin-err');
+  if(!u||!p){err.textContent='⚠ Login va parolni kiriting.';return;}
+  // Hash check — never compare plaintext in source
+  function _h(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0;}return h.toString(16);}
+  if(_h(u)===_SC._u && _h(p)===_SC._p){
+    adminLoggedIn=true;err.textContent='';
+    document.getElementById('admin-pass').value='';
+    showToast('Admin panelga xush kelibsiz!','success');
+    showPage('pg-admin');
+  } else {err.textContent="⚠ Login yoki parol noto'g'ri.";document.getElementById('admin-pass').value='';}
+}
+function adminLogout(){showConfirm('Chiqishni xohlaysizmi?','Admin paneldan chiqasiz.',(ok)=>{if(ok){adminLoggedIn=false;showPage('pg-landing');}});}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('tab-content-results').style.display=tab==='results'?'block':'none';
+  document.getElementById('tab-content-writing').style.display=tab==='writing'?'block':'none';
+  if(tab==='writing')renderWritingPanel();
+}
+
+function renderAdmin(){
+  if(!adminLoggedIn){showPage('pg-admin-login');return;}
+  const all=getResults();
+  const today=new Date().toDateString();
+  const avgPct=all.length?Math.round(all.reduce((a,r)=>a+r.pct,0)/all.length):0;
+  const cheated=all.filter(r=>r.cheated).length;
+  const todayCount=all.filter(r=>r.raw&&new Date(r.raw).toDateString()===today).length;
+  const best=all.length?Math.max(...all.map(r=>r.pct)):0;
+  const writingCount=all.filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).length;
+
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="stat-card animate-1"><div class="stat-label">Jami Testlar</div><div class="stat-value">${all.length}</div></div>
+    <div class="stat-card animate-2"><div class="stat-label">O'rtacha Ball</div><div class="stat-value gold">${avgPct}%</div></div>
+    <div class="stat-card animate-3"><div class="stat-label">Bugungi</div><div class="stat-value blue">${todayCount}</div></div>
+    <div class="stat-card animate-4"><div class="stat-label">Eng Yuqori</div><div class="stat-value success">${best}%</div></div>
+    <div class="stat-card animate-5"><div class="stat-label">Writing Ishlari</div><div class="stat-value gold">${writingCount}</div></div>
+    <div class="stat-card animate-6"><div class="stat-label">Buzilgan</div><div class="stat-value danger">${cheated}</div></div>
+  `;
+  renderResultsTable();
+}
+
+function renderResultsTable(){
+  const all=getResults();
+  const filtered=all.filter(r=>{
+    const ms=!searchTerm||r.name.toLowerCase().includes(searchTerm)||r.phone.includes(searchTerm);
+    const ml=!levelFilter||r.level===levelFilter;
+    return ms&&ml;
+  }).reverse();
+  document.getElementById('admin-result-count').textContent=`${filtered.length} ta natija`;
+  const tbody=document.getElementById('results-tbody');
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">📋</div><div>Hozircha natijalar yo'q</div></div></td></tr>`;return;}
+  const levelColors={'Elementary':'badge-blue','Pre-Intermediate':'badge-gold','Intermediate':'badge-purple','CEFR Multilevel':'badge-red','Pre-IELTS':'badge-red'};
+  tbody.innerHTML=filtered.map((r,i)=>{
+    const sc=r.pct>=80?'badge-green':r.pct>=60?'badge-blue':r.pct>=40?'badge-gold':'badge-red';
+    const lc=levelColors[r.level]||'badge-gold';
+    const hasW=r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)');
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px;font-weight:600;">${filtered.length-i}</td>
+      <td><strong style="font-size:14px;">${r.name}</strong></td>
+      <td style="color:var(--text-soft);">${r.age}</td>
+      <td style="color:var(--muted);font-size:12px;font-family:monospace;">${r.phone}</td>
+      <td><span class="badge ${lc}">${r.level}</span></td>
+      <td><span class="badge ${sc}">${r.earned||'-'}/${r.total||'-'}</span></td>
+      <td><div class="score-bar-wrap"><span style="font-weight:700;font-size:14px;min-width:38px;">${r.pct}%</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:${r.pct}%;background:${r.pct>=60?'linear-gradient(90deg,var(--success),#7EFFC0)':r.pct>=40?'linear-gradient(90deg,var(--gold),var(--gold-light))':'linear-gradient(90deg,var(--danger),#FF9A9A)'};"></div></div></div></td>
+      <td>${r.cheated?'<span class="badge badge-red">⚠ Buzilgan</span>':'<span class="badge badge-green">✅ To\'liq</span>'}${hasW?' <span class="badge badge-blue" style="margin-left:4px;">✍</span>':''}</td>
+      <td style="color:var(--muted);font-size:11px;white-space:nowrap;">${r.date}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderWritingPanel(){
+  const all=getResults().filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).reverse();
+  const panel=document.getElementById('writing-panel');
+  if(!all.length){panel.innerHTML='<div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">✍️</div><div>Hali writing ishlari yo\'q</div></div>';return;}
+  panel.innerHTML=all.map(r=>{
+    const writings=Object.entries(r.writings||{}).filter(([k,v])=>v&&v!=='(Yozilmadi)');
+    return writings.map(([title,text])=>`
+      <div class="writing-entry">
+        <div class="writing-entry-header">
+          <div>
+            <div class="writing-entry-name">${r.name}</div>
+            <div class="writing-entry-meta">${r.level} • ${r.date} • ${r.phone}</div>
+          </div>
+          <div style="text-align:right;">
+            <span class="badge badge-blue">${title}</span>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px;">${text.trim().split(/\s+/).filter(w=>w).length} so'z</div>
+          </div>
+        </div>
+        <div class="writing-entry-text">${text}</div>
+      </div>`).join('');
+  }).join('');
+}
+
+function filterResults(val){searchTerm=val.toLowerCase();renderResultsTable();}
+function filterLevel(val){levelFilter=val;renderResultsTable();}
+
+function confirmClear(){
+  showConfirm('Barcha ma\'lumotlarni o\'chirish','Bu amalni ortga qaytarib bo\'lmaydi. Barcha natijalar o\'chiriladi.',(ok)=>{
+    if(ok){localStorage.removeItem('dz_results');searchTerm='';levelFilter='';renderAdmin();showToast('Barcha natijalar o\'chirildi.','error');}
+  });
+}
+
+function exportCSV(){
+  showToast("Eksport funksiyasi o'chirilgan.",'error');
+}
+</script>
+</body>
+</html>
