@@ -567,13 +567,13 @@ const TESTS = {
       },
       {
         id:'s4', title:'Find the Mistake', type:'error',
-        instructions:'Find and correct the mistake in each sentence.',
+        instructions:'Each sentence has ONE mistake. Find the wrong word and write the correct word.',
         questions:[
-          {id:'e4q1', sentence:'What are you doing this evening?', instruction:'Correct: "What I you doing this evening?" — find the mistake', answer:'are', hint:'To be: "What are you doing"'},
-          {id:'e4q2', sentence:"I'm going to see some friends tonight.", instruction:"Correct: \"I'm going see some friends tonight.\"", answer:'going to see', hint:"going to + verb"},
-          {id:'e4q3', sentence:'When are they going to France?', instruction:'"When they going to France?"', answer:'are they', hint:'Question: are they'},
-          {id:'e4q4', sentence:'She is seeing the doctor tomorrow.', instruction:'"She seeing the doctor tomorrow."', answer:'is seeing', hint:'Present continuous: is + verb-ing'},
-          {id:'e4q5', sentence:"I'm going to the cinema on Saturday evening.", instruction:'"I going to the cinema on Saturday evening."', answer:"I'm going", hint:"I'm going = I am going"},
+          {id:'e4q1', sentence:'What I you doing this evening?', instruction:'Find the mistake and write the correct word.', answer:'are', hint:'"I you" emas, "are you" bo\'lishi kerak'},
+          {id:'e4q2', sentence:"I'm going see some friends tonight.", instruction:'Find the mistake and write the correct word.', answer:'to see', hint:'"going" dan keyin "to + verb" keladi'},
+          {id:'e4q3', sentence:'When they going to France?', instruction:'Find the mistake and write the correct word.', answer:'are they', hint:'Question shaklida "are they" kerak'},
+          {id:'e4q4', sentence:'She seeing the doctor tomorrow.', instruction:'Find the mistake and write the correct word.', answer:'is seeing', hint:'Present continuous: subject + is/are + verb-ing'},
+          {id:'e4q5', sentence:"I going to the cinema on Saturday evening.", instruction:'Find the mistake and write the correct word.', answer:"I'm going", hint:'"I going" emas, "I\'m going" bo\'lishi kerak'},
         ]
       },
       {
@@ -1549,44 +1549,43 @@ function showResult(r){
   showPage('pg-result');
 }
 
-// ==================== FIREBASE STORAGE ====================
-const FB_URL='https://dreamzone1-7bcbe-default-rtdb.europe-west1.firebasedatabase.app';
-
-async function saveResult(r){
-  try{
-    const res=await fetch(`${FB_URL}/results.json`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(r)
-    });
-    if(!res.ok)throw new Error('Firebase xato: '+res.status);
-  }catch(e){
-    console.warn('Firebase xato, localStorage zaxiraga saqlanmoqda:',e);
-    const d=_localGet();d.push(r);
-    localStorage.setItem('dz_backup',JSON.stringify(d));
+// ==================== STORAGE (ENCRYPTED) ====================
+function _enc(obj){
+  const raw=JSON.stringify(obj);
+  // XOR + base64-like encoding with key rotation
+  const key=_SC._k;
+  let out='';
+  for(let i=0;i<raw.length;i++){
+    out+=String.fromCharCode(raw.charCodeAt(i)^key.charCodeAt(i%key.length));
   }
+  return btoa(unescape(encodeURIComponent(out)));
 }
-
-async function getResults(){
+function _dec(str){
   try{
-    const res=await fetch(`${FB_URL}/results.json`);
-    if(!res.ok)throw new Error('Firebase xato: '+res.status);
-    const data=await res.json();
-    if(!data)return[];
-    return Object.values(data).sort((a,b)=>new Date(b.raw)-new Date(a.raw));
-  }catch(e){
-    console.warn('Firebase xato, localStorage dan o\'qilyapti:',e);
-    return _localGet();
-  }
+    const raw=decodeURIComponent(escape(atob(str)));
+    const key=_SC._k;
+    let out='';
+    for(let i=0;i<raw.length;i++){
+      out+=String.fromCharCode(raw.charCodeAt(i)^key.charCodeAt(i%key.length));
+    }
+    return JSON.parse(out);
+  }catch(e){return [];}
 }
-
-async function deleteAllResults(){
-  await fetch(`${FB_URL}/results.json`,{method:'DELETE'});
-  localStorage.removeItem('dz_backup');
+function saveResult(r){
+  const d=getResults();
+  d.push(r);
+  localStorage.setItem('dz_results',_enc(d));
+  // Remove any plaintext leftovers
+  localStorage.removeItem('dz_results_plain');
 }
-
-function _localGet(){
-  try{return JSON.parse(localStorage.getItem('dz_backup')||'[]');}catch(e){return[];}
+function getResults(){
+  const raw=localStorage.getItem('dz_results');
+  if(!raw)return [];
+  // Try encrypted first, fallback for legacy plaintext then re-encrypt
+  const dec=_dec(raw);
+  if(dec.length>0)return dec;
+  try{const plain=JSON.parse(raw);if(Array.isArray(plain)&&plain.length>0){localStorage.setItem('dz_results',_enc(plain));return plain;}}catch(e){}
+  return [];
 }
 
 // ==================== ADMIN ====================
@@ -1615,10 +1614,9 @@ function switchTab(tab){
   if(tab==='writing')renderWritingPanel();
 }
 
-async function renderAdmin(){
+function renderAdmin(){
   if(!adminLoggedIn){showPage('pg-admin-login');return;}
-  document.getElementById('admin-stats').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);">⏳ Firebase dan yuklanmoqda...</div>`;
-  const all=await getResults();
+  const all=getResults();
   const today=new Date().toDateString();
   const avgPct=all.length?Math.round(all.reduce((a,r)=>a+r.pct,0)/all.length):0;
   const cheated=all.filter(r=>r.cheated).length;
@@ -1634,11 +1632,11 @@ async function renderAdmin(){
     <div class="stat-card animate-5"><div class="stat-label">Writing Ishlari</div><div class="stat-value gold">${writingCount}</div></div>
     <div class="stat-card animate-6"><div class="stat-label">Buzilgan</div><div class="stat-value danger">${cheated}</div></div>
   `;
-  renderResultsTable(all);
+  renderResultsTable();
 }
 
-async function renderResultsTable(all){
-  if(!all)all=await getResults();
+function renderResultsTable(){
+  const all=getResults();
   const filtered=all.filter(r=>{
     const ms=!searchTerm||r.name.toLowerCase().includes(searchTerm)||r.phone.includes(searchTerm);
     const ml=!levelFilter||r.level===levelFilter;
@@ -1667,11 +1665,9 @@ async function renderResultsTable(all){
   }).join('');
 }
 
-async function renderWritingPanel(){
+function renderWritingPanel(){
+  const all=getResults().filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).reverse();
   const panel=document.getElementById('writing-panel');
-  panel.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);">⏳ Yuklanmoqda...</div>';
-  const allRes=await getResults();
-  const all=allRes.filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).reverse();
   if(!all.length){panel.innerHTML='<div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">✍️</div><div>Hali writing ishlari yo\'q</div></div>';return;}
   panel.innerHTML=all.map(r=>{
     const writings=Object.entries(r.writings||{}).filter(([k,v])=>v&&v!=='(Yozilmadi)');
@@ -1696,16 +1692,8 @@ function filterResults(val){searchTerm=val.toLowerCase();renderResultsTable();}
 function filterLevel(val){levelFilter=val;renderResultsTable();}
 
 function confirmClear(){
-  showConfirm('Barcha ma\'lumotlarni o\'chirish','Bu amalni ortga qaytarib bo\'lmaydi. Barcha natijalar o\'chiriladi.',async(ok)=>{
-    if(ok){
-      try{
-        await deleteAllResults();
-        showToast('Barcha natijalar o\'chirildi.','error');
-      }catch(e){
-        showToast('Xato yuz berdi!','error');
-      }
-      searchTerm='';levelFilter='';renderAdmin();
-    }
+  showConfirm('Barcha ma\'lumotlarni o\'chirish','Bu amalni ortga qaytarib bo\'lmaydi. Barcha natijalar o\'chiriladi.',(ok)=>{
+    if(ok){localStorage.removeItem('dz_results');searchTerm='';levelFilter='';renderAdmin();showToast('Barcha natijalar o\'chirildi.','error');}
   });
 }
 
