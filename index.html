@@ -417,7 +417,7 @@ th,td{padding:10px 12px;}
 <p class="form-subtitle">Testni boshlash uchun ma'lumotlaringizni kiriting</p>
 <div class="form-row">
 <div class="field"><label>Ism</label><input type="text" id="reg-first" placeholder="Ali"><div class="form-error" id="err-first"> Ism kiriting</div></div>
-<div class="field"><label>Familya</label><input type="text" id="reg-last" placeholder="Valiyev"><div class="form-error" id="err-last">⚠ Familya kiriting</div></div>
+<div class="field"><label>Familya</label><input type="text" id="reg-last" placeholder="Valiyev"><div class="form-error" id="err-last"> Familya kiriting</div></div>
 </div>
 <div class="field"><label>Yosh</label><input type="number" id="reg-age" placeholder="20" min="5" max="80"><div class="form-error" id="err-age">⚠ To'g'ri yosh kiriting (5–80)</div></div>
 <div class="field"><label>Telefon Raqam</label><input type="tel" id="reg-phone" placeholder="+998 90 123 45 67"><div class="form-error" id="err-phone">⚠ Telefon raqam kiriting</div></div>
@@ -1461,7 +1461,7 @@ const ok=saved===q.answer;
 cls+=ok?' answered-correct':' answered-wrong';
 fbHtml=`<div style="font-size:13px;margin-top:6px;">${ok?
 '<span style="color:var(--success);">✓ To\'g\'ri!</span>':
-`<span style="color:var(--danger);">✗ To'g'ri javob: ${q.answer?'TRUE':'FALSE'}</span>`
+`<span style="color:var(--danger);"> To'g'ri javob: ${q.answer?'TRUE':'FALSE'}</span>`
 }</div>`;
 } else if(isChecked&&!answered){
 fbHtml=`<div style="font-size:13px;margin-top:6px;color:var(--danger);"> Javob berilmadi. To'g'ri: ${q.answer?'TRUE':'FALSE'}</div>`;
@@ -1649,7 +1649,7 @@ document.getElementById('result-meta').innerHTML=`
 <div class="meta-row"><span>Daraja</span><span>${r.level}</span></div>
 <div class="meta-row"><span>Sarflangan vaqt</span><span>${r.timeUsed}</span></div>
 <div class="meta-row"><span>Writing</span><span style="color:var(--gold)">${Object.keys(r.writings||{}).length} ta ish saqlandi</span></div>
-<div class="meta-row"><span>Holat</span><span style="color:${r.cheated?'var(--danger)':'var(--success)'}">${r.cheated?'⚠️ Buzilgan':'✅ To\'liq'}</span></div>
+<div class="meta-row"><span>Holat</span><span style="color:${r.cheated?'var(--danger)':'var(--success)'}">${r.cheated?'️ Buzilgan':'✅ To\'liq'}</span></div>
 `;
 showPage('pg-result');
 }
@@ -1889,7 +1889,7 @@ return `<div class="editor-q-card" id="eqc-${sec.id}-${qi}">
 </div>
 <div class="editor-q-actions">
 <button class="editor-btn-sm editor-btn-save" onclick="saveEditorQ('${sec.id}',${qi})">💾 Saqlash</button>
-<button class="editor-btn-sm editor-btn-del" onclick="deleteEditorQ('${sec.id}',${qi})">🗑 O'chirish</button>
+<button class="editor-btn-sm editor-btn-del" onclick="deleteEditorQ('${sec.id}',${qi})"> O'chirish</button>
 <span class="save-toast-inline" id="savetoast-${sec.id}-${qi}">✓ Saqlandi</span>
 </div>
 </div>`;
