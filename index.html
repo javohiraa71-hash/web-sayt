@@ -533,21 +533,6 @@ const firebaseConfig = {
   measurementId: "G-MFNM4ZC2ZS"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// Global o'zgaruvchilarga chiqaramiz
-window.firebaseDB = db;
-window.firebaseRef = ref;
-window.firebaseSet = set;
-window.firebaseGet = get;
-window.firebasePush = push;
-window.firebaseUpdate = update;
-</script>
-
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
 
 // ==================== LOADING BAR ====================
 function loadingStart(){const b=document.getElementById('loading-bar');if(b){b.style.width='60%';b.style.opacity='1';}}
