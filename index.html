@@ -416,7 +416,7 @@ th,td{padding:10px 12px;}
 <h2 class="form-title">Ro'yxatdan O'tish</h2>
 <p class="form-subtitle">Testni boshlash uchun ma'lumotlaringizni kiriting</p>
 <div class="form-row">
-<div class="field"><label>Ism</label><input type="text" id="reg-first" placeholder="Ali"><div class="form-error" id="err-first">⚠ Ism kiriting</div></div>
+<div class="field"><label>Ism</label><input type="text" id="reg-first" placeholder="Ali"><div class="form-error" id="err-first"> Ism kiriting</div></div>
 <div class="field"><label>Familya</label><input type="text" id="reg-last" placeholder="Valiyev"><div class="form-error" id="err-last">⚠ Familya kiriting</div></div>
 </div>
 <div class="field"><label>Yosh</label><input type="number" id="reg-age" placeholder="20" min="5" max="80"><div class="form-error" id="err-age">⚠ To'g'ri yosh kiriting (5–80)</div></div>
@@ -497,7 +497,7 @@ th,td{padding:10px 12px;}
 <div class="admin-tabs">
 <button class="admin-tab active" onclick="switchTab('results')" id="tab-results">📋 Natijalar</button>
 <button class="admin-tab" onclick="switchTab('writing')" id="tab-writing">✍️ Writing</button>
-<button class="admin-tab" onclick="switchTab('qstats')" id="tab-qstats">📊 Savol Statistika</button>
+<button class="admin-tab" onclick="switchTab('qstats')" id="tab-qstats"> Savol Statistika</button>
 <button class="admin-tab" onclick="switchTab('editor')" id="tab-editor">✏️ Savollarni Tahrirlash</button>
 </div>
 <div id="tab-content-results">
@@ -533,17 +533,12 @@ th,td{padding:10px 12px;}
 </div>
 </div>
 
-<!-- FIREBASE SDK -->
+<!-- FIREBASE SDK (BULUT UCHUN) -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, push, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, get, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<!-- FIREBASE SDK - Buni <script> ning boshiga qo'shing -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, push, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-// 🔽 SIZNING FIREBASE CONFIG — SHU YERGA QO'YING
+// SIZNING FIREBASE MA'LUMOTLARINGIZ
 const firebaseConfig = {
   apiKey: "AIzaSyBAKNwfuuQHy9An26w0Sy4XX-3ASs8lL60",
   authDomain: "dreamzone1-7bcbe.firebaseapp.com",
@@ -555,572 +550,506 @@ const firebaseConfig = {
   measurementId: "G-MFNM4ZC2ZS"
 };
 
+// Firebase ni ishga tushirish
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
+// Boshqa kodlar foydalanishi uchun globalga chiqaramiz
+window.firebaseDB = db;
+window.firebaseRef = ref;
+window.firebaseSet = set;
+window.firebaseGet = get;
+window.firebasePush = push;
+</script>
 
-// ==================== TEST DATA ====================
-
+<script>
+// ==================== TEST DATA (SAVOLLLAR) ====================
 const TESTS = {
-  elementary: {
-    id:'elementary', name:'Elementary', color:'#7EB3FF', c2:'#B0D4FF',
-    desc:'Asosiy grammatika va kundalik muloqot. Aralash vazifalar.',
-    sections: [
-      {
-        id:'s1', title:'Grammar: is/are/have/has', type:'fitb',
-        instructions:'Complete the sentences. Use is/are or have/has.',
-        questions:[
-          {id:'e1q1', text:'My sisters ___ both very pretty.', answer:'are', hint:'subject: My sisters (plural)'},
-          {id:'e1q2', text:'My little sister, Rosie, ___ only ten.', answer:'is', hint:'subject: Rosie (singular)'},
-          {id:'e1q3', text:'Our house ___ a big garden.', answer:'has', hint:'to possess = have/has'},
-          {id:'e1q4', text:'Our parents both ___ jobs in town.', answer:'have', hint:'subject: Our parents (plural)'},
-          {id:'e1q5', text:'My school ___ 20 classrooms.', answer:'has', hint:'school = singular'},
-          {id:'e1q6', text:'I ___ a lot of friends.', answer:'have', hint:'I + have'},
-          {id:'e1q7', text:'We ___ all very happy at school.', answer:'are', hint:'We = are'},
-        ]
-      },
-      {
-        id:'s2', title:'Prepositions', type:'mc',
-        instructions:"Choose the correct preposition: at / in / on / last / yesterday",
-        questions:[
-          {id:'e2q1', q:'I went there ___ month.', opts:['at','in','on','last'], ans:3},
-          {id:'e2q2', q:'___ Wednesday', opts:['at','in','on','last'], ans:2},
-          {id:'e2q3', q:'___ 8 o\'clock', opts:['at','in','on','last'], ans:0},
-          {id:'e2q4', q:'___ the morning', opts:['at','in','on','yesterday'], ans:1},
-          {id:'e2q5', q:'I went there ___ June 3rd', opts:['at','in','on','last'], ans:2},
-          {id:'e2q6', q:'___ the weekend', opts:['at','in','on','last'], ans:2},
-          {id:'e2q7', q:'___ Monday morning', opts:['at','in','on','last'], ans:2},
-        ]
-      },
-      {
-        id:'s3', title:'Question Words', type:'mc',
-        instructions:'Choose the correct question word: when / where / what / who / how / how much / how long',
-        questions:[
-          {id:'e3q1', q:"Freya: '___ are you doing?' Evie: 'Oh, I'm planning my holiday.'", opts:['When','Where','What','Who'], ans:2},
-          {id:'e3q2', q:"F: 'Oh, ___ are you going?'", opts:['when','where','what','who'], ans:1},
-          {id:'e3q3', q:"F: '___ are you leaving?'", opts:['When','Where','What','Who'], ans:0},
-          {id:'e3q4', q:"F: '___ are you going with?'", opts:['When','Where','What','Who'], ans:3},
-          {id:'e3q5', q:"F: '___ are you staying?'", opts:['When','Where','What','Who'], ans:1},
-          {id:'e3q6', q:"F: '___ is it going to cost?'", opts:['When','Where','How much','How long'], ans:2},
-          {id:'e3q7', q:"F: '___ are you going to travel?'", opts:['How','Where','When','What'], ans:0},
-        ]
-      },
-      {
-        id:'s4', title:'Find the Mistake', type:'error',
-        instructions:'Find and correct the mistake in each sentence.',
-        questions:[
-          {id:'e4q1', sentence:'What are you doing this evening?', instruction:'Correct: "What I you doing this evening?" — find the mistake', answer:'are', hint:'To be: "What are you doing"'},
-          {id:'e4q2', sentence:"I'm going to see some friends tonight.", instruction:"Correct: \"I'm going see some friends tonight.\"", answer:'going to see', hint:"going to + verb"},
-          {id:'e4q3', sentence:'When are they going to France?', instruction:'"When they going to France?"', answer:'are they', hint:'Question: are they'},
-          {id:'e4q4', sentence:'She is seeing the doctor tomorrow.', instruction:'"She seeing the doctor tomorrow."', answer:'is seeing', hint:'Present continuous: is + verb-ing'},
-          {id:'e4q5', sentence:"I'm going to the cinema on Saturday evening.", instruction:'"I going to the cinema on Saturday evening."', answer:"I'm going", hint:"I'm going = I am going"},
-        ]
-      },
-      {
-        id:'s5', title:'Past Simple Verbs', type:'fitb',
-        instructions:'Write the Past Simple form of the verbs.',
-        questions:[
-          {id:'e5q1', text:'get → ___', answer:'got'},
-          {id:'e5q2', text:'buy → ___', answer:'bought'},
-          {id:'e5q3', text:'have → ___', answer:'had'},
-          {id:'e5q4', text:'meet → ___', answer:'met'},
-          {id:'e5q5', text:'do → ___', answer:'did'},
-          {id:'e5q6', text:'go → ___', answer:'went'},
-          {id:'e5q7', text:'see → ___', answer:'saw'},
-          {id:'e5q8', text:'leave → ___', answer:'left'},
-        ]
-      },
-      {
-        id:'s6', title:'True or False — Reading', type:'tf',
-        instructions:"Read: David Beckham is a world famous footballer. His wife Victoria has a fashion business. They have four children: Brooklyn, Romeo, Cruz, and Harper. Victoria's sister Louise has a fashion boutique and Brooklyn works there on Saturdays. Romeo is a fashion model for Burberry. They have four houses in London, California, Dubai and France. David works for UNICEF.",
-        questions:[
-          {id:'e6q1', text:"The Beckhams' children are all boys.", answer:false},
-          {id:'e6q2', text:'David Beckham is a footballer and works for UNICEF.', answer:true},
-          {id:"e6q3", text:"David's wife, Victoria, is a fashion model.", answer:false},
-          {id:'e6q4', text:"Their daughter is a model for Burberry.", answer:false},
-          {id:'e6q5', text:"Brooklyn sometimes works in a shop.", answer:true},
-          {id:'e6q6', text:"Louise is David's sister.", answer:false},
-          {id:'e6q7', text:"They have houses in England and America.", answer:false},
-          {id:'e6q8', text:"They all like family time at home.", answer:true},
-        ]
-      },
-      {
-        id:'s7', title:'Writing: A Letter', type:'writing',
-        instructions:'Write a letter to your parents about your holiday. Write at least 80 words.',
-        prompt:'Dear Mum and Dad,\n\nWrite about: where you are, what the weather is like, what you have done, what you plan to do, and say when you will come home.',
-        minWords: 80
-      }
-    ]
-  },
-
-  'pre-intermediate': {
-    id:'pre-intermediate', name:'Pre-Intermediate', color:'#C9A84C', c2:'#E8C97A',
-    desc:'Grammatika, so\'z boyligi va reading. 100 ta savol.',
-    sections: [
-      {
-        id:'pi1', title:'Grammar', type:'mc',
-        instructions:'Tick (✓) the suitable answer.',
-        questions:[
-          {id:'pi1q1', q:"What's _____ job?", opts:['your','yours','you'], ans:0},
-          {id:'pi1q2', q:"The traffic is _____ than it was many years ago.", opts:['badder','more bad','worse'], ans:2},
-          {id:'pi1q3', q:"I've _____ washed the floor. It's wet.", opts:['already','just','yet'], ans:0},
-          {id:'pi1q4', q:"He has the same car _____ his sister.", opts:['as','like','than'], ans:0},
-          {id:'pi1q5', q:"The girl on the picture _____ a blue dress.", opts:['wears','wearing','is wearing'], ans:2},
-          {id:'pi1q6', q:"My mother doesn't enjoy _____ by plane.", opts:['travel','travelling','to travel'], ans:1},
-          {id:'pi1q7', q:"I can't come to the cinema because I _____ to study.", opts:['must','have','has'], ans:1},
-          {id:'pi1q8', q:"What would you do if you _____ the Loch Ness monster?", opts:['saw','will see','see'], ans:0},
-          {id:'pi1q9', q:"My brother _____ glasses.", opts:['used to wear','use to wear','used to wearing'], ans:0},
-          {id:'pi1q10', q:'"My father loves Jazz" "_____!"', opts:['So I do','So am I','So do I'], ans:2},
-        ]
-      },
-      {
-        id:'pi2', title:'For or Since', type:'mc',
-        instructions:'Choose: For or Since.',
-        questions:[
-          {id:'pi2q1', q:"They've known each other _____ a long time.", opts:['For','Since'], ans:0},
-          {id:'pi2q2', q:"She's studied English literature _____ five years.", opts:['For','Since'], ans:0},
-          {id:'pi2q3', q:"He's been married _____ last September.", opts:['For','Since'], ans:1},
-          {id:'pi2q4', q:"You've worn these old trainers every day _____ Christmas!", opts:['For','Since'], ans:1},
-          {id:'pi2q5', q:"I've been working in London _____ 1998.", opts:['For','Since'], ans:1},
-        ]
-      },
-      {
-        id:'pi3', title:'Irregular Verbs', type:'fitb',
-        instructions:'Write the missing form (Infinitive, Simple Past, or Past Participle).',
-        questions:[
-          {id:'pi3q1', text:'to ___ / broke / broken', answer:'break'},
-          {id:'pi3q2', text:'to come / ___ / come', answer:'came'},
-          {id:'pi3q3', text:'to cost / ___ / cost', answer:'cost'},
-          {id:'pi3q4', text:'to ___ / built / built', answer:'build'},
-          {id:'pi3q5', text:'to eat / ate / ___', answer:'eaten'},
-          {id:'pi3q6', text:'to find / ___ / found', answer:'found'},
-          {id:'pi3q7', text:'to ___ / took / taken', answer:'take'},
-          {id:'pi3q8', text:'to know / knew / ___', answer:'known'},
-          {id:'pi3q9', text:'to ___ / saw / seen', answer:'see'},
-          {id:'pi3q10', text:'to put / ___ / put', answer:'put'},
-        ]
-      },
-      {
-        id:'pi4', title:'Opposite Adjectives', type:'fitb',
-        instructions:"Write the OPPOSITE adjective.",
-        questions:[
-          {id:'pi4q1', text:'rude → ___', answer:'polite'},
-          {id:'pi4q2', text:'noisy → ___', answer:'quiet'},
-          {id:'pi4q3', text:'possible → ___', answer:'impossible'},
-          {id:'pi4q4', text:'dangerous → ___', answer:'safe'},
-          {id:'pi4q5', text:'patient → ___', answer:'impatient'},
-        ]
-      },
-      {
-        id:'pi5', title:'Adjectives -ed/-ing', type:'fitb',
-        instructions:'Complete with the correct adjective (first letter given).',
-        questions:[
-          {id:'pi5q1', text:'I saw a really i_____ TV programme last night.', answer:'interesting', hint:'-ing adjective: the programme was interesting'},
-          {id:'pi5q2', text:'She failed her exams, so she feels a bit d_____.', answer:'disappointed', hint:'-ed adjective: she feels disappointed'},
-          {id:'pi5q3', text:'My job is very b_____. I only do the photocopying.', answer:'boring', hint:'-ing: the job is boring'},
-          {id:'pi5q4', text:'We had a very r_____ holiday. We just lay in the sun.', answer:'relaxing', hint:'-ing: the holiday was relaxing'},
-          {id:'pi5q5', text:'I work too much. Now I feel really t_____.', answer:'tired', hint:'-ed: I feel tired'},
-        ]
-      },
-      {
-        id:'pi6', title:'Word Order — Questions', type:'fitb',
-        instructions:'Re-order the words to make correct questions.',
-        questions:[
-          {id:'pi6q1', text:'doing / weekend / this / what / you / are → ___', answer:'What are you doing this weekend?'},
-          {id:'pi6q2', text:'English / year / you / next / going / study / to / are → ___', answer:'Are you going to study English next year?'},
-          {id:'pi6q3', text:'think / do / who / will / elections / next / you / win / the → ___', answer:'Who do you think will win the next elections?'},
-          {id:'pi6q4', text:'you / dreams / how / your / remember / do / often → ___', answer:'How often do you remember your dreams?'},
-          {id:'pi6q5', text:'rain / think / tomorrow / will / you / do / it → ___', answer:'Do you think it will rain tomorrow?'},
-        ]
-      },
-      {
-        id:'pi7', title:'Vocabulary: Parts of the Body', type:'mc',
-        instructions:'Choose the correct answer.',
-        questions:[
-          {id:'pi7q1', q:'This connects your head to your body.', opts:['head','neck','knee','eyes'], ans:1},
-          {id:'pi7q2', q:'This is between your hand and your arm.', opts:['neck','elbow','wrist','finger'], ans:2},
-          {id:'pi7q3', q:'You see with these.', opts:['ears','hair','eyes','cheeks'], ans:2},
-          {id:'pi7q4', q:'You use this to smell.', opts:['nose','eye','head','finger'], ans:0},
-          {id:'pi7q5', q:'This is the upper part of your leg.', opts:['toe','ankle','knee','thigh'], ans:3},
-        ]
-      },
-      {
-        id:'pi8', title:'Plural Nouns', type:'fitb',
-        instructions:'Write the plural form.',
-        questions:[
-          {id:'pi8q1', text:'child → ___', answer:'children'},
-          {id:'pi8q2', text:'party → ___', answer:'parties'},
-          {id:'pi8q3', text:'glass → ___', answer:'glasses'},
-          {id:'pi8q4', text:'way → ___', answer:'ways'},
-          {id:'pi8q5', text:'church → ___', answer:'churches'},
-          {id:'pi8q6', text:'tooth → ___', answer:'teeth'},
-          {id:'pi8q7', text:'sandwich → ___', answer:'sandwiches'},
-          {id:'pi8q8', text:'key → ___', answer:'keys'},
-          {id:'pi8q9', text:'toy → ___', answer:'toys'},
-          {id:'pi8q10', text:'baby → ___', answer:'babies'},
-        ]
-      },
-      {
-        id:'pi9', title:'Relative Clauses', type:'mc',
-        instructions:'Complete with WHO, WHICH, or WHERE.',
-        questions:[
-          {id:'pi9q1', q:"It's the person _____ serves you in a café.", opts:['WHO','WHICH','WHERE'], ans:0},
-          {id:'pi9q2', q:"It's the kind of food _____ keeps vampires away.", opts:['WHO','WHICH','WHERE'], ans:1},
-          {id:'pi9q3', q:"It's a place _____ you can buy books.", opts:['WHO','WHICH','WHERE'], ans:2},
-          {id:'pi9q4', q:"It's a place _____ you can borrow books.", opts:['WHO','WHICH','WHERE'], ans:2},
-          {id:'pi9q5', q:"It's a thing _____ you use to open doors.", opts:['WHO','WHICH','WHERE'], ans:1},
-        ]
-      },
-      {
-        id:'pi10', title:'Reading: True or False', type:'tf',
-        instructions:"Read: Lady Morton (100 years old) has driven for nearly 80 years without a driving test. Last week she had her first accident — she hit a traffic island in Edinburgh when she took her new Nissan Micra for a drive. The car had no lights. She wasn't badly hurt and the car wasn't badly damaged. She plans to continue driving. She bought her first car in 1927.",
-        questions:[
-          {id:'pi10q1', text:'Lady Morton has had a lot of accidents.', answer:false},
-          {id:'pi10q2', text:'She bought a Nissan Micra.', answer:false, hint:'It was given to her as a present'},
-          {id:'pi10q3', text:"She couldn't see the traffic island because she didn't have her lights on.", answer:false, hint:'The traffic island had no lights'},
-          {id:'pi10q4', text:"She wasn't badly hurt.", answer:true},
-          {id:'pi10q5', text:"After her latest accident she needs a new car.", answer:false},
-          {id:'pi10q6', text:"She thinks she's a safe driver.", answer:true},
-          {id:'pi10q7', text:"The amount of traffic isn't a problem for her.", answer:true},
-        ]
-      },
-      {
-        id:'pi11', title:'Writing: Your Favourite Holiday', type:'writing',
-        instructions:'Describe your favourite holiday. Why is it special for you? Write at least 80 words.',
-        prompt:'Describe your favourite holiday:\n• Where did you go?\n• Who did you go with?\n• What did you do?\n• Why is it special/memorable for you?',
-        minWords: 80
-      }
-    ]
-  },
-
-  intermediate: {
-    id:'intermediate', name:'Intermediate', color:'#E07AC9', c2:'#FFB3EA',
-    desc:'Murakkab grammatika, so\'z boyligi va xatolarni tuzatish.',
-    sections: [
-      {
-        id:'im1', title:'Verb Tenses', type:'fitb',
-        instructions:'Put the verbs into the correct tense and form (positive or negative).',
-        questions:[
-          {id:'im1q1', text:"Johanna wasn't born (born) in the US. She _____ (speak) Portuguese.", answer:"doesn't speak", hint:"Present Simple negative"},
-          {id:'im1q2', text:"In the photo, Johanna _____ (carry) some books.", answer:'is carrying', hint:'Present Continuous'},
-          {id:'im1q3', text:"Garlen _____ (be) French.", answer:"isn't", hint:"Present Simple negative"},
-          {id:'im1q4', text:"At the moment he _____ (live) with three other teachers.", answer:'is living', hint:'Present Continuous'},
-          {id:'im1q5', text:"Garlen _____ (like) living on his own.", answer:"doesn't like", hint:'Present Simple negative'},
-          {id:'im1q6', text:"Anna and Don _____ (live) in England at the moment.", answer:'are living', hint:'Present Continuous'},
-          {id:'im1q7', text:"They _____ (finish) university last year.", answer:'finished', hint:'Past Simple'},
-        ]
-      },
-      {
-        id:'im2', title:'Adjective Matching', type:'matching',
-        instructions:'Match the adjective in A with a synonym in B.',
-        pairs:[
-          {a:'difficult', b:'hard'},
-          {a:'correct', b:'right'},
-          {a:'happy', b:'pleased'},
-          {a:'clever', b:'intelligent'},
-          {a:'scared', b:'frightened'},
-          {a:'unusual', b:'strange'},
-          {a:'big', b:'large'},
-          {a:'famous', b:'well-known'},
-          {a:'handsome', b:'good-looking'},
-          {a:'lovely', b:'wonderful'},
-        ]
-      },
-      {
-        id:'im3', title:'Past Continuous', type:'fitb',
-        instructions:'Complete the sentences with the Past Continuous form of the verb in brackets.',
-        questions:[
-          {id:'im3q1', text:"I _____ (watch) TV when my parents came home.", answer:'was watching'},
-          {id:'im3q2', text:"Tom _____ (study) for his test yesterday at seven o'clock.", answer:'was studying'},
-          {id:'im3q3', text:"The boys _____ (play) football when it started to rain.", answer:'were playing'},
-          {id:'im3q4', text:"The dogs _____ (bark) at midnight last night.", answer:'were barking'},
-          {id:'im3q5', text:"The baby _____ (not sleep) when we went to bed.", answer:"wasn't sleeping"},
-          {id:'im3q6', text:"You _____ (not ride) your bicycle when I saw you.", answer:"weren't riding"},
-          {id:'im3q7', text:"My parents _____ (leave) the house when I got home.", answer:'were leaving'},
-          {id:'im3q8', text:"When I phoned my friend, she _____ (eat) supper.", answer:'was eating'},
-        ]
-      },
-      {
-        id:'im4', title:'Someone/Anyone/Everyone etc.', type:'mc',
-        instructions:'Complete each pair of sentences with the correct word.',
-        questions:[
-          {id:'im4q1', q:"There's _____ on the phone for you.", opts:['someone','anyone'], ans:0},
-          {id:'im4q2', q:"Did _____ ring me last night?", opts:['someone','anyone'], ans:1},
-          {id:'im4q3', q:"She has _____ — a rich husband and a big house.", opts:['everything','nothing'], ans:0},
-          {id:'im4q4', q:"He has _____ — not a penny to his name.", opts:['everything','nothing'], ans:1},
-          {id:'im4q5', q:"I can't find my keys! I've looked _____.", opts:['somewhere','everywhere'], ans:1},
-          {id:'im4q6', q:"I want to go on holiday — _____ hot.", opts:['somewhere','everywhere'], ans:0},
-          {id:'im4q7', q:"'Who did you speak to at the party?' '_____ . I just stayed for ten minutes.'", opts:['Anyone','No one'], ans:1},
-          {id:'im4q8', q:"I couldn't see _____ I knew at the party, so I left.", opts:['anyone','no one'], ans:0},
-          {id:'im4q9', q:"It was a great concert! _____ enjoyed it.", opts:['Someone','Everyone'], ans:1},
-          {id:'im4q10', q:"Could _____ lend me £20 till the end of the week?", opts:['someone','everyone'], ans:0},
-        ]
-      },
-      {
-        id:'im5', title:'Error Correction', type:'error',
-        instructions:'Correct the mistakes in the sentences.',
-        questions:[
-          {id:'im5q1', sentence:"I haven't seen that new film already.", instruction:"Find the error with the adverb", answer:"I haven't seen that new film yet.", hint:"'already' → 'yet' with Present Perfect negative"},
-          {id:'im5q2', sentence:"Jim hasn't yet retired.", instruction:"This is actually correct — re-read carefully", answer:"Jim hasn't retired yet.", hint:"Position: yet goes at the end"},
-          {id:'im5q3', sentence:"He works in the same school for 20 years.", instruction:"Tense error", answer:"He has worked in the same school for 20 years.", hint:"Duration to now → Present Perfect"},
-          {id:'im5q4', sentence:"I have studied at this school for September.", instruction:"Preposition error", answer:"I have studied at this school since September.", hint:"Point in time → 'since'"},
-          {id:'im5q5', sentence:"My grandfather died since ten years.", instruction:"Preposition/tense error", answer:"My grandfather died ten years ago.", hint:"Past Simple + ago"},
-          {id:'im5q6', sentence:"He has lived in London until he died last year.", instruction:"Tense error", answer:"He lived in London until he died last year.", hint:"Finished past period → Simple Past"},
-          {id:'im5q7', sentence:"Dave's not here. He's been to Spain on holiday.", instruction:"Present Perfect form error", answer:"Dave's not here. He's gone to Spain on holiday.", hint:"He's gone = he's still there; been = returned"},
-          {id:'im5q8', sentence:"You look suntanned! Where have you gone?", instruction:"Have + been/gone error", answer:"You look suntanned! Where have you been?", hint:"'been' because they've returned"},
-        ]
-      },
-      {
-        id:'im6', title:'for / since / ago', type:'mc',
-        instructions:'Complete the sentences with for, since, or ago.',
-        questions:[
-          {id:'im6q1', q:"I've known Justin _____ we were at school together.", opts:['for','since','ago'], ans:1},
-          {id:'im6q2', q:"We met 20 years _____.", opts:['for','since','ago'], ans:2},
-          {id:'im6q3', q:"Where have you been? I haven't seen you _____ ages!", opts:['for','since','ago'], ans:0},
-          {id:'im6q4', q:"I haven't played tennis _____ a while.", opts:['for','since','ago'], ans:0},
-          {id:'im6q5', q:"I've been on a diet _____ March.", opts:['for','since','ago'], ans:1},
-        ]
-      },
-      {
-        id:'im7', title:'Infinitive or -ing', type:'fitb',
-        instructions:'Complete the sentences with infinitive (to+verb) or -ing form.',
-        questions:[
-          {id:'im7q1', text:"I need _____ (get) a job.", answer:'to get', hint:"need + to infinitive"},
-          {id:'im7q2', text:"I hope _____ (earn) a lot of money.", answer:'to earn', hint:"hope + to infinitive"},
-          {id:'im7q3', text:"I started _____ (learn) English two years ago.", answer:'learning', hint:"start + -ing or to+inf"},
-          {id:'im7q4', text:"We decided _____ (buy) a new car.", answer:'to buy', hint:"decide + to infinitive"},
-          {id:'im7q5', text:"I stopped _____ (learn) the piano when I was ten.", answer:'learning', hint:"stop + -ing (give up)"},
-          {id:'im7q6', text:"She enjoys _____ (visit) new countries.", answer:'visiting', hint:"enjoy + -ing"},
-          {id:'im7q7', text:"I'm thinking of _____ (go) travelling.", answer:'going', hint:"preposition + -ing"},
-          {id:'im7q8', text:"I'm fed up with _____ (do) the same thing every day.", answer:'doing', hint:"preposition + -ing"},
-          {id:'im7q9', text:"I'm looking forward to _____ (finish) work.", answer:'finishing', hint:"look forward to + -ing"},
-        ]
-      },
-      {
-        id:'im8', title:'Comparative / Superlative', type:'fitb',
-        instructions:'Complete with the comparative or superlative form of the adjective.',
-        questions:[
-          {id:'im8q1', text:"Today is much _____ (cold) than yesterday.", answer:'colder'},
-          {id:'im8q2', text:"Grace is _____ (intelligent) in the class.", answer:'the most intelligent'},
-          {id:'im8q3', text:"Madrid is _____ (hot) than London.", answer:'hotter'},
-          {id:'im8q4', text:"I got _____ (bad) grade in the class.", answer:'the worst'},
-          {id:'im8q5', text:"Spanish is _____ (easy) to learn than Chinese.", answer:'easier'},
-          {id:'im8q6', text:"Shanghai is _____ (modern) than Singapore.", answer:'more modern'},
-          {id:'im8q7', text:"Your car is much _____ (expensive) than mine.", answer:'more expensive'},
-          {id:'im8q8', text:"Charles de Gaulle is one of _____ (busy) airports in the world.", answer:'the busiest'},
-        ]
-      },
-      {
-        id:'im9', title:'Writing: Your Favourite Holiday', type:'writing',
-        instructions:'Describe your favorite holiday. Why is it special for you? Write at least 120 words.',
-        prompt:'Write about your favourite holiday:\n• Where did you go and when?\n• Who were you with?\n• What did you do? What was most memorable?\n• Why was it special?\n\nUse a variety of tenses and vocabulary.',
-        minWords:120
-      }
-    ]
-  },
-
-  cefr: {
-    id:'cefr', name:'CEFR Multilevel', color:'#E05252', c2:'#FF9A9A',
-    desc:"Xalqaro CEFR standartiga asoslangan to'liq daraja testi. 50 savol.",
-    sections: [
-      {
-        id:'cf1', title:'Grammar & Vocabulary (1–15)', type:'mc',
-        instructions:'Circle the correct answers.',
-        questions:[
-          {id:'cf1q1', q:"___ you interested in sport?", opts:['Be','Am','Is','Are'], ans:3},
-          {id:'cf1q2', q:"My ___ is a writer and his books are very popular.", opts:['aunt','uncle','sister','mother'], ans:1},
-          {id:'cf1q3', q:"Paul is very ___. He's very good at art.", opts:['honest','friendly','polite','creative'], ans:3},
-          {id:'cf1q4', q:"We live in the city centre and our house ___ have a big garden.", opts:["doesn't","isn't","aren't","don't"], ans:0},
-          {id:'cf1q5', q:"I ___ arrive at school before nine o'clock.", opts:['has to','have to',"doesn't have to","haven't to"], ans:1},
-          {id:'cf1q6', q:"The beach was very crowded ___ Monday.", opts:['in','on','at','to'], ans:1},
-          {id:'cf1q7', q:"You ___ eat all that cake! It isn't good for you.", opts:["don't","may not","shouldn't","will not"], ans:2},
-          {id:'cf1q8', q:"Cathy ___ a game on her computer at the moment.", opts:['plays','is playing','to play','play'], ans:1},
-          {id:'cf1q9', q:"There ___ a lot of people outside the school.", opts:['are','is','be','am'], ans:0},
-          {id:'cf1q10', q:"___ you like to come out with us tonight?", opts:['Do','Would','Are','Will'], ans:1},
-          {id:'cf1q11', q:"How ___ time have we got to do this exercise?", opts:['long','many','much','quick'], ans:2},
-          {id:'cf1q12', q:"Turn ___ and you'll see the museum on the left.", opts:['on the right','rightly','by the right','right'], ans:3},
-          {id:'cf1q13', q:"Don't forget to get ___ the bus at Station Road.", opts:['out','off','over','down'], ans:1},
-          {id:'cf1q14', q:"Tom got the ___ marks in the class for his homework.", opts:['worse','worst','baddest','most bad'], ans:1},
-          {id:'cf1q15', q:"There wasn't ___ milk for breakfast so I had toast.", opts:['a','some','the','any'], ans:3},
-        ]
-      },
-      {
-        id:'cf2', title:'Grammar & Vocabulary (16–30)', type:'mc',
-        instructions:'Continue circling the correct answers.',
-        questions:[
-          {id:'cf2q1', q:"My sister ___ speak French when she was only six years old.", opts:['was','should','could','had'], ans:2},
-          {id:'cf2q2', q:"Did you ___ shopping after school yesterday?", opts:['went','goed','going','go'], ans:3},
-          {id:'cf2q3', q:"I ___ five emails before school today.", opts:['sent','sended','did send','was send'], ans:0},
-          {id:'cf2q4', q:"Our teacher speaks English to us so that we can understand her.", opts:['slow','slower','more slow','slowly'], ans:3},
-          {id:'cf2q5', q:"Quick – get the food inside! It ___ any moment.", opts:['rains','is raining','is going to rain','can rain'], ans:2},
-          {id:'cf2q6', q:"I ___ the new Batman film yet. Is it any good?", opts:["haven't seen","didn't see","don't see","am not seen"], ans:0},
-          {id:'cf2q7', q:"I hope you ___ a good time at the moment in Greece!", opts:['are having','have','have had','had'], ans:0},
-          {id:'cf2q8', q:"I wanted to see Harry. How long ago ___?", opts:['he left','has he left','did he leave','could he leave'], ans:2},
-          {id:'cf2q9', q:"Do students in your country have to stand ___ when the teacher arrives?", opts:['on','at','in','up'], ans:3},
-          {id:'cf2q10', q:"Which train ___ for when I saw you on the platform?", opts:['did you wait','were you waiting','have you waited','are you waiting'], ans:1},
-          {id:'cf2q11', q:"You ___ hurry as we've still got twenty minutes.", opts:["mustn't","can't","may not","needn't"], ans:3},
-          {id:'cf2q12', q:"That car is ___ dangerous to drive.", opts:['too','enough','not enough','the worst'], ans:0},
-          {id:'cf2q13', q:"I ___ you in the café at about 4.30.", opts:["'ll see","am going to see","am seeing","see"], ans:0},
-          {id:'cf2q14', q:"My father has been a pilot ___ twenty years.", opts:['since','for','until','by'], ans:1},
-          {id:'cf2q15', q:"I really enjoy ___ new languages.", opts:['to learn','learning','learn','learned'], ans:1},
-        ]
-      },
-      {
-        id:'cf3', title:'Grammar (31–50)', type:'mc',
-        instructions:'Continue circling the correct answers.',
-        questions:[
-          {id:'cf3q1', q:"If we ___ in the countryside, we'd have much better views.", opts:['lived','were live','would live','live'], ans:0},
-          {id:'cf3q2', q:"I wish Joe ___ to Hawaii on holiday. They're talking about an eruption.", opts:["doesn't go","didn't go","hasn't gone","hadn't gone"], ans:1},
-          {id:'cf3q3', q:"Could I possibly ___ some money for the bus fare home?", opts:['lend','owe','borrow','need'], ans:2},
-          {id:'cf3q4', q:"Sam asked me if I ___ a lift home after the concert.", opts:['had wanted','wanted','would want','want'], ans:0},
-          {id:'cf3q5', q:"People say that an avalanche ___ by loud noises in the area.", opts:['causes','has caused','is causing','is caused'], ans:3},
-          {id:'cf3q6', q:"Three cars ___ in a bad accident on the motorway.", opts:['are involving','involve','have involved','have been involved'], ans:3},
-          {id:'cf3q7', q:"I ___ for arriving so late but I was caught in a traffic jam.", opts:['sorry','regret','apologise','afraid'], ans:2},
-          {id:'cf3q8', q:"Look out for a petrol station because we're going to run ___ of petrol.", opts:['down','out','off','through'], ans:1},
-          {id:'cf3q9', q:"I didn't realize how long ___ since we last met.", opts:['it had been','it was been','it was being','it is been'], ans:0},
-          {id:'cf3q10', q:"The girls ___ to each other since the film started.", opts:['talked','were talking','are talking','have been talking'], ans:3},
-          {id:'cf3q11', q:"By the time I hand in this project, I ___ on it for three weeks!", opts:["'ll be working","'ll have been working","have worked","'ll work"], ans:1},
-          {id:'cf3q12', q:"Jonah's just fallen down and there's ___ everywhere.", opts:['bone','blood','skin','cut'], ans:1},
-          {id:'cf3q13', q:"I really wish people ___ dump litter in front of our house.", opts:["won't","wouldn't","haven't","don't"], ans:1},
-          {id:'cf3q14', q:"You should be very proud ___ what you've achieved.", opts:['of','on','to','for'], ans:0},
-          {id:'cf3q15', q:"That's the office ___ my dad works.", opts:['who','where','that','which'], ans:1},
-          {id:'cf3q16', q:"The studio lights went out while the footballer ___.", opts:['had been interviewed','was interviewed','was being interviewed','was interviewing'], ans:2},
-          {id:'cf3q17', q:"The company told Ruth that they'd emailed her the job details the ___ day.", opts:['last','before','previous','earlier'], ans:2},
-          {id:'cf3q18', q:"I must remember ___ Ed to take notes for me while I'm away.", opts:['ask','to ask','asking','for asking'], ans:1},
-          {id:'cf3q19', q:"If I'd gone to the sales yesterday, I ___ one of those cheap bags.", opts:['could have bought','had bought','would buy','bought'], ans:0},
-          {id:'cf3q20', q:"___ people know this but our school is being inspected today.", opts:['Little','Any','None','Few'], ans:3},
-        ]
-      },
-      {
-        id:'cf4', title:'Reading: True or False', type:'tf',
-        instructions:"Read the text about female referees. An unusual job! Referees have a very difficult job — they must make quick decisions in fast-moving games. Pat Dunn was the first woman in the UK to referee a men's football match. The Football Association refused her a certificate for a long time, even though she had passed the exams. She finally got permission in 1976. Today there are some famous female referees like Bibiana Steinhaus from Germany, who refereed the final of the Women's Football World Cup. The article is printed in a magazine.",
-        questions:[
-          {id:'cf4q1', text:'The article is from a magazine.', answer:true},
-          {id:'cf4q2', text:'The writer says that women are better referees than men.', answer:false},
-          {id:'cf4q3', text:'Pat Dunn is still alive today.', answer:false},
-          {id:'cf4q4', text:"Pat didn't get her referee certificate immediately.", answer:true},
-          {id:'cf4q5', text:'Bibiana Steinhaus played in a football final.', answer:false},
-        ]
-      },
-      {
-        id:'cf5', title:'Writing: Describe a time when you felt happy', type:'writing',
-        instructions:'Describe a time when you felt really happy. What happened? Write at least 150 words.',
-        prompt:'Think about a time when you felt very happy.\n\n• When and where did it happen?\n• Who were you with?\n• What happened exactly?\n• Why did it make you so happy?\n• How did you feel afterwards?\n\nUse a variety of tenses and CEFR-level vocabulary.',
-        minWords:150
-      }
-    ]
-  },
-
-  'pre-ielts': {
-    id:'pre-ielts', name:'Pre-IELTS', color:'#FF8C5A', c2:'#FFBFA0',
-    desc:'IELTS imtihoniga tayyorlanish. Vocabulary, Passive, Conditionals, Reading.',
-    sections: [
-      {
-        id:'ielts1', title:'Vocabulary (1–20)', type:'mc',
-        instructions:'Choose the most suitable answer.',
-        questions:[
-          {id:'ielts1q1', q:"The house is ______ wood.", opts:['made of','built by','looked like','got'], ans:0},
-          {id:'ielts1q2', q:"The man owns three hotels. He's very ________.", opts:['healthy','unique','wealthy','poor'], ans:2},
-          {id:'ielts1q3', q:"We need more ________ like Elon Musk in society.", opts:['poor people','frugal people','wealthy','generous'], ans:3},
-          {id:'ielts1q4', q:"I do not have enough ______ to make this dish.", opts:['fur','hamburgers','stories','spices'], ans:3},
-          {id:'ielts1q5', q:"We should try to _______ the amount of electricity we use.", opts:['create','include','reduce','taste'], ans:2},
-          {id:'ielts1q6', q:"The body and mind _______ well to healthy exercise.", opts:['care','respond','reaction','look after'], ans:1},
-          {id:'ielts1q7', q:"In some cultures, you should not ask ______ questions such as a person's age.", opts:['international','normal','personal','tropical'], ans:2},
-          {id:'ielts1q8', q:"Most ______, like ants, are very strong for their size.", opts:['mammals','insects','birds','reptiles'], ans:1},
-          {id:'ielts1q9', q:"Bill is a very _______ guy in our school.", opts:['famous','well-known','popular','spectacular'], ans:2},
-          {id:'ielts1q10', q:"No one told me that locking the door at night was my _______.", opts:['activity','diversity','misery','responsibility'], ans:3},
-          {id:'ielts1q11', q:"The copy _______ in our office broke down last week.", opts:['machine','press','shop','thing'], ans:0},
-          {id:'ielts1q12', q:"Bob likes films. He's a big film _____.", opts:['man','buff','fan','fancy'], ans:1},
-          {id:'ielts1q13', q:"_______ is more important at my school than mathematics.", opts:['Athletes','Athletically','Athletics'], ans:2},
-          {id:'ielts1q14', q:"My doctor told me to _______ the amount of coffee I drink.", opts:['ruin','reduce','spread','grow'], ans:1},
-          {id:'ielts1q15', q:"Everyone has two _______. They look like beans.", opts:['intestines','stomachs','hobbies','kidneys'], ans:3},
-          {id:'ielts1q16', q:"The police finished their _______.", opts:['evidence','condition','behavior','investigation'], ans:3},
-          {id:'ielts1q17', q:"Miyazaki's movies ________ fantasy and reality in an original way.", opts:['add','combine','detect','investigate'], ans:1},
-          {id:'ielts1q18', q:"Please close the curtains. The sunlight is too _______.", opts:['bright','enormous','ordinary','serious'], ans:0},
-          {id:'ielts1q19', q:"When my dog shows good ______, I give him a snack.", opts:['activity','light','taste','behavior'], ans:3},
-          {id:'ielts1q20', q:"The _______ finished their investigation.", opts:['police','evidences','conditions','behaviors'], ans:0},
-        ]
-      },
-      {
-        id:'ielts2', title:'Passive Voice', type:'fitb',
-        instructions:"Make these sentences passive. Use Present Perfect Passive.",
-        questions:[
-          {id:'ielts2q1', text:"They have made hundreds of employees redundant → Hundreds of employees _____ redundant.", answer:'have been made', hint:'have been + past participle'},
-          {id:'ielts2q2', text:"Do you know if they have completed the tunnel yet? → Do you know if the tunnel _____ yet?", answer:'has been completed'},
-          {id:'ielts2q3', text:"The people of the region have chosen a new mayor. → A new mayor _____.", answer:'has been chosen'},
-          {id:'ielts2q4', text:"They have made huge improvements in drug development. → Huge improvements _____.", answer:'have been made'},
-          {id:'ielts2q5', text:"Teenagers have voted Michael Jackson as one of the best singers. → Michael Jackson _____ as one of the best singers.", answer:'has been voted'},
-          {id:'ielts2q6', text:"Can you tell me if they have delivered my parcel? → Can you tell me if my parcel _____?", answer:'has been delivered'},
-        ]
-      },
-      {
-        id:'ielts3', title:'Vocabulary Matching', type:'matching',
-        instructions:'Match the words to their meanings.',
-        pairs:[
-          {a:'slums', b:'very poor area to live in'},
-          {a:'frail', b:'weak, usually because of old age'},
-          {a:'passion', b:'a strong interest or hobby'},
-          {a:'extinct', b:'no longer existing as a species'},
-          {a:'chaos', b:'complete disorder and confusion'},
-          {a:'relaxing', b:'making you feel calm and less stressed'},
-          {a:'demanding', b:'needing a lot of effort or skill'},
-          {a:'accustomed', b:'used to something (accustomed to)'},
-        ]
-      },
-      {
-        id:'ielts4', title:'Conditionals', type:'fitb',
-        instructions:'Fill in the blanks with the correct conditional form.',
-        questions:[
-          {id:'ielts4q1', text:"If the weather had been better, we _____ (come) by bike.", answer:'would have come', hint:'3rd conditional'},
-          {id:'ielts4q2', text:"If you were older, you _____ (go) to the party.", answer:'could go', hint:'2nd conditional'},
-          {id:'ielts4q3', text:"If Alice _____ (have) more money, she would go to Africa.", answer:'had', hint:'2nd conditional'},
-          {id:'ielts4q4', text:"John's mother _____ (have) more time for him if he does the washing up.", answer:'will have', hint:'1st conditional'},
-          {id:'ielts4q5', text:"If Steven had taken his camera, he _____ (take) nice pictures.", answer:'would have taken', hint:'3rd conditional'},
-          {id:'ielts4q6', text:"They will stay longer in Paris if they _____ (find) a cheap hotel.", answer:'find', hint:'1st conditional'},
-          {id:'ielts4q7', text:"If Brian _____ (like) horses, he could ride well.", answer:'liked', hint:'2nd conditional'},
-          {id:'ielts4q8', text:"If Sarah _____ (not eat) so much junk food, she could have been in the hockey team.", answer:"hadn't eaten", hint:'3rd conditional'},
-          {id:'ielts4q9', text:"He can write good stories if he _____ (feel) like it.", answer:'feels', hint:'1st conditional'},
-          {id:'ielts4q10', text:"If you listened carefully, you _____ (know) about it.", answer:'would know', hint:'2nd conditional'},
-        ]
-      },
-      {
-        id:'ielts5', title:'Verb Patterns', type:'mc',
-        instructions:'Choose the correct verb pattern.',
-        questions:[
-          {id:'ielts5q1', q:"Sally _________ having an en-suite bathroom.", opts:['loved','wanted','hoped'], ans:0},
-          {id:'ielts5q2', q:"She is ________ staying two more days.", opts:['planning','looking forward to','hoping'], ans:1},
-          {id:'ielts5q3', q:"She _____ to climb up to the top bunk bed.", opts:['Tried','enjoyed','remembered'], ans:0},
-          {id:'ielts5q4', q:"They fell out with each other, so they stopped _____ to each other.", opts:['talk','to talk','talking'], ans:2},
-        ]
-      },
-      {
-        id:'ielts6', title:'Reading: Bangkok Travel Guide', type:'tf',
-        instructions:"Read: Bangkok is the capital of Thailand. The Khao San Road was a famous traveller spot (noisy, not very Thai). Phra Kanong offers authentic street markets but it's not as convenient for tourist sites — though it has a Skytrain to the Grand Palace in 20 minutes. Bangkok's traffic is a nightmare. Better to use the express boat river taxi or the Skytrain. Thai street food is among the best in the world for around $5. Key sights: Wat Pho (Giant Buddha), Grand Palace, Chatuchak market, snake farm.",
-        questions:[
-          {id:'ielts6q1', text:"One night is enough time to see Bangkok.", answer:false},
-          {id:'ielts6q2', text:"Khao San Road is an authentic Thai area of the city.", answer:false},
-          {id:'ielts6q3', text:"Phra Kanong is further away from the main tourist sites than Khao San Road.", answer:true},
-          {id:'ielts6q4', text:"The river boat taxis often get stuck in traffic too.", answer:false},
-          {id:'ielts6q5', text:"Taking the Skytrain is a faster way to see the city than going by taxi.", answer:true},
-          {id:'ielts6q6', text:"You need to choose where to eat carefully, as not everywhere is good.", answer:false},
-        ]
-      },
-      {
-        id:'ielts7', title:'Writing: IELTS Task 2 Style', type:'writing',
-        instructions:"Write an IELTS Task 2 style essay. Write at least 200 words. Give reasons and examples.",
-        prompt:'Some people think that in the modern world we have become more dependent on each other, while others think that people have become more independent.\n\nDiscuss both views and give your own opinion.\n\n• Discuss the view that people are more dependent on each other\n• Discuss the view that people are more independent\n• Give your own opinion with examples\n• Write at least 200 words',
-        minWords:200
-      }
-    ]
-  }
+elementary: {
+id:'elementary', name:'Elementary', color:'#7EB3FF', c2:'#B0D4FF',
+desc:'Asosiy grammatika va kundalik muloqot. Aralash vazifalar.',
+sections: [
+{
+id:'s1', title:'Grammar: is/are/have/has', type:'fitb',
+instructions:'Complete the sentences. Use is/are or have/has.',
+questions:[
+{id:'e1q1', text:'My sisters ___ both very pretty.', answer:'are', hint:'subject: My sisters (plural)'},
+{id:'e1q2', text:'My little sister, Rosie, ___ only ten.', answer:'is', hint:'subject: Rosie (singular)'},
+{id:'e1q3', text:'Our house ___ a big garden.', answer:'has', hint:'to possess = have/has'},
+{id:'e1q4', text:'Our parents both ___ jobs in town.', answer:'have', hint:'subject: Our parents (plural)'},
+{id:'e1q5', text:'My school ___ 20 classrooms.', answer:'has', hint:'school = singular'},
+{id:'e1q6', text:'I ___ a lot of friends.', answer:'have', hint:'I + have'},
+{id:'e1q7', text:'We ___ all very happy at school.', answer:'are', hint:'We = are'},
+]
+},
+{
+id:'s2', title:'Prepositions', type:'mc',
+instructions:"Choose the correct preposition: at / in / on / last / yesterday",
+questions:[
+{id:'e2q1', q:'I went there ___ month.', opts:['at','in','on','last'], ans:3},
+{id:'e2q2', q:'___ Wednesday', opts:['at','in','on','last'], ans:2},
+{id:'e2q3', q:"___ 8 o'clock", opts:['at','in','on','last'], ans:0},
+{id:'e2q4', q:'___ the morning', opts:['at','in','on','yesterday'], ans:1},
+{id:'e2q5', q:'I went there ___ June 3rd', opts:['at','in','on','last'], ans:2},
+{id:'e2q6', q:'___ the weekend', opts:['at','in','on','last'], ans:2},
+{id:'e2q7', q:'___ Monday morning', opts:['at','in','on','last'], ans:2},
+]
+},
+{
+id:'s3', title:'Question Words', type:'mc',
+instructions:'Choose the correct question word: when / where / what / who / how / how much / how long',
+questions:[
+{id:'e3q1', q:"Freya: '___ are you doing?' Evie: 'Oh, I'm planning my holiday.'", opts:['When','Where','What','Who'], ans:2},
+{id:'e3q2', q:"F: 'Oh, ___ are you going?'", opts:['when','where','what','who'], ans:1},
+{id:'e3q3', q:"F: '___ are you leaving?'", opts:['When','Where','What','Who'], ans:0},
+{id:'e3q4', q:"F: '___ are you going with?'", opts:['When','Where','What','Who'], ans:3},
+{id:'e3q5', q:"F: '___ are you staying?'", opts:['When','Where','What','Who'], ans:1},
+{id:'e3q6', q:"F: '___ is it going to cost?'", opts:['When','Where','How much','How long'], ans:2},
+{id:'e3q7', q:"F: '___ are you going to travel?'", opts:['How','Where','When','What'], ans:0},
+]
+},
+{
+id:'s4', title:'Find the Mistake', type:'error',
+instructions:'Find and correct the mistake in each sentence.',
+questions:[
+{id:'e4q1', sentence:'What are you doing this evening?', instruction:'Correct: "What I you doing this evening?" — find the mistake', answer:'are', hint:'To be: "What are you doing"'},
+{id:'e4q2', sentence:"I'm going to see some friends tonight.", instruction:"Correct: \"I'm going see some friends tonight.\"", answer:'going to see', hint:"going to + verb"},
+{id:'e4q3', sentence:'When are they going to France?', instruction:'"When they going to France?"', answer:'are they', hint:'Question: are they'},
+{id:'e4q4', sentence:'She is seeing the doctor tomorrow.', instruction:'"She seeing the doctor tomorrow."', answer:'is seeing', hint:'Present continuous: is + verb-ing'},
+{id:'e4q5', sentence:"I'm going to the cinema on Saturday evening.", instruction:'"I going to the cinema on Saturday evening."', answer:"I'm going", hint:"I'm going = I am going"},
+]
+},
+{
+id:'s5', title:'Past Simple Verbs', type:'fitb',
+instructions:'Write the Past Simple form of the verbs.',
+questions:[
+{id:'e5q1', text:'get → ___', answer:'got'},
+{id:'e5q2', text:'buy → ___', answer:'bought'},
+{id:'e5q3', text:'have → ___', answer:'had'},
+{id:'e5q4', text:'meet → ___', answer:'met'},
+{id:'e5q5', text:'do → ___', answer:'did'},
+{id:'e5q6', text:'go → ___', answer:'went'},
+{id:'e5q7', text:'see → ___', answer:'saw'},
+{id:'e5q8', text:'leave → ___', answer:'left'},
+]
+},
+{
+id:'s6', title:'True or False — Reading', type:'tf',
+instructions:"Read: David Beckham is a world famous footballer. His wife Victoria has a fashion business. They have four children: Brooklyn, Romeo, Cruz, and Harper. Victoria's sister Louise has a fashion boutique and Brooklyn works there on Saturdays. Romeo is a fashion model for Burberry. They have four houses in London, California, Dubai and France. David works for UNICEF.",
+questions:[
+{id:'e6q1', text:"The Beckhams' children are all boys.", answer:false},
+{id:'e6q2', text:'David Beckham is a footballer and works for UNICEF.', answer:true},
+{id:"e6q3", text:"David's wife, Victoria, is a fashion model.", answer:false},
+{id:'e6q4', text:"Their daughter is a model for Burberry.", answer:false},
+{id:'e6q5', text:"Brooklyn sometimes works in a shop.", answer:true},
+{id:'e6q6', text:"Louise is David's sister.", answer:false},
+{id:'e6q7', text:"They have houses in England and America.", answer:false},
+{id:'e6q8', text:"They all like family time at home.", answer:true},
+]
+},
+{
+id:'s7', title:'Writing: A Letter', type:'writing',
+instructions:'Write a letter to your parents about your holiday. Write at least 80 words.',
+prompt:'Dear Mum and Dad,\nWrite about: where you are, what the weather is like, what you have done, what you plan to do, and say when you will come home.',
+minWords: 80
+}
+]
+},
+'pre-intermediate': {
+id:'pre-intermediate', name:'Pre-Intermediate', color:'#C9A84C', c2:'#E8C97A',
+desc:'Grammatika, so\'z boyligi va reading. 100 ta savol.',
+sections: [
+{id:'pi1', title:'Grammar', type:'mc', instructions:'Tick (✓) the suitable answer.',
+questions:[
+{id:'pi1q1', q:"What's _____ job?", opts:['your','yours','you'], ans:0},
+{id:'pi1q2', q:"The traffic is _____ than it was many years ago.", opts:['badder','more bad','worse'], ans:2},
+{id:'pi1q3', q:"I've _____ washed the floor. It's wet.", opts:['already','just','yet'], ans:0},
+{id:'pi1q4', q:"He has the same car _____ his sister.", opts:['as','like','than'], ans:0},
+{id:'pi1q5', q:"The girl on the picture _____ a blue dress.", opts:['wears','wearing','is wearing'], ans:2},
+{id:'pi1q6', q:"My mother doesn't enjoy _____ by plane.", opts:['travel','travelling','to travel'], ans:1},
+{id:'pi1q7', q:"I can't come to the cinema because I _____ to study.", opts:['must','have','has'], ans:1},
+{id:'pi1q8', q:"What would you do if you _____ the Loch Ness monster?", opts:['saw','will see','see'], ans:0},
+{id:'pi1q9', q:"My brother _____ glasses.", opts:['used to wear','use to wear','used to wearing'], ans:0},
+{id:'pi1q10', q:'"My father loves Jazz" "_____!"', opts:['So I do','So am I','So do I'], ans:2},
+]
+},
+{id:'pi2', title:'For or Since', type:'mc', instructions:'Choose: For or Since.',
+questions:[
+{id:'pi2q1', q:"They've known each other _____ a long time.", opts:['For','Since'], ans:0},
+{id:'pi2q2', q:"She's studied English literature _____ five years.", opts:['For','Since'], ans:0},
+{id:'pi2q3', q:"He's been married _____ last September.", opts:['For','Since'], ans:1},
+{id:'pi2q4', q:"You've worn these old trainers every day _____ Christmas!", opts:['For','Since'], ans:1},
+{id:'pi2q5', q:"I've been working in London _____ 1998.", opts:['For','Since'], ans:1},
+]
+},
+{id:'pi3', title:'Irregular Verbs', type:'fitb', instructions:'Write the missing form.',
+questions:[
+{id:'pi3q1', text:'to ___ / broke / broken', answer:'break'},
+{id:'pi3q2', text:'to come / ___ / come', answer:'came'},
+{id:'pi3q3', text:'to cost / ___ / cost', answer:'cost'},
+{id:'pi3q4', text:'to ___ / built / built', answer:'build'},
+{id:'pi3q5', text:'to eat / ate / ___', answer:'eaten'},
+{id:'pi3q6', text:'to find / ___ / found', answer:'found'},
+{id:'pi3q7', text:'to ___ / took / taken', answer:'take'},
+{id:'pi3q8', text:'to know / knew / ___', answer:'known'},
+{id:'pi3q9', text:'to ___ / saw / seen', answer:'see'},
+{id:'pi3q10', text:'to put / ___ / put', answer:'put'},
+]
+},
+{id:'pi4', title:'Opposite Adjectives', type:'fitb', instructions:"Write the OPPOSITE adjective.",
+questions:[
+{id:'pi4q1', text:'rude → ___', answer:'polite'},
+{id:'pi4q2', text:'noisy → ___', answer:'quiet'},
+{id:'pi4q3', text:'possible → ___', answer:'impossible'},
+{id:'pi4q4', text:'dangerous → ___', answer:'safe'},
+{id:'pi4q5', text:'patient → ___', answer:'impatient'},
+]
+},
+{id:'pi5', title:'Adjectives -ed/-ing', type:'fitb', instructions:'Complete with the correct adjective.',
+questions:[
+{id:'pi5q1', text:'I saw a really i_____ TV programme last night.', answer:'interesting', hint:'-ing adjective'},
+{id:'pi5q2', text:'She failed her exams, so she feels a bit d_____.', answer:'disappointed', hint:'-ed adjective'},
+{id:'pi5q3', text:'My job is very b_____. I only do the photocopying.', answer:'boring', hint:'-ing: the job is boring'},
+{id:'pi5q4', text:'We had a very r_____ holiday. We just lay in the sun.', answer:'relaxing', hint:'-ing: the holiday was relaxing'},
+{id:'pi5q5', text:'I work too much. Now I feel really t_____.', answer:'tired', hint:'-ed: I feel tired'},
+]
+},
+{id:'pi6', title:'Word Order — Questions', type:'fitb', instructions:'Re-order the words to make correct questions.',
+questions:[
+{id:'pi6q1', text:'doing / weekend / this / what / you / are → ___', answer:'What are you doing this weekend?'},
+{id:'pi6q2', text:'English / year / you / next / going / study / to / are → ___', answer:'Are you going to study English next year?'},
+{id:'pi6q3', text:'think / do / who / will / elections / next / you / win / the → ___', answer:'Who do you think will win the next elections?'},
+{id:'pi6q4', text:'you / dreams / how / your / remember / do / often → ___', answer:'How often do you remember your dreams?'},
+{id:'pi6q5', text:'rain / think / tomorrow / will / you / do / it → ___', answer:'Do you think it will rain tomorrow?'},
+]
+},
+{id:'pi7', title:'Vocabulary: Parts of the Body', type:'mc', instructions:'Choose the correct answer.',
+questions:[
+{id:'pi7q1', q:'This connects your head to your body.', opts:['head','neck','knee','eyes'], ans:1},
+{id:'pi7q2', q:'This is between your hand and your arm.', opts:['neck','elbow','wrist','finger'], ans:2},
+{id:'pi7q3', q:'You see with these.', opts:['ears','hair','eyes','cheeks'], ans:2},
+{id:'pi7q4', q:'You use this to smell.', opts:['nose','eye','head','finger'], ans:0},
+{id:'pi7q5', q:'This is the upper part of your leg.', opts:['toe','ankle','knee','thigh'], ans:3},
+]
+},
+{id:'pi8', title:'Plural Nouns', type:'fitb', instructions:'Write the plural form.',
+questions:[
+{id:'pi8q1', text:'child → ___', answer:'children'},
+{id:'pi8q2', text:'party → ___', answer:'parties'},
+{id:'pi8q3', text:'glass → ___', answer:'glasses'},
+{id:'pi8q4', text:'way → ___', answer:'ways'},
+{id:'pi8q5', text:'church → ___', answer:'churches'},
+{id:'pi8q6', text:'tooth → ___', answer:'teeth'},
+{id:'pi8q7', text:'sandwich → ___', answer:'sandwiches'},
+{id:'pi8q8', text:'key → ___', answer:'keys'},
+{id:'pi8q9', text:'toy → ___', answer:'toys'},
+{id:'pi8q10', text:'baby → ___', answer:'babies'},
+]
+},
+{id:'pi9', title:'Relative Clauses', type:'mc', instructions:'Complete with WHO, WHICH, or WHERE.',
+questions:[
+{id:'pi9q1', q:"It's the person _____ serves you in a café.", opts:['WHO','WHICH','WHERE'], ans:0},
+{id:'pi9q2', q:"It's the kind of food _____ keeps vampires away.", opts:['WHO','WHICH','WHERE'], ans:1},
+{id:'pi9q3', q:"It's a place _____ you can buy books.", opts:['WHO','WHICH','WHERE'], ans:2},
+{id:'pi9q4', q:"It's a place _____ you can borrow books.", opts:['WHO','WHICH','WHERE'], ans:2},
+{id:'pi9q5', q:"It's a thing _____ you use to open doors.", opts:['WHO','WHICH','WHERE'], ans:1},
+]
+},
+{id:'pi10', title:'Reading: True or False', type:'tf',
+instructions:"Read: Lady Morton (100 years old) has driven for nearly 80 years without a driving test. Last week she had her first accident — she hit a traffic island in Edinburgh when she took her new Nissan Micra for a drive. The car had no lights. She wasn't badly hurt and the car wasn't badly damaged. She plans to continue driving. She bought her first car in 1927.",
+questions:[
+{id:'pi10q1', text:'Lady Morton has had a lot of accidents.', answer:false},
+{id:'pi10q2', text:'She bought a Nissan Micra.', answer:false},
+{id:'pi10q3', text:"She couldn't see the traffic island because she didn't have her lights on.", answer:false},
+{id:'pi10q4', text:"She wasn't badly hurt.", answer:true},
+{id:'pi10q5', text:"After her latest accident she needs a new car.", answer:false},
+{id:'pi10q6', text:"She thinks she's a safe driver.", answer:true},
+{id:'pi10q7', text:"The amount of traffic isn't a problem for her.", answer:true},
+]
+},
+{id:'pi11', title:'Writing: Your Favourite Holiday', type:'writing',
+instructions:'Describe your favourite holiday. Write at least 80 words.',
+prompt:'Describe your favourite holiday:\n• Where did you go?\n• Who did you go with?\n• What did you do?\n• Why is it special/memorable for you?',
+minWords: 80
+}
+]
+},
+intermediate: {
+id:'intermediate', name:'Intermediate', color:'#E07AC9', c2:'#FFB3EA',
+desc:'Murakkab grammatika, so\'z boyligi va xatolarni tuzatish.',
+sections: [
+{id:'im1', title:'Verb Tenses', type:'fitb', instructions:'Put the verbs into the correct tense.',
+questions:[
+{id:'im1q1', text:"Johanna wasn't born in the US. She _____ (speak) Portuguese.", answer:"doesn't speak", hint:"Present Simple negative"},
+{id:'im1q2', text:"In the photo, Johanna _____ (carry) some books.", answer:'is carrying', hint:'Present Continuous'},
+{id:'im1q3', text:"Garlen _____ (be) French.", answer:"isn't", hint:"Present Simple negative"},
+{id:'im1q4', text:"At the moment he _____ (live) with three other teachers.", answer:'is living', hint:'Present Continuous'},
+{id:'im1q5', text:"Garlen _____ (like) living on his own.", answer:"doesn't like", hint:'Present Simple negative'},
+{id:'im1q6', text:"Anna and Don _____ (live) in England at the moment.", answer:'are living', hint:'Present Continuous'},
+{id:'im1q7', text:"They _____ (finish) university last year.", answer:'finished', hint:'Past Simple'},
+]
+},
+{id:'im2', title:'Adjective Matching', type:'matching', instructions:'Match the adjective in A with a synonym in B.',
+pairs:[
+{a:'difficult', b:'hard'},{a:'correct', b:'right'},{a:'happy', b:'pleased'},
+{a:'clever', b:'intelligent'},{a:'scared', b:'frightened'},{a:'unusual', b:'strange'},
+{a:'big', b:'large'},{a:'famous', b:'well-known'},{a:'handsome', b:'good-looking'},{a:'lovely', b:'wonderful'},
+]
+},
+{id:'im3', title:'Past Continuous', type:'fitb', instructions:'Complete with Past Continuous.',
+questions:[
+{id:'im3q1', text:"I _____ (watch) TV when my parents came home.", answer:'was watching'},
+{id:'im3q2', text:"Tom _____ (study) for his test yesterday at seven.", answer:'was studying'},
+{id:'im3q3', text:"The boys _____ (play) football when it started to rain.", answer:'were playing'},
+{id:'im3q4', text:"The dogs _____ (bark) at midnight last night.", answer:'were barking'},
+{id:'im3q5', text:"The baby _____ (not sleep) when we went to bed.", answer:"wasn't sleeping"},
+{id:'im3q6', text:"You _____ (not ride) your bicycle when I saw you.", answer:"weren't riding"},
+{id:'im3q7', text:"My parents _____ (leave) the house when I got home.", answer:'were leaving'},
+{id:'im3q8', text:"When I phoned my friend, she _____ (eat) supper.", answer:'was eating'},
+]
+},
+{id:'im4', title:'Someone/Anyone/Everyone etc.', type:'mc', instructions:'Complete with the correct word.',
+questions:[
+{id:'im4q1', q:"There's _____ on the phone for you.", opts:['someone','anyone'], ans:0},
+{id:'im4q2', q:"Did _____ ring me last night?", opts:['someone','anyone'], ans:1},
+{id:'im4q3', q:"She has _____ — a rich husband and a big house.", opts:['everything','nothing'], ans:0},
+{id:'im4q4', q:"He has _____ — not a penny to his name.", opts:['everything','nothing'], ans:1},
+{id:'im4q5', q:"I can't find my keys! I've looked _____.", opts:['somewhere','everywhere'], ans:1},
+{id:'im4q6', q:"I want to go on holiday — _____ hot.", opts:['somewhere','everywhere'], ans:0},
+{id:'im4q7', q:"'Who did you speak to?' '_____ . I just stayed for ten minutes.'", opts:['Anyone','No one'], ans:1},
+{id:'im4q8', q:"I couldn't see _____ I knew at the party.", opts:['anyone','no one'], ans:0},
+{id:'im4q9', q:"It was a great concert! _____ enjoyed it.", opts:['Someone','Everyone'], ans:1},
+{id:'im4q10', q:"Could _____ lend me £20 till the end of the week?", opts:['someone','everyone'], ans:0},
+]
+},
+{id:'im5', title:'Error Correction', type:'error', instructions:'Correct the mistakes.',
+questions:[
+{id:'im5q1', sentence:"I haven't seen that new film already.", instruction:"Adverb error", answer:"I haven't seen that new film yet.", hint:"'already' → 'yet'"},
+{id:'im5q2', sentence:"He works in the same school for 20 years.", instruction:"Tense error", answer:"He has worked in the same school for 20 years.", hint:"Duration to now → Present Perfect"},
+{id:'im5q3', sentence:"I have studied at this school for September.", instruction:"Preposition error", answer:"I have studied at this school since September.", hint:"Point in time → 'since'"},
+{id:'im5q4', sentence:"My grandfather died since ten years.", instruction:"Preposition/tense error", answer:"My grandfather died ten years ago.", hint:"Past Simple + ago"},
+{id:'im5q5', sentence:"He has lived in London until he died last year.", instruction:"Tense error", answer:"He lived in London until he died last year.", hint:"Finished past → Simple Past"},
+{id:'im5q6', sentence:"Dave's not here. He's been to Spain on holiday.", instruction:"Present Perfect form", answer:"Dave's not here. He's gone to Spain on holiday.", hint:"gone = still there"},
+{id:'im5q7', sentence:"You look suntanned! Where have you gone?", instruction:"Have + been/gone", answer:"You look suntanned! Where have you been?", hint:"been = returned"},
+]
+},
+{id:'im6', title:'for / since / ago', type:'mc', instructions:'Complete with for, since, or ago.',
+questions:[
+{id:'im6q1', q:"I've known Justin _____ we were at school together.", opts:['for','since','ago'], ans:1},
+{id:'im6q2', q:"We met 20 years _____.", opts:['for','since','ago'], ans:2},
+{id:'im6q3', q:"Where have you been? I haven't seen you _____ ages!", opts:['for','since','ago'], ans:0},
+{id:'im6q4', q:"I haven't played tennis _____ a while.", opts:['for','since','ago'], ans:0},
+{id:'im6q5', q:"I've been on a diet _____ March.", opts:['for','since','ago'], ans:1},
+]
+},
+{id:'im7', title:'Infinitive or -ing', type:'fitb', instructions:'Complete with infinitive or -ing form.',
+questions:[
+{id:'im7q1', text:"I need _____ (get) a job.", answer:'to get', hint:"need + to infinitive"},
+{id:'im7q2', text:"I hope _____ (earn) a lot of money.", answer:'to earn', hint:"hope + to infinitive"},
+{id:'im7q3', text:"I started _____ (learn) English two years ago.", answer:'learning', hint:"start + -ing"},
+{id:'im7q4', text:"We decided _____ (buy) a new car.", answer:'to buy', hint:"decide + to infinitive"},
+{id:'im7q5', text:"I stopped _____ (learn) the piano when I was ten.", answer:'learning', hint:"stop + -ing"},
+{id:'im7q6', text:"She enjoys _____ (visit) new countries.", answer:'visiting', hint:"enjoy + -ing"},
+{id:'im7q7', text:"I'm thinking of _____ (go) travelling.", answer:'going', hint:"preposition + -ing"},
+{id:'im7q8', text:"I'm fed up with _____ (do) the same thing every day.", answer:'doing', hint:"preposition + -ing"},
+{id:'im7q9', text:"I'm looking forward to _____ (finish) work.", answer:'finishing', hint:"look forward to + -ing"},
+]
+},
+{id:'im8', title:'Comparative / Superlative', type:'fitb', instructions:'Complete with comparative or superlative.',
+questions:[
+{id:'im8q1', text:"Today is much _____ (cold) than yesterday.", answer:'colder'},
+{id:'im8q2', text:"Grace is _____ (intelligent) in the class.", answer:'the most intelligent'},
+{id:'im8q3', text:"Madrid is _____ (hot) than London.", answer:'hotter'},
+{id:'im8q4', text:"I got _____ (bad) grade in the class.", answer:'the worst'},
+{id:'im8q5', text:"Spanish is _____ (easy) to learn than Chinese.", answer:'easier'},
+{id:'im8q6', text:"Shanghai is _____ (modern) than Singapore.", answer:'more modern'},
+{id:'im8q7', text:"Your car is much _____ (expensive) than mine.", answer:'more expensive'},
+{id:'im8q8', text:"Charles de Gaulle is one of _____ (busy) airports in the world.", answer:'the busiest'},
+]
+},
+{id:'im9', title:'Writing: Your Favourite Holiday', type:'writing',
+instructions:'Write at least 120 words.',
+prompt:'Write about your favourite holiday:\n• Where did you go and when?\n• Who were you with?\n• What did you do?\n• Why was it special?\nUse a variety of tenses.',
+minWords:120
+}
+]
+},
+cefr: {
+id:'cefr', name:'CEFR Multilevel', color:'#E05252', c2:'#FF9A9A',
+desc:"Xalqaro CEFR standartiga asoslangan to'liq daraja testi.",
+sections: [
+{id:'cf1', title:'Grammar & Vocabulary (1–15)', type:'mc', instructions:'Circle the correct answers.',
+questions:[
+{id:'cf1q1', q:"___ you interested in sport?", opts:['Be','Am','Is','Are'], ans:3},
+{id:'cf1q2', q:"My ___ is a writer and his books are very popular.", opts:['aunt','uncle','sister','mother'], ans:1},
+{id:'cf1q3', q:"Paul is very ___. He's very good at art.", opts:['honest','friendly','polite','creative'], ans:3},
+{id:'cf1q4', q:"We live in the city centre and our house ___ have a big garden.", opts:["doesn't","isn't","aren't","don't"], ans:0},
+{id:'cf1q5', q:"I ___ arrive at school before nine o'clock.", opts:['has to','have to',"doesn't have to","haven't to"], ans:1},
+{id:'cf1q6', q:"The beach was very crowded ___ Monday.", opts:['in','on','at','to'], ans:1},
+{id:'cf1q7', q:"You ___ eat all that cake! It isn't good for you.", opts:["don't","may not","shouldn't","will not"], ans:2},
+{id:'cf1q8', q:"Cathy ___ a game on her computer at the moment.", opts:['plays','is playing','to play','play'], ans:1},
+{id:'cf1q9', q:"There ___ a lot of people outside the school.", opts:['are','is','be','am'], ans:0},
+{id:'cf1q10', q:"___ you like to come out with us tonight?", opts:['Do','Would','Are','Will'], ans:1},
+{id:'cf1q11', q:"How ___ time have we got to do this exercise?", opts:['long','many','much','quick'], ans:2},
+{id:'cf1q12', q:"Turn ___ and you'll see the museum on the left.", opts:['on the right','rightly','by the right','right'], ans:3},
+{id:'cf1q13', q:"Don't forget to get ___ the bus at Station Road.", opts:['out','off','over','down'], ans:1},
+{id:'cf1q14', q:"Tom got the ___ marks in the class for his homework.", opts:['worse','worst','baddest','most bad'], ans:1},
+{id:'cf1q15', q:"There wasn't ___ milk for breakfast so I had toast.", opts:['a','some','the','any'], ans:3},
+]
+},
+{id:'cf2', title:'Grammar & Vocabulary (16–30)', type:'mc', instructions:'Continue circling.',
+questions:[
+{id:'cf2q1', q:"My sister ___ speak French when she was only six.", opts:['was','should','could','had'], ans:2},
+{id:'cf2q2', q:"Did you ___ shopping after school yesterday?", opts:['went','goed','going','go'], ans:3},
+{id:'cf2q3', q:"I ___ five emails before school today.", opts:['sent','sended','did send','was send'], ans:0},
+{id:'cf2q4', q:"Our teacher speaks English to us ___ so we can understand.", opts:['slow','slower','more slow','slowly'], ans:3},
+{id:'cf2q5', q:"Quick – get the food inside! It ___ any moment.", opts:['rains','is raining','is going to rain','can rain'], ans:2},
+{id:'cf2q6', q:"I ___ the new Batman film yet. Is it any good?", opts:["haven't seen","didn't see","don't see","am not seen"], ans:0},
+{id:'cf2q7', q:"I hope you ___ a good time at the moment in Greece!", opts:['are having','have','have had','had'], ans:0},
+{id:'cf2q8', q:"I wanted to see Harry. How long ago ___?", opts:['he left','has he left','did he leave','could he leave'], ans:2},
+{id:'cf2q9', q:"Do students in your country have to stand ___ when the teacher arrives?", opts:['on','at','in','up'], ans:3},
+{id:'cf2q10', q:"Which train ___ for when I saw you on the platform?", opts:['did you wait','were you waiting','have you waited','are you waiting'], ans:1},
+{id:'cf2q11', q:"You ___ hurry as we've still got twenty minutes.", opts:["mustn't","can't","may not","needn't"], ans:3},
+{id:'cf2q12', q:"That car is ___ dangerous to drive.", opts:['too','enough','not enough','the worst'], ans:0},
+{id:'cf2q13', q:"I ___ you in the café at about 4.30.", opts:["'ll see","am going to see","am seeing","see"], ans:0},
+{id:'cf2q14', q:"My father has been a pilot ___ twenty years.", opts:['since','for','until','by'], ans:1},
+{id:'cf2q15', q:"I really enjoy ___ new languages.", opts:['to learn','learning','learn','learned'], ans:1},
+]
+},
+{id:'cf3', title:'Grammar (31–50)', type:'mc', instructions:'Continue.',
+questions:[
+{id:'cf3q1', q:"If we ___ in the countryside, we'd have much better views.", opts:['lived','were live','would live','live'], ans:0},
+{id:'cf3q2', q:"I wish Joe ___ to Hawaii on holiday. They're talking about an eruption.", opts:["doesn't go","didn't go","hasn't gone","hadn't gone"], ans:1},
+{id:'cf3q3', q:"Could I possibly ___ some money for the bus fare home?", opts:['lend','owe','borrow','need'], ans:2},
+{id:'cf3q4', q:"Sam asked me if I ___ a lift home after the concert.", opts:['had wanted','wanted','would want','want'], ans:0},
+{id:'cf3q5', q:"An avalanche ___ by loud noises in the area.", opts:['causes','has caused','is causing','is caused'], ans:3},
+{id:'cf3q6', q:"Three cars ___ in a bad accident on the motorway.", opts:['are involving','involve','have involved','have been involved'], ans:3},
+{id:'cf3q7', q:"I ___ for arriving so late but I was caught in a traffic jam.", opts:['sorry','regret','apologise','afraid'], ans:2},
+{id:'cf3q8', q:"Look out for a petrol station because we're going to run ___ of petrol.", opts:['down','out','off','through'], ans:1},
+{id:'cf3q9', q:"I didn't realize how long ___ since we last met.", opts:['it had been','it was been','it was being','it is been'], ans:0},
+{id:'cf3q10', q:"The girls ___ to each other since the film started.", opts:['talked','were talking','are talking','have been talking'], ans:3},
+{id:'cf3q11', q:"By the time I hand in this project, I ___ on it for three weeks!", opts:["'ll be working","'ll have been working","have worked","'ll work"], ans:1},
+{id:'cf3q12', q:"Jonah's just fallen down and there's ___ everywhere.", opts:['bone','blood','skin','cut'], ans:1},
+{id:'cf3q13', q:"I really wish people ___ dump litter in front of our house.", opts:["won't","wouldn't","haven't","don't"], ans:1},
+{id:'cf3q14', q:"You should be very proud ___ what you've achieved.", opts:['of','on','to','for'], ans:0},
+{id:'cf3q15', q:"That's the office ___ my dad works.", opts:['who','where','that','which'], ans:1},
+{id:'cf3q16', q:"The studio lights went out while the footballer ___.", opts:['had been interviewed','was interviewed','was being interviewed','was interviewing'], ans:2},
+{id:'cf3q17', q:"The company told Ruth that they'd emailed her the job details the ___ day.", opts:['last','before','previous','earlier'], ans:2},
+{id:'cf3q18', q:"I must remember ___ Ed to take notes while I'm away.", opts:['ask','to ask','asking','for asking'], ans:1},
+{id:'cf3q19', q:"If I'd gone to the sales yesterday, I ___ one of those cheap bags.", opts:['could have bought','had bought','would buy','bought'], ans:0},
+{id:'cf3q20', q:"___ people know this but our school is being inspected today.", opts:['Little','Any','None','Few'], ans:3},
+]
+},
+{id:'cf4', title:'Reading: True or False', type:'tf',
+instructions:"Read about female referees and answer T/F. Pat Dunn was the first woman in the UK to referee a men's football match. The Football Association refused her a certificate for a long time, even though she had passed the exams. She got permission in 1976. Bibiana Steinhaus refereed the Women's Football World Cup final.",
+questions:[
+{id:'cf4q1', text:'The article is from a magazine.', answer:true},
+{id:'cf4q2', text:'The writer says women are better referees than men.', answer:false},
+{id:'cf4q3', text:'Pat Dunn is still alive today.', answer:false},
+{id:'cf4q4', text:"Pat didn't get her referee certificate immediately.", answer:true},
+{id:'cf4q5', text:'Bibiana Steinhaus played in a football final.', answer:false},
+]
+},
+{id:'cf5', title:'Writing: Describe a happy time', type:'writing',
+instructions:'Write at least 150 words.',
+prompt:'Describe a time when you felt very happy.\n• When and where did it happen?\n• Who were you with?\n• What happened exactly?\n• Why did it make you so happy?\n• How did you feel afterwards?',
+minWords:150
+}
+]
+},
+'pre-ielts': {
+id:'pre-ielts', name:'Pre-IELTS', color:'#FF8C5A', c2:'#FFBFA0',
+desc:'IELTS imtihoniga tayyorlanish. Vocabulary, Passive, Conditionals, Reading.',
+sections: [
+{id:'ielts1', title:'Vocabulary (1–20)', type:'mc', instructions:'Choose the most suitable answer.',
+questions:[
+{id:'ielts1q1', q:"The house is ______ wood.", opts:['made of','built by','looked like','got'], ans:0},
+{id:'ielts1q2', q:"The man owns three hotels. He's very ________.", opts:['healthy','unique','wealthy','poor'], ans:2},
+{id:'ielts1q3', q:"We need more ________ like Elon Musk in society.", opts:['poor people','frugal people','wealthy','generous'], ans:3},
+{id:'ielts1q4', q:"I do not have enough ______ to make this dish.", opts:['fur','hamburgers','stories','spices'], ans:3},
+{id:'ielts1q5', q:"We should try to _______ the amount of electricity we use.", opts:['create','include','reduce','taste'], ans:2},
+{id:'ielts1q6', q:"The body and mind _______ well to healthy exercise.", opts:['care','respond','reaction','look after'], ans:1},
+{id:'ielts1q7', q:"In some cultures, you should not ask ______ questions such as a person's age.", opts:['international','normal','personal','tropical'], ans:2},
+{id:'ielts1q8', q:"Most ______, like ants, are very strong for their size.", opts:['mammals','insects','birds','reptiles'], ans:1},
+{id:'ielts1q9', q:"Bill is a very _______ guy in our school.", opts:['famous','well-known','popular','spectacular'], ans:2},
+{id:'ielts1q10', q:"No one told me that locking the door was my _______.", opts:['activity','diversity','misery','responsibility'], ans:3},
+{id:'ielts1q11', q:"The copy _______ in our office broke down last week.", opts:['machine','press','shop','thing'], ans:0},
+{id:'ielts1q12', q:"Bob likes films. He's a big film _____.", opts:['man','buff','fan','fancy'], ans:1},
+{id:'ielts1q13', q:"_______ is more important at my school than mathematics.", opts:['Athletes','Athletically','Athletics'], ans:2},
+{id:'ielts1q14', q:"My doctor told me to _______ the amount of coffee I drink.", opts:['ruin','reduce','spread','grow'], ans:1},
+{id:'ielts1q15', q:"Everyone has two _______. They look like beans.", opts:['intestines','stomachs','hobbies','kidneys'], ans:3},
+{id:'ielts1q16', q:"The police finished their _______.", opts:['evidence','condition','behavior','investigation'], ans:3},
+{id:'ielts1q17', q:"Miyazaki's movies ________ fantasy and reality in an original way.", opts:['add','combine','detect','investigate'], ans:1},
+{id:'ielts1q18', q:"Please close the curtains. The sunlight is too _______.", opts:['bright','enormous','ordinary','serious'], ans:0},
+{id:'ielts1q19', q:"When my dog shows good ______, I give him a snack.", opts:['activity','light','taste','behavior'], ans:3},
+{id:'ielts1q20', q:"The _______ finished their investigation.", opts:['police','evidences','conditions','behaviors'], ans:0},
+]
+},
+{id:'ielts2', title:'Passive Voice', type:'fitb', instructions:"Make these sentences passive (Present Perfect Passive).",
+questions:[
+{id:'ielts2q1', text:"Hundreds of employees _____ redundant. (make → passive)", answer:'have been made', hint:'have been + past participle'},
+{id:'ielts2q2', text:"Do you know if the tunnel _____ yet? (complete → passive)", answer:'has been completed'},
+{id:'ielts2q3', text:"A new mayor _____. (choose → passive)", answer:'has been chosen'},
+{id:'ielts2q4', text:"Huge improvements _____. (make → passive)", answer:'have been made'},
+{id:'ielts2q5', text:"Michael Jackson _____ as one of the best singers. (vote → passive)", answer:'has been voted'},
+{id:'ielts2q6', text:"Can you tell me if my parcel _____? (deliver → passive)", answer:'has been delivered'},
+]
+},
+{id:'ielts3', title:'Vocabulary Matching', type:'matching', instructions:'Match the words to their meanings.',
+pairs:[
+{a:'slums', b:'very poor area to live in'},
+{a:'frail', b:'weak, usually because of old age'},
+{a:'passion', b:'a strong interest or hobby'},
+{a:'extinct', b:'no longer existing as a species'},
+{a:'chaos', b:'complete disorder and confusion'},
+{a:'relaxing', b:'making you feel calm and less stressed'},
+{a:'demanding', b:'needing a lot of effort or skill'},
+{a:'accustomed', b:'used to something (accustomed to)'},
+]
+},
+{id:'ielts4', title:'Conditionals', type:'fitb', instructions:'Fill in with the correct conditional form.',
+questions:[
+{id:'ielts4q1', text:"If the weather had been better, we _____ (come) by bike.", answer:'would have come', hint:'3rd conditional'},
+{id:'ielts4q2', text:"If you were older, you _____ (go) to the party.", answer:'could go', hint:'2nd conditional'},
+{id:'ielts4q3', text:"If Alice _____ (have) more money, she would go to Africa.", answer:'had', hint:'2nd conditional'},
+{id:'ielts4q4', text:"John's mother _____ (have) more time if he does the washing up.", answer:'will have', hint:'1st conditional'},
+{id:'ielts4q5', text:"If Steven had taken his camera, he _____ (take) nice pictures.", answer:'would have taken', hint:'3rd conditional'},
+{id:'ielts4q6', text:"They will stay longer in Paris if they _____ (find) a cheap hotel.", answer:'find', hint:'1st conditional'},
+{id:'ielts4q7', text:"If Brian _____ (like) horses, he could ride well.", answer:'liked', hint:'2nd conditional'},
+{id:'ielts4q8', text:"If Sarah _____ (not eat) so much junk food, she could have been in the hockey team.", answer:"hadn't eaten", hint:'3rd conditional'},
+{id:'ielts4q9', text:"He can write good stories if he _____ (feel) like it.", answer:'feels', hint:'1st conditional'},
+{id:'ielts4q10', text:"If you listened carefully, you _____ (know) about it.", answer:'would know', hint:'2nd conditional'},
+]
+},
+{id:'ielts5', title:'Verb Patterns', type:'mc', instructions:'Choose the correct verb pattern.',
+questions:[
+{id:'ielts5q1', q:"Sally _________ having an en-suite bathroom.", opts:['loved','wanted','hoped'], ans:0},
+{id:'ielts5q2', q:"She is ________ staying two more days.", opts:['planning','looking forward to','hoping'], ans:1},
+{id:'ielts5q3', q:"She _____ to climb up to the top bunk bed.", opts:['Tried','enjoyed','remembered'], ans:0},
+{id:'ielts5q4', q:"They fell out, so they stopped _____ to each other.", opts:['talk','to talk','talking'], ans:2},
+]
+},
+{id:'ielts6', title:'Reading: Bangkok Travel Guide', type:'tf',
+instructions:"Read about Bangkok. Bangkok is the capital of Thailand. Phra Kanong offers authentic street markets but it's not as convenient for tourist sites — though it has a Skytrain to the Grand Palace in 20 minutes. Bangkok's traffic is a nightmare. Better to use the express boat river taxi or the Skytrain. Thai street food is among the best in the world for around $5.",
+questions:[
+{id:'ielts6q1', text:"One night is enough time to see Bangkok.", answer:false},
+{id:'ielts6q2', text:"Khao San Road is an authentic Thai area of the city.", answer:false},
+{id:'ielts6q3', text:"Phra Kanong is further away from the main tourist sites.", answer:true},
+{id:'ielts6q4', text:"The river boat taxis often get stuck in traffic too.", answer:false},
+{id:'ielts6q5', text:"Taking the Skytrain is faster than going by taxi.", answer:true},
+{id:'ielts6q6', text:"You need to choose where to eat carefully.", answer:false},
+]
+},
+{id:'ielts7', title:'Writing: IELTS Task 2', type:'writing',
+instructions:'Write at least 200 words. Discuss both views and give your opinion.',
+prompt:'Some people think we have become more dependent on each other, while others think people have become more independent.\nDiscuss both views and give your own opinion.\n• View 1: people are more dependent\n• View 2: people are more independent\n• Your opinion with examples\n• Min. 200 words',
+minWords:200
+}
+]
+}
 };
-
-const LEVELS_LIST = [
-  {id:'elementary', name:'Elementary', desc:'Asosiy grammatika va kundalik muloqot. Aralash vazifalar.', color:'#7EB3FF', c2:'#B0D4FF'},
-  {id:'pre-intermediate', name:'Pre-Intermediate', desc:"O'rta darajaga tayyorlanuvchilar uchun. 100 savol.", color:'#C9A84C', c2:'#E8C97A'},
-  {id:'intermediate', name:'Intermediate', desc:'Murakkab grammatika, matching va error correction.', color:'#E07AC9', c2:'#FFB3EA'},
-  {id:'cefr', name:'CEFR Multilevel', desc:"Xalqaro standart bo'yicha to'liq daraja testi. 50 savol.", color:'#E05252', c2:'#FF9A9A'},
-  {id:'pre-ielts', name:'Pre-IELTS', desc:"IELTS imtihoniga tayyorlanish uchun maxsus test.", color:'#FF8C5A', c2:'#FFBFA0'},
-];
-
+// Agar Firebase bo'sh bo'lsa, shu ma'lumotlar yuklanadi
+const DEFAULT_TESTS = TESTS;
 
 // ==================== STATE ====================
 let currentUser=null, currentLevel=null, currentSectionIdx=0;
@@ -1131,11 +1060,12 @@ let searchTerm='', levelFilter='', confirmCallback=null, adminLoggedIn=false;
 let currentTab='results';
 let editorLevelId='elementary';
 
-// ==================== FIREBASE STORAGE FUNCTIONS ====================
+// ==================== FIREBASE FUNCTIONS ====================
+// Save test results to Cloud
 async function saveResult(r) {
   try {
-    const newRef = push(firebaseRef(firebaseDB, 'results'));
-    await set(newRef, r);
+    const newRef = firebasePush(firebaseRef(firebaseDB, 'results'));
+    await firebaseSet(newRef, r);
     showToast("Natija bulutga saqlandi", "success");
   } catch (e) {
     console.error("Firebase save error:", e);
@@ -1143,9 +1073,10 @@ async function saveResult(r) {
   }
 }
 
+// Get test results from Cloud
 async function getResults() {
   try {
-    const snapshot = await get(firebaseRef(firebaseDB, 'results'));
+    const snapshot = await firebaseGet(firebaseRef(firebaseDB, 'results'));
     if (snapshot.exists()) {
       const data = snapshot.val();
       return Object.values(data);
@@ -1157,17 +1088,19 @@ async function getResults() {
   }
 }
 
+// Save tests (questions) to Cloud
 async function saveTests(testsObj) {
   try {
-    await set(firebaseRef(firebaseDB, 'tests'), testsObj);
+    await firebaseSet(firebaseRef(firebaseDB, 'tests'), testsObj);
   } catch (e) {
     console.error("Tests save error:", e);
   }
 }
 
+// Get tests from Cloud (or use default)
 async function getTests() {
   try {
-    const snapshot = await get(firebaseRef(firebaseDB, 'tests'));
+    const snapshot = await firebaseGet(firebaseRef(firebaseDB, 'tests'));
     if (snapshot.exists()) {
       return snapshot.val();
     }
@@ -1180,89 +1113,78 @@ async function getTests() {
   }
 }
 
+// Save question stats
+async function recordQuestionStats(sec) {
+  try {
+    const statsSnap = await firebaseGet(firebaseRef(firebaseDB, 'stats'));
+    let stats = statsSnap.exists() ? statsSnap.val() : {};
+    
+    if (!stats[currentLevel.id]) stats[currentLevel.id] = {};
+    if (!stats[currentLevel.id][sec.id]) stats[currentLevel.id][sec.id] = {};
+    
+    if (sec.type === 'mc') {
+      sec.questions.forEach(q => {
+        if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
+        const ans = sectionAnswers[sec.id][q.id];
+        if (ans !== undefined) {
+          if (ans === q.ans) stats[currentLevel.id][sec.id][q.id].correct++;
+          else stats[currentLevel.id][sec.id][q.id].wrong++;
+        }
+      });
+    } else if (sec.type === 'fitb') {
+      sec.questions.forEach(q => {
+        if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
+        const ans = sectionAnswers[sec.id][q.id];
+        if (ans && checkAns(ans, q.answer)) stats[currentLevel.id][sec.id][q.id].correct++;
+        else if (ans !== undefined) stats[currentLevel.id][sec.id][q.id].wrong++;
+      });
+    } else if (sec.type === 'tf') {
+      sec.questions.forEach(q => {
+        if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
+        const ans = sectionAnswers[sec.id][q.id];
+        if (ans !== undefined) {
+          if (ans === q.answer) stats[currentLevel.id][sec.id][q.id].correct++;
+          else stats[currentLevel.id][sec.id][q.id].wrong++;
+        }
+      });
+    } else if (sec.type === 'error') {
+      sec.questions.forEach(q => {
+        if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
+        const ans = sectionAnswers[sec.id][q.id];
+        if (ans && checkAns(ans, q.answer)) stats[currentLevel.id][sec.id][q.id].correct++;
+        else if (ans !== undefined) stats[currentLevel.id][sec.id][q.id].wrong++;
+      });
+    }
+    
+    await firebaseSet(firebaseRef(firebaseDB, 'stats'), stats);
+  } catch (e) {
+    console.error("Stats save error:", e);
+  }
+}
+
 async function getQuestionStats() {
   try {
-    const snapshot = await get(firebaseRef(firebaseDB, 'stats'));
-    if (snapshot.exists()) {
-      return snapshot.val();
-    }
-    return {};
+    const snapshot = await firebaseGet(firebaseRef(firebaseDB, 'stats'));
+    return snapshot.exists() ? snapshot.val() : {};
   } catch (e) {
     console.error("Stats read error:", e);
     return {};
   }
 }
 
-async function recordQuestionStats(sec) {
-  const stats = await getQuestionStats();
-  if (!stats[currentLevel.id]) stats[currentLevel.id] = {};
-  if (!stats[currentLevel.id][sec.id]) stats[currentLevel.id][sec.id] = {};
-  
-  if (sec.type === 'mc') {
-    sec.questions.forEach(q => {
-      if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
-      const ans = sectionAnswers[sec.id][q.id];
-      if (ans !== undefined) {
-        if (ans === q.ans) stats[currentLevel.id][sec.id][q.id].correct++;
-        else stats[currentLevel.id][sec.id][q.id].wrong++;
-      }
-    });
-  } else if (sec.type === 'fitb') {
-    sec.questions.forEach(q => {
-      if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
-      const ans = sectionAnswers[sec.id][q.id];
-      if (ans && checkAns(ans, q.answer)) stats[currentLevel.id][sec.id][q.id].correct++;
-      else if (ans !== undefined) stats[currentLevel.id][sec.id][q.id].wrong++;
-    });
-  } else if (sec.type === 'tf') {
-    sec.questions.forEach(q => {
-      if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
-      const ans = sectionAnswers[sec.id][q.id];
-      if (ans !== undefined) {
-        if (ans === q.answer) stats[currentLevel.id][sec.id][q.id].correct++;
-        else stats[currentLevel.id][sec.id][q.id].wrong++;
-      }
-    });
-  } else if (sec.type === 'error') {
-    sec.questions.forEach(q => {
-      if (!stats[currentLevel.id][sec.id][q.id]) stats[currentLevel.id][sec.id][q.id] = { correct: 0, wrong: 0 };
-      const ans = sectionAnswers[sec.id][q.id];
-      if (ans && checkAns(ans, q.answer)) stats[currentLevel.id][sec.id][q.id].correct++;
-      else if (ans !== undefined) stats[currentLevel.id][sec.id][q.id].wrong++;
-    });
-  }
-  
-  try {
-    await set(firebaseRef(firebaseDB, 'stats'), stats);
-  } catch (e) {
-    console.error("Stats save error:", e);
-  }
-}
-
-// Global qilamiz
-window.saveResult = saveResult;
-window.getResults = getResults;
-window.saveTests = saveTests;
-window.getTests = getTests;
-window.getQuestionStats = getQuestionStats;
-window.recordQuestionStats = recordQuestionStats;
-
 // ==================== SECURITY ====================
 const _SC=(function(){
 function _h(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0;}return h.toString(16);}
 return{_u:_h('admin'),_p:_h('dreamzone2024'),_k:'dz_'+_h('dreamzone_secret_salt_2024').slice(0,8)};
 })();
-
 (function(){
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('keydown',e=>{
 if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U'))e.preventDefault();
 });
 })();
-
 // ==================== STARS ====================
 (function(){const c=document.getElementById('stars');for(let i=0;i<140;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2.8+0.4;s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;opacity:${Math.random()*0.4+0.08}`;c.appendChild(s);}})();
-
 // ==================== UTILS ====================
 function showToast(msg,type='default'){const t=document.getElementById('toast');document.getElementById('toast-icon').textContent=type==='success'?'✓':type==='error'?'✗':'ℹ';document.getElementById('toast-msg').textContent=msg;t.className='toast '+type;setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3200);}
 function showConfirm(title,text,cb){confirmCallback=cb;document.getElementById('confirm-title').textContent=title;document.getElementById('confirm-text').textContent=text;document.getElementById('confirm-modal').classList.add('show');}
@@ -1273,7 +1195,6 @@ const u=norm(userAns),c=norm(correctAns);
 if(u===c)return true;
 return c.split('|').some(a=>u===a.trim());
 }
-
 // ==================== NAVIGATION ====================
 async function showPage(id){
 if(id==='pg-admin'&&!adminLoggedIn){id='pg-admin-login';}
@@ -1283,7 +1204,6 @@ window.scrollTo(0,0);
 if(id==='pg-levels')await renderLevels();
 if(id==='pg-admin')await renderAdmin();
 }
-
 // ==================== REGISTER ====================
 function registerUser(){
 let ok=true;
@@ -1302,7 +1222,6 @@ document.getElementById('welcome-txt').textContent=`Xush kelibsiz, ${first}!`;
 showToast("Ro'yxatdan o'tdingiz!",'success');
 showPage('pg-levels');
 }
-
 // ==================== LEVELS ====================
 const LEVELS_LIST=[
 {id:'elementary',name:'Elementary',desc:'Asosiy grammatika va kundalik muloqot.',color:'#7EB3FF',c2:'#B0D4FF'},
@@ -1311,7 +1230,6 @@ const LEVELS_LIST=[
 {id:'cefr',name:'CEFR Multilevel',desc:"Xalqaro standart bo'yicha to'liq daraja testi.",color:'#E05252',c2:'#FF9A9A'},
 {id:'pre-ielts',name:'Pre-IELTS',desc:"IELTS imtihoniga tayyorlanish uchun maxsus test.",color:'#FF8C5A',c2:'#FFBFA0'},
 ];
-
 async function renderLevels(){
 const TESTS=await getTests();
 const g=document.getElementById('levels-grid');
@@ -1324,9 +1242,7 @@ g.innerHTML=LEVELS_LIST.map((l,i)=>`
 <div class="level-arrow" style="color:${l.color};background:${l.color}22;border-color:${l.color}44;">→</div>
 </div>`).join('');
 }
-
 function logoutUser(){showConfirm("Chiqishni xohlaysizmi?","Daraja tanlash sahifasidan chiqasiz.",(ok)=>{if(ok){currentUser=null;showPage('pg-landing');}});}
-
 // ==================== TEST ====================
 async function startTest(levelId){
 const TESTS=await getTests();
@@ -1348,7 +1264,6 @@ renderSection();
 startTimer();
 setupAntiCheat();
 }
-
 function renderSection(){
 const sec=currentLevel.sections[currentSectionIdx];
 const total=currentLevel.sections.length;
@@ -1391,7 +1306,6 @@ html+=`<div class="test-nav">
 body.innerHTML=html;
 restoreAnswers(sec);
 }
-
 // ===== MC =====
 function renderMC(sec){
 const isChecked=sectionChecked[sec.id]===true;
@@ -1417,7 +1331,6 @@ return `<div class="mc-question">
 </div>`;
 }).join('');
 }
-
 function selectMC(secId,qId,chosen){
 if(sectionChecked[secId])return;
 sectionAnswers[secId][qId]=chosen;
@@ -1433,7 +1346,6 @@ return `<div class="${cls}" onclick="selectMC('${secId}','${qId}',${oi})">
 <div class="opt-letter">${letters[oi]}</div><span>${o}</span></div>`;
 }).join('');
 }
-
 // ===== FITB =====
 function renderFITB(sec){
 const isChecked=sectionChecked[sec.id]===true;
@@ -1460,11 +1372,9 @@ ${fbHtml}
 </div>`;
 }).join('')}</div>`;
 }
-
 function saveFITB(secId,qId,el){
 sectionAnswers[secId][qId]=el.value;
 }
-
 // ===== MATCHING =====
 function renderMatching(sec){
 const isChecked=sectionChecked[sec.id]===true;
@@ -1508,11 +1418,9 @@ return `<div class="matching-wrap">
 ${!isChecked?`<button class="btn-check-section" onclick="checkSection('${sec.id}')">✓ Bo'limni Tekshirish</button>`:''}
 ${bannerHtml}`;
 }
-
 function saveMatch(secId,idx,val){
 sectionAnswers[secId][idx]=val;
 }
-
 // ===== ERROR CORRECTION =====
 function renderError(sec){
 const isChecked=sectionChecked[sec.id]===true;
@@ -1537,11 +1445,9 @@ ${fbHtml}
 </div>`;
 }).join('')}</div>`;
 }
-
 function saveError(secId,qId,el){
 sectionAnswers[secId][qId]=el.value;
 }
-
 // ===== TRUE/FALSE =====
 function renderTF(sec){
 const isChecked=sectionChecked[sec.id]===true;
@@ -1558,7 +1464,7 @@ fbHtml=`<div style="font-size:13px;margin-top:6px;">${ok?
 `<span style="color:var(--danger);">✗ To'g'ri javob: ${q.answer?'TRUE':'FALSE'}</span>`
 }</div>`;
 } else if(isChecked&&!answered){
-fbHtml=`<div style="font-size:13px;margin-top:6px;color:var(--danger);">✗ Javob berilmadi. To'g'ri: ${q.answer?'TRUE':'FALSE'}</div>`;
+fbHtml=`<div style="font-size:13px;margin-top:6px;color:var(--danger);"> Javob berilmadi. To'g'ri: ${q.answer?'TRUE':'FALSE'}</div>`;
 }
 let tCls='tf-btn', fCls='tf-btn';
 if(!isChecked&&answered){
@@ -1579,7 +1485,6 @@ ${fbHtml}
 </div>`;
 }).join('')}</div>`;
 }
-
 function selectTF(secId,qId,chosen){
 if(sectionChecked[secId])return;
 sectionAnswers[secId][qId]=chosen;
@@ -1593,7 +1498,6 @@ wrap.querySelector('.tf-btns').innerHTML=`
 <button class="${tCls}" onclick="selectTF('${secId}','${qId}',true)">TRUE</button>
 <button class="${fCls}" onclick="selectTF('${secId}','${qId}',false)">FALSE</button>`;
 }
-
 // ===== WRITING =====
 function renderWriting(sec){
 const saved=writingTexts[sec.id]||'';
@@ -1604,7 +1508,6 @@ return `<div class="writing-wrap">
 <div class="writing-counter" id="wc-${sec.id}">${wc} so'z <span style="color:${wc>=sec.minWords?'var(--success)':'var(--muted)'}">(minimum: ${sec.minWords}${wc>=sec.minWords?' ✓':''})</span></div>
 </div>`;
 }
-
 function saveWriting(secId,el){
 writingTexts[secId]=el.value;
 const words=el.value.trim().split(/\s+/).filter(w=>w.length>0).length;
@@ -1613,7 +1516,6 @@ const min=sec?sec.minWords:80;
 const wc=document.getElementById('wc-'+secId);
 if(wc)wc.innerHTML=`${words} so'z <span style="color:${words>=min?'var(--success)':'var(--muted)'}">(minimum: ${min}${words>=min?' ✓':''})</span>`;
 }
-
 // ===== CHECK SECTION =====
 function checkSection(secId){
 const sec=currentLevel.sections.find(s=>s.id===secId);
@@ -1650,7 +1552,6 @@ renderSection();
 window.scrollTo(0,0);
 showToast("Bo'lim tekshirildi!",'success');
 }
-
 // ==================== SCORE CALC ====================
 function calcSectionScore(sec){
 let earned=0,total=0;
@@ -1669,19 +1570,16 @@ sec.questions.forEach(q=>{total++;const v=sectionAnswers[sec.id][q.id];if(v&&che
 const pct=total?Math.round(earned/total*100):0;
 return{earned,total,pct};
 }
-
 function restoreAnswers(sec){
 if(sec.type==='writing'){
 const val=writingTexts[sec.id];
 if(val){const el=document.getElementById('writing-'+sec.id);if(el){el.value=val;saveWriting(sec.id,el);}}
 }
 }
-
 // ==================== SECTION NAV ====================
 function prevSection(){
 if(currentSectionIdx>0){currentSectionIdx--;renderSection();window.scrollTo(0,0);}
 }
-
 function nextSection(){
 const total=currentLevel.sections.length;
 if(currentSectionIdx===total-1){
@@ -1690,7 +1588,6 @@ showConfirm('Testni yakunlash',"Barcha bo'limlarni topshirdingizmi?",(ok)=>{if(o
 currentSectionIdx++;renderSection();window.scrollTo(0,0);
 }
 }
-
 // ==================== TIMER ====================
 function startTimer(){
 if(timer)clearInterval(timer);
@@ -1704,18 +1601,13 @@ el.className='timer-display'+(timeLeft<=120?' danger':timeLeft<=300?' warn':'');
 if(timeLeft<=0){clearInterval(timer);finishTest();}
 },1000);
 }
-
 // ==================== ANTI-CHEAT ====================
 function setupAntiCheat(){
 document.addEventListener('visibilitychange',handleVis);
 }
-
 function handleVis(){if(!testStarted||testFinished)return;if(document.hidden)showCheatOverlay("Siz boshqa tabga o'tdingiz. Test avtomatik tugadi.");}
-
 function showCheatOverlay(msg){if(testFinished)return;clearInterval(timer);document.getElementById('cheat-message').textContent=msg;document.getElementById('cheat-overlay').classList.add('show');}
-
 function finishTestEarly(){document.getElementById('cheat-overlay').classList.remove('show');finishTest(true);}
-
 // ==================== FINISH ====================
 async function finishTest(cheated=false){
 if(testFinished)return;
@@ -1744,9 +1636,8 @@ raw:now.toISOString()
 await saveResult(result);
 showResult(result);
 }
-
 function showResult(r){
-const icon=r.pct>=90?'💎':r.pct>=75?'🏆':r.pct>=60?'🥇':r.pct>=45?'🥈':r.pct>=30?'🥉':'';
+const icon=r.pct>=90?'💎':r.pct>=75?'🏆':r.pct>=60?'🥇':r.pct>=45?'':r.pct>=30?'':'';
 const title=r.pct>=75?'Ajoyib natija!':r.pct>=60?'Tabriklaymiz!':r.pct>=40?'Yaxshi harakat!':'Ko\'proq mashq qiling!';
 document.getElementById('result-icon').textContent=icon;
 document.getElementById('result-title').textContent=title;
@@ -1762,7 +1653,6 @@ document.getElementById('result-meta').innerHTML=`
 `;
 showPage('pg-result');
 }
-
 // ==================== ADMIN ====================
 function adminLogin(){
 const u=document.getElementById('admin-user').value.trim();
@@ -1775,11 +1665,9 @@ adminLoggedIn=true;err.textContent='';
 document.getElementById('admin-pass').value='';
 showToast('Admin panelga xush kelibsiz!','success');
 showPage('pg-admin');
-} else {err.textContent="⚠ Login yoki parol noto'g'ri.";document.getElementById('admin-pass').value='';}
+} else {err.textContent=" Login yoki parol noto'g'ri.";document.getElementById('admin-pass').value='';}
 }
-
 function adminLogout(){showConfirm('Chiqishni xohlaysizmi?','Admin paneldan chiqasiz.',(ok)=>{if(ok){adminLoggedIn=false;showPage('pg-landing');}});}
-
 async function switchTab(tab){
 currentTab=tab;
 document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
@@ -1791,7 +1679,6 @@ if(tab==='writing')await renderWritingPanel();
 if(tab==='qstats')await renderQStats();
 if(tab==='editor')await renderEditor();
 }
-
 async function renderAdmin(){
 if(!adminLoggedIn){showPage('pg-admin-login');return;}
 const all=await getResults();
@@ -1811,7 +1698,6 @@ document.getElementById('admin-stats').innerHTML=`
 `;
 await renderResultsTable();
 }
-
 async function renderResultsTable(){
 const all=await getResults();
 const filtered=all.filter(r=>{
@@ -1841,7 +1727,6 @@ return `<tr>
 </tr>`;
 }).join('');
 }
-
 async function renderWritingPanel(){
 const all=(await getResults()).filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).reverse();
 const panel=document.getElementById('writing-panel');
@@ -1858,7 +1743,6 @@ return writings.map(([title,text])=>`
 </div>`).join('');
 }).join('');
 }
-
 // ==================== Q-STATS PANEL ====================
 async function renderQStats(){
 const panel=document.getElementById('qstats-panel');
@@ -1928,7 +1812,6 @@ return;
 }
 panel.innerHTML=html;
 }
-
 // ==================== QUESTIONS EDITOR ====================
 async function renderEditor(){
 const panel=document.getElementById('editor-panel');
@@ -1961,7 +1844,7 @@ return `<div class="editor-q-card" id="eqc-${sec.id}-${qi}">
 </div>
 <div class="editor-q-actions">
 <button class="editor-btn-sm editor-btn-save" onclick="saveEditorQ('${sec.id}',${qi})">💾 Saqlash</button>
-<button class="editor-btn-sm editor-btn-del" onclick="deleteEditorQ('${sec.id}',${qi})">🗑 O'chirish</button>
+<button class="editor-btn-sm editor-btn-del" onclick="deleteEditorQ('${sec.id}',${qi})"> O'chirish</button>
 <span class="save-toast-inline" id="savetoast-${sec.id}-${qi}">✓ Saqlandi</span>
 </div>
 </div>`;
@@ -2027,14 +1910,12 @@ panel.innerHTML=`
 </div>
 ${sectionsHtml}`;
 }
-
 const _editorTemp={};
 function updateQField(secId,qi,field,val){
 if(!_editorTemp[secId])_editorTemp[secId]={};
 if(!_editorTemp[secId][qi])_editorTemp[secId][qi]={};
 _editorTemp[secId][qi][field]=val;
 }
-
 function updateMCOption(secId,qi,oi,val){
 if(!_editorTemp[secId])_editorTemp[secId]={};
 if(!_editorTemp[secId][qi])_editorTemp[secId][qi]={};
@@ -2046,7 +1927,6 @@ _editorTemp[secId][qi].opts=[...sec.questions[qi].opts];
 }
 _editorTemp[secId][qi].opts[oi]=val;
 }
-
 async function saveEditorQ(secId,qi){
 const temp=_editorTemp[secId]&&_editorTemp[secId][qi];
 if(!temp)return;
@@ -2060,7 +1940,6 @@ const t=document.getElementById(`savetoast-${secId}-${qi}`);
 if(t){t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800);}
 delete _editorTemp[secId][qi];
 }
-
 async function deleteEditorQ(secId,qi){
 showConfirm("Savolni o'chirish","Bu savol butunlay o'chiriladi. Davom etish?",(ok)=>{
 if(!ok)return;
@@ -2074,7 +1953,6 @@ showToast("Savol o'chirildi",'error');
 renderEditor();
 });
 }
-
 async function addNewQuestion(secId,type){
 const TESTS=await getTests();
 const lv=TESTS[editorLevelId];
@@ -2090,12 +1968,10 @@ showToast('Yangi savol qo\'shildi','success');
 await renderEditor();
 setTimeout(()=>{const p=document.getElementById('editor-panel');if(p)p.scrollTop=p.scrollHeight;},100);
 }
-
 function setEditorLevel(lvId){
 editorLevelId=lvId;
 renderEditor();
 }
-
 async function resetEditorLevel(lvId){
 showConfirm("Standartga qaytarish","Bu daraja uchun barcha o'zgartirishlar o'chiriladi.",(ok)=>{
 if(!ok)return;
@@ -2106,21 +1982,18 @@ showToast('Standartga qaytarildi','success');
 renderEditor();
 });
 }
-
 function filterResults(val){searchTerm=val.toLowerCase();renderResultsTable();}
 function filterLevel(val){levelFilter=val;renderResultsTable();}
-
 async function confirmClear(){
 showConfirm("Barcha ma'lumotlarni o'chirish","Bu amalni ortga qaytarib bo'lmaydi.",async(ok)=>{
 if(ok){
-await set(firebaseRef(firebaseDB, 'results'), null);
+await firebaseSet(firebaseRef(firebaseDB, 'results'), null);
 searchTerm='';levelFilter='';
 await renderAdmin();
 showToast("Barcha natijalar o'chirildi.",'error');
 }
 });
 }
-
 async function exportCSV(){
 const all=await getResults();
 if(!all.length){showToast("Eksport qilish uchun ma'lumot yo'q",'error');return;}
