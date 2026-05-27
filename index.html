@@ -270,7 +270,6 @@ tbody tr:hover td{background:rgba(201,168,76,0.03);}
 .loading-spinner{width:48px;height:48px;border:3px solid var(--dark3);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-text{color:var(--muted);font-size:14px;letter-spacing:1px;}
-/* Firebase xato banneri */
 .fb-error-banner{background:rgba(224,82,82,0.12);border:1px solid rgba(224,82,82,0.35);border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--danger);line-height:1.6;display:none;}
 .fb-error-banner.show{display:block;}
 @media(max-width:640px){
@@ -398,7 +397,6 @@ th,td{padding:10px 12px;}
 <!-- RESULT -->
 <div class="page" id="pg-result">
   <div style="position:relative;z-index:1;margin:auto;padding:40px 20px;display:flex;justify-content:center;align-items:center;width:100%;flex-direction:column;gap:16px;">
-    <!-- Firebase xato banneri -->
     <div class="fb-error-banner" id="fb-save-error">
       ⚠️ <strong>Firebase saqlashda xato:</strong> <span id="fb-error-msg"></span><br>
       <small style="opacity:0.8;margin-top:4px;display:block;">Firebase Console → Realtime Database → Rules bo'limida <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;">"write": true</code> qilib qo'ying.</small>
@@ -474,11 +472,12 @@ th,td{padding:10px 12px;}
   </div>
 </div>
 
+<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
-// ==================== FIREBASE ====================
+// ==================== FIREBASE CONFIG ====================
 const firebaseConfig = {
   apiKey: "AIzaSyBAKNwfuuQHy9An26w0Sy4XX-3ASs8lL60",
   authDomain: "dreamzone1-7bcbe.firebaseapp.com",
@@ -489,65 +488,124 @@ const firebaseConfig = {
   appId: "1:964131703377:web:3b1f3a03805734ed600670"
 };
 
-// Firebase init
-let db;
+// ==================== FIREBASE INIT ====================
+let db = null;
 let fbReady = false;
+let fbConnectionChecked = false;
 
-try {
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.database();
-  fbReady = true;
-} catch(e) {
-  console.error('Firebase init xatosi:', e);
+// Firebase ni initialize qilish
+function initFirebase() {
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.database();
+    
+    // Connection status ni kuzatish
+    db.ref('.info/connected').on('value', (snap) => {
+      if (snap.val() === true) {
+        fbReady = true;
+        fbConnectionChecked = true;
+        console.log('✅ Firebase connected');
+        showLoading(false);
+      } else {
+        console.log('⏳ Firebase disconnected');
+      }
+    });
+    
+    return true;
+  } catch (e) {
+    console.error('❌ Firebase init error:', e);
+    showToast('Firebase ulanishda xato!', 'error');
+    showLoading(false);
+    return false;
+  }
 }
 
-// ==================== FIREBASE YOZISH FUNKSIYASI (TUZATILGAN) ====================
-async function saveResult(r) {
+// ==================== FIREBASE SAVE FUNCTION (FIXED) ====================
+async function saveResult(resultData) {
+  // 1. Firebase tayyorligini tekshirish
   if (!fbReady || !db) {
-    console.error('Firebase tayyor emas!');
-    return { success: false, error: 'Firebase ulanmagan' };
+    console.error('Firebase not ready');
+    return { success: false, error: 'Firebase ulanmagan. Rules ni tekshiring.' };
   }
 
-  // Natijadan undefined/circular qiymatlarni tozalash
-  const cleanResult = JSON.parse(JSON.stringify(r));
+  // 2. Ma'lumotlarni tozalash (circular reference larni olib tashlash)
+  let cleanData;
+  try {
+    cleanData = JSON.parse(JSON.stringify(resultData));
+  } catch (e) {
+    console.error('Data cleaning error:', e);
+    cleanData = { ...resultData, sectionAnswers: {}, writings: {} };
+  }
 
+  // 3. Firebase ga saqlash with timeout
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {
-      resolve({ success: false, error: 'Vaqt tugadi (timeout). Internet aloqasini tekshiring.' });
-    }, 10000); // 10 sekund kutamiz
+      console.error('Firebase timeout');
+      resolve({ success: false, error: 'Vaqt tugadi. Internet aloqasini tekshiring.' });
+    }, 15000); // 15 seconds timeout
 
-    db.ref('results').push(cleanResult)
-      .then(() => {
-        clearTimeout(timeout);
-        resolve({ success: true });
-      })
-      .catch((error) => {
-        clearTimeout(timeout);
-        console.error('Firebase push xatosi:', error.code, error.message);
-
-        let userMsg = error.message;
-        if (error.code === 'PERMISSION_DENIED') {
-          userMsg = 'Ruxsat berilmagan (PERMISSION_DENIED). Firebase Rules ni tekshiring.';
-        } else if (error.code === 'NETWORK_ERROR') {
-          userMsg = 'Internet aloqasi yo\'q.';
-        } else if (error.message && error.message.includes('permission')) {
-          userMsg = 'Firebase Rules: write ruxsati yo\'q. Console → Rules → ".write": true qiling.';
-        }
-        resolve({ success: false, error: userMsg, code: error.code });
-      });
+    try {
+      db.ref('results').push(cleanData)
+        .then((ref) => {
+          clearTimeout(timeout);
+          console.log('✅ Saved with key:', ref.key);
+          resolve({ success: true, key: ref.key });
+        })
+        .catch((error) => {
+          clearTimeout(timeout);
+          console.error('❌ Firebase push error:', error.code, error.message);
+          
+          let userMsg = error.message || 'Noma\'lum xato';
+          
+          if (error.code === 'PERMISSION_DENIED') {
+            userMsg = 'Ruxsat yo\'q! Firebase Console → Realtime Database → Rules ga o\'tib, ".write": true qiling.';
+          } else if (error.code === 'NETWORK_ERROR') {
+            userMsg = 'Internet aloqasi yo\'q yoki sekin.';
+          } else if (error.code === 'UNAVAILABLE') {
+            userMsg = 'Firebase serveriga ulanib bo\'lmadi.';
+          }
+          
+          resolve({ success: false, error: userMsg, code: error.code });
+        });
+    } catch (e) {
+      clearTimeout(timeout);
+      console.error('Unexpected error:', e);
+      resolve({ success: false, error: 'Kutilmagan xato: ' + e.message });
+    }
   });
 }
 
+// ==================== FIREBASE GET FUNCTION ====================
 async function getResults() {
-  if (!fbReady || !db) return [];
+  if (!fbReady || !db) {
+    console.log('Firebase not ready for read');
+    return [];
+  }
+
   try {
-    const snap = await db.ref('results').once('value');
-    if (!snap.exists()) return [];
-    const data = snap.val();
-    return Object.values(data).sort((a,b) => new Date(b.raw||0) - new Date(a.raw||0));
-  } catch(e) {
-    console.error('Firebase o\'qish xatosi:', e.code, e.message);
-    showToast('Ma\'lumot o\'qishda xato: ' + (e.message||''), 'error');
+    const snapshot = await db.ref('results').once('value');
+    if (!snapshot.exists()) {
+      console.log('📭 No results in database');
+      return [];
+    }
+    
+    const data = snapshot.val();
+    const results = Object.values(data);
+    
+    // Sort by date (newest first)
+    return results.sort((a, b) => {
+      const dateA = a.raw ? new Date(a.raw).getTime() : 0;
+      const dateB = b.raw ? new Date(b.raw).getTime() : 0;
+      return dateB - dateA;
+    });
+  } catch (error) {
+    console.error('❌ Firebase read error:', error.code, error.message);
+    
+    if (error.code === 'PERMISSION_DENIED') {
+      showToast('O\'qish uchun ruxsat yo\'q! Firebase Rules ni tekshiring.', 'error');
+    }
     return [];
   }
 }
@@ -1428,7 +1486,7 @@ function finishTestEarly(){
   finishTest(true);
 }
 
-// ==================== FINISH TEST (TUZATILGAN) ====================
+// ==================== FINISH TEST (IMPROVED) ====================
 async function finishTest(cheated = false){
   if(testFinished) return;
   testFinished = true;
@@ -1436,7 +1494,7 @@ async function finishTest(cheated = false){
   clearInterval(timer);
   document.removeEventListener('visibilitychange', handleVis);
 
-  // DOM dan oxirgi qiymatlarni olish
+  // Get latest answers from DOM
   const curSec = currentLevel.sections[currentSectionIdx];
   if(curSec){
     if(curSec.type === 'fitb'){
@@ -1457,7 +1515,7 @@ async function finishTest(cheated = false){
     }
   }
 
-  // Ball hisoblash
+  // Calculate score
   let totalPoints = 0, earnedPoints = 0;
   currentLevel.sections.forEach(sec => {
     const sc = calcSectionScore(sec);
@@ -1471,17 +1529,16 @@ async function finishTest(cheated = false){
   const secs = timeUsed % 60;
   const now = new Date();
 
-  // Writing matinlarini yig'ish
+  // Collect writings
   const writings = {};
   currentLevel.sections.filter(s => s.type === 'writing').forEach(s => {
     writings[s.title] = writingTexts[s.id] || '(Yozilmadi)';
   });
 
-  // sectionAnswers snapshot — undefined qiymatlarni tozalash
+  // Clean sectionAnswers for Firebase
   const answersSnapshot = {};
   currentLevel.sections.forEach(sec => {
     const raw = sectionAnswers[sec.id] || {};
-    // JSON.parse/stringify — undefined, function, circular ni olib tashlaydi
     try {
       answersSnapshot[sec.id] = JSON.parse(JSON.stringify(raw));
     } catch(e) {
@@ -1509,10 +1566,10 @@ async function finishTest(cheated = false){
     raw: now.toISOString()
   };
 
-  // Avval natijani ko'rsatamiz, keyin saqlaymiz
+  // Show result first
   showResult(result);
 
-  // Firebase ga saqlash (background)
+  // Save to Firebase in background
   const saveNote = document.getElementById('result-save-note');
   const saveErrBanner = document.getElementById('fb-save-error');
 
@@ -1525,14 +1582,13 @@ async function finishTest(cheated = false){
     if(saveNote) saveNote.innerHTML = '✅ Natijangiz muvaffaqiyatli saqlandi.';
     showToast("Natija saqlandi!", 'success');
   } else {
-    // Xatoni ko'rsat
     if(saveNote) saveNote.innerHTML = '❌ Saqlashda xato yuz berdi.';
     if(saveErrBanner){
       document.getElementById('fb-error-msg').textContent = saveRes.error || 'Noma\'lum xato';
       saveErrBanner.classList.add('show');
     }
     showToast("Saqlashda xato: " + (saveRes.error || ''), 'error');
-    console.error('Firebase saqlash xatosi:', saveRes);
+    console.error('Firebase save error:', saveRes);
   }
 }
 
@@ -1837,31 +1893,28 @@ async function exportCSV(){
 }
 
 // ==================== INIT ====================
-window.addEventListener('load', () => {
-  if(!fbReady){
+window.addEventListener('load', async () => {
+  // Firebase ni initialize qilish
+  const fbInit = initFirebase();
+  
+  if(!fbInit){
     showLoading(false);
     showToast("Firebase ulanishda xato!", 'error');
     return;
   }
-
-  let fbConnected = false;
-  const connTimeout = setTimeout(() => {
-    if(!fbConnected){
-      showLoading(false);
-      showToast("Firebase sekin ulanmoqda. Internet aloqangizni tekshiring.", 'error');
-    }
-  }, 6000);
-
-  db.ref('.info/connected').on('value', snap => {
-    if(snap.val() === true){
-      fbConnected = true;
-      clearTimeout(connTimeout);
+  
+  // 8 sekund kutish (Firebase connection uchun)
+  let waited = 0;
+  const checkConnection = setInterval(() => {
+    waited += 500;
+    if(fbReady || waited >= 8000){
+      clearInterval(checkConnection);
+      if(!fbReady && !fbConnectionChecked){
+        console.warn('Firebase connection timeout - proceeding anyway');
+      }
       showLoading(false);
     }
-  });
-
-  // Fallback: 3 sekunddan keyin ham yopamiz
-  setTimeout(() => showLoading(false), 3000);
+  }, 500);
 });
 </script>
 </body>
