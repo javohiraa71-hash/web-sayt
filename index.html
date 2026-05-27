@@ -156,7 +156,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);m
 .writing-area:focus{border-color:var(--gold);background:var(--dark4);}
 .writing-counter{font-size:12px;color:var(--muted);text-align:right;margin-top:8px;}
 .btn-check-section{background:linear-gradient(135deg,var(--dark3),var(--dark4));border:1px solid var(--border);color:var(--gold);padding:14px 32px;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.25s;margin:20px 0 0;letter-spacing:0.5px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn-check-section:hover{background:var(--gold-dim);border-color:var(--gold);}
+.btn-check-section:hover:not(:disabled){background:var(--gold-dim);border-color:var(--gold);}
 .btn-check-section:disabled{opacity:0.4;cursor:not-allowed;}
 .section-checked-banner{background:var(--dark3);border:1px solid var(--border-soft);border-radius:12px;padding:14px 20px;margin-top:16px;display:none;animation:fadeUp 0.3s ease both;}
 .section-checked-banner.show{display:flex;align-items:center;gap:12px;justify-content:space-between;}
@@ -235,7 +235,6 @@ tbody tr:hover td{background:rgba(201,168,76,0.03);}
 .writing-entry-name{font-weight:700;font-size:15px;}
 .writing-entry-meta{font-size:12px;color:var(--muted);}
 .writing-entry-text{background:var(--dark3);border-radius:10px;padding:16px;font-size:14px;line-height:1.7;color:var(--text-soft);white-space:pre-wrap;}
-/* NATIJA DETAIL MODAL */
 .detail-modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
 .detail-modal.show{display:flex;animation:fadeIn 0.2s ease;}
 .detail-card{background:var(--dark2);border:1px solid var(--border);border-radius:24px;padding:36px;max-width:680px;width:100%;max-height:85vh;overflow-y:auto;animation:scaleIn 0.3s ease both;}
@@ -290,13 +289,13 @@ th,td{padding:10px 12px;}
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 
-<!-- Loading -->
 <div class="loading-overlay" id="loading-overlay">
   <div class="loading-spinner"></div>
   <div class="loading-text">Firebase ulanmoqda...</div>
 </div>
 
 <div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg"></span></div>
+
 <div class="modal-overlay" id="confirm-modal">
   <div class="modal-card">
     <div class="modal-title" id="confirm-title">Ishonchingiz komilmi?</div>
@@ -307,6 +306,7 @@ th,td{padding:10px 12px;}
     </div>
   </div>
 </div>
+
 <div class="overlay" id="cheat-overlay">
   <div class="overlay-card">
     <div class="overlay-icon">⚠️</div>
@@ -316,7 +316,6 @@ th,td{padding:10px 12px;}
   </div>
 </div>
 
-<!-- Natija detail modal -->
 <div class="detail-modal" id="detail-modal">
   <div class="detail-card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
@@ -467,7 +466,6 @@ th,td{padding:10px 12px;}
   </div>
 </div>
 
-<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -486,434 +484,471 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 async function saveResult(r) {
-  try { await db.ref('results').push(r); }
-  catch(e) { console.error('FB save error:',e); }
+  try {
+    await db.ref('results').push(r);
+    return true;
+  } catch(e) {
+    console.error('Firebase saqlash xatosi:', e);
+    return false;
+  }
 }
+
 async function getResults() {
   try {
     const snap = await db.ref('results').once('value');
     if (!snap.exists()) return [];
     const data = snap.val();
-    return Object.values(data).sort((a,b)=>new Date(b.raw||0)-new Date(a.raw||0));
-  } catch(e) { console.error('FB read error:',e); return []; }
+    return Object.values(data).sort((a,b) => new Date(b.raw||0) - new Date(a.raw||0));
+  } catch(e) {
+    console.error('Firebase o\'qish xatosi:', e);
+    return [];
+  }
 }
 
 // ==================== TEST DATA ====================
 const TESTS = {
-elementary:{
-  id:'elementary',name:'Elementary',color:'#7EB3FF',c2:'#B0D4FF',
-  desc:'Asosiy grammatika va kundalik muloqot.',
-  sections:[
-    {id:'s1',title:'Grammar: is/are/have/has',type:'fitb',
-     instructions:'Complete the sentences. Use is/are or have/has.',
-     questions:[
-      {id:'e1q1',text:'My sisters ___ both very pretty.',answer:'are',hint:'plural → are'},
-      {id:'e1q2',text:'My little sister, Rosie, ___ only ten.',answer:'is',hint:'singular → is'},
-      {id:'e1q3',text:'Our house ___ a big garden.',answer:'has',hint:'possess → has'},
-      {id:'e1q4',text:'Our parents both ___ jobs in town.',answer:'have',hint:'plural → have'},
-      {id:'e1q5',text:'My school ___ 20 classrooms.',answer:'has',hint:'singular → has'},
-      {id:'e1q6',text:'I ___ a lot of friends.',answer:'have',hint:'I + have'},
-      {id:'e1q7',text:'We ___ all very happy at school.',answer:'are',hint:'We → are'},
-    ]},
-    {id:'s2',title:'Prepositions / Vaqt predloglari',type:'mc',
-     instructions:"Choose: at / in / on / last / yesterday",
-     questions:[
-      {id:'e2q1',q:'I went there ___ month.',opts:['at','in','on','last'],ans:3},
-      {id:'e2q2',q:'___ Wednesday',opts:['at','in','on','last'],ans:2},
-      {id:'e2q3',q:"___ 8 o'clock",opts:['at','in','on','last'],ans:0},
-      {id:'e2q4',q:'___ the morning',opts:['at','in','on','yesterday'],ans:1},
-      {id:'e2q5',q:'I went there ___ June 3rd',opts:['at','in','on','last'],ans:2},
-      {id:'e2q6',q:'___ the weekend',opts:['at','in','on','last'],ans:2},
-      {id:'e2q7',q:'___ Monday morning',opts:['at','in','on','last'],ans:2},
-    ]},
-    {id:'s3',title:'Question Words / So\'roq so\'zlari',type:'mc',
-     instructions:'Choose: when / where / what / who / how / how much / how long',
-     questions:[
-      {id:'e3q1',q:"'___ are you doing?' — planning holiday.",opts:['When','Where','What','Who'],ans:2},
-      {id:'e3q2',q:"'Oh, ___ are you going?'",opts:['when','where','what','who'],ans:1},
-      {id:'e3q3',q:"'___ are you leaving?'",opts:['When','Where','What','Who'],ans:0},
-      {id:'e3q4',q:"'___ are you going with?'",opts:['When','Where','What','Who'],ans:3},
-      {id:'e3q5',q:"'___ are you staying?'",opts:['When','Where','What','Who'],ans:1},
-      {id:'e3q6',q:"'___ is it going to cost?'",opts:['When','Where','How much','How long'],ans:2},
-      {id:'e3q7',q:"'___ are you going to travel?'",opts:['How','Where','When','What'],ans:0},
-    ]},
-    {id:'s4',title:'Find the Mistake / Xatoni Toping',type:'error',
-     instructions:'Each sentence has ONE mistake. Find the wrong word and write the correct answer.',
-     questions:[
-      {id:'e4q1',sentence:'What I you doing this evening?',instruction:'Find the mistake and write the correct word.',answer:'are',hint:'"I you" emas, "are you" kerak'},
-      {id:'e4q2',sentence:"I'm going see some friends tonight.",instruction:'Find the missing word.',answer:'to see',hint:'"going" dan keyin "to + verb" kerak'},
-      {id:'e4q3',sentence:'When they going to France?',instruction:'Find the missing word.',answer:'are they',hint:'Question: "are they" kerak'},
-      {id:'e4q4',sentence:'She seeing the doctor tomorrow.',instruction:'Find the mistake.',answer:'is seeing',hint:'Present continuous: is + verb-ing'},
-      {id:'e4q5',sentence:"I going to the cinema on Saturday.",instruction:'Find the missing word.',answer:"I'm going",hint:'"I going" emas → "I\'m going"'},
-    ]},
-    {id:'s5',title:'Past Simple / O\'tgan zamon',type:'fitb',
-     instructions:'Write the Past Simple form of the verbs.',
-     questions:[
-      {id:'e5q1',text:'get → ___',answer:'got'},
-      {id:'e5q2',text:'buy → ___',answer:'bought'},
-      {id:'e5q3',text:'have → ___',answer:'had'},
-      {id:'e5q4',text:'meet → ___',answer:'met'},
-      {id:'e5q5',text:'do → ___',answer:'did'},
-      {id:'e5q6',text:'go → ___',answer:'went'},
-      {id:'e5q7',text:'see → ___',answer:'saw'},
-      {id:'e5q8',text:'leave → ___',answer:'left'},
-    ]},
-    {id:'s6',title:'True or False — Reading / O\'qish',type:'tf',
-     instructions:'Read the text and choose True or False.',
-     passage:"David Beckham is a world famous footballer. His wife Victoria has a fashion business. They have four children: Brooklyn, Romeo, Cruz, and Harper. Victoria's sister Louise has a fashion boutique and Brooklyn works there on Saturdays. Romeo is a fashion model for Burberry. They have four houses in London, California, Dubai and France. David works for UNICEF.",
-     questions:[
-      {id:'e6q1',text:"The Beckhams' children are all boys.",answer:false},
-      {id:'e6q2',text:'David Beckham is a footballer and works for UNICEF.',answer:true},
-      {id:'e6q3',text:"David's wife Victoria is a fashion model.",answer:false},
-      {id:'e6q4',text:"Their daughter is a model for Burberry.",answer:false},
-      {id:'e6q5',text:"Brooklyn sometimes works in a shop.",answer:true},
-      {id:'e6q6',text:"Louise is David's sister.",answer:false},
-      {id:'e6q7',text:"They have houses in England and America.",answer:false},
-    ]},
-    {id:'s7',title:'Writing: A Letter / Yozish',type:'writing',
-     instructions:'Write a letter to your parents about your holiday. Min. 80 words.',
-     prompt:'Dear Mum and Dad,\nWrite about:\n• Where you are\n• What the weather is like\n• What you have done\n• What you plan to do\n• When you will come home',
-     minWords:80},
-  ]
-},
-'pre-intermediate':{
-  id:'pre-intermediate',name:'Pre-Intermediate',color:'#C9A84C',c2:'#E8C97A',
-  desc:"O'rta darajaga tayyorlanuvchilar uchun.",
-  sections:[
-    {id:'pi1',title:'Grammar / Grammatika',type:'mc',instructions:'Choose the correct answer.',
-     questions:[
-      {id:'pi1q1',q:"What's _____ job?",opts:['your','yours','you'],ans:0},
-      {id:'pi1q2',q:"The traffic is _____ than many years ago.",opts:['badder','more bad','worse'],ans:2},
-      {id:'pi1q3',q:"I've _____ washed the floor. It's wet.",opts:['already','just','yet'],ans:0},
-      {id:'pi1q4',q:"He has the same car _____ his sister.",opts:['as','like','than'],ans:0},
-      {id:'pi1q5',q:"The girl _____ a blue dress.",opts:['wears','wearing','is wearing'],ans:2},
-      {id:'pi1q6',q:"My mother doesn't enjoy _____ by plane.",opts:['travel','travelling','to travel'],ans:1},
-      {id:'pi1q7',q:"I can't come — I _____ to study.",opts:['must','have','has'],ans:1},
-      {id:'pi1q8',q:"What would you do if you _____ the Loch Ness monster?",opts:['saw','will see','see'],ans:0},
-      {id:'pi1q9',q:"My brother _____ glasses.",opts:['used to wear','use to wear','used to wearing'],ans:0},
-      {id:'pi1q10',q:'"My father loves Jazz" "_____!"',opts:['So I do','So am I','So do I'],ans:2},
-    ]},
-    {id:'pi2',title:'For or Since / For yoki Since',type:'mc',instructions:'Choose: For or Since.',
-     questions:[
-      {id:'pi2q1',q:"They've known each other _____ a long time.",opts:['For','Since'],ans:0},
-      {id:'pi2q2',q:"She's studied English _____ five years.",opts:['For','Since'],ans:0},
-      {id:'pi2q3',q:"He's been married _____ last September.",opts:['For','Since'],ans:1},
-      {id:'pi2q4',q:"You've worn these trainers _____ Christmas!",opts:['For','Since'],ans:1},
-      {id:'pi2q5',q:"I've been working in London _____ 1998.",opts:['For','Since'],ans:1},
-    ]},
-    {id:'pi3',title:'Irregular Verbs / Noto\'g\'ri fe\'llar',type:'fitb',instructions:'Write the missing form.',
-     questions:[
-      {id:'pi3q1',text:'to ___ / broke / broken',answer:'break'},
-      {id:'pi3q2',text:'to come / ___ / come',answer:'came'},
-      {id:'pi3q3',text:'to cost / ___ / cost',answer:'cost'},
-      {id:'pi3q4',text:'to ___ / built / built',answer:'build'},
-      {id:'pi3q5',text:'to eat / ate / ___',answer:'eaten'},
-      {id:'pi3q6',text:'to find / ___ / found',answer:'found'},
-      {id:'pi3q7',text:'to ___ / took / taken',answer:'take'},
-      {id:'pi3q8',text:'to know / knew / ___',answer:'known'},
-      {id:'pi3q9',text:'to ___ / saw / seen',answer:'see'},
-      {id:'pi3q10',text:'to put / ___ / put',answer:'put'},
-    ]},
-    {id:'pi4',title:'Opposites / Antonimlar',type:'fitb',instructions:'Write the OPPOSITE adjective.',
-     questions:[
-      {id:'pi4q1',text:'rude → ___',answer:'polite'},
-      {id:'pi4q2',text:'noisy → ___',answer:'quiet'},
-      {id:'pi4q3',text:'possible → ___',answer:'impossible'},
-      {id:'pi4q4',text:'dangerous → ___',answer:'safe'},
-      {id:'pi4q5',text:'patient → ___',answer:'impatient'},
-    ]},
-    {id:'pi5',title:'Adjectives -ed/-ing',type:'fitb',instructions:'Complete with the correct adjective form.',
-     questions:[
-      {id:'pi5q1',text:'I saw a really i_____ TV programme.',answer:'interesting',hint:'-ing adjective'},
-      {id:'pi5q2',text:'She failed her exams — she feels d_____ .',answer:'disappointed',hint:'-ed adjective'},
-      {id:'pi5q3',text:'My job is very b_____ .',answer:'boring',hint:'-ing adjective'},
-      {id:'pi5q4',text:'We had a r_____ holiday in the sun.',answer:'relaxing',hint:'-ing adjective'},
-      {id:'pi5q5',text:'I work too much. I feel really t_____ .',answer:'tired',hint:'-ed adjective'},
-    ]},
-    {id:'pi6',title:'Word Order / So\'z tartibi',type:'fitb',instructions:'Re-order the words to make correct questions.',
-     questions:[
-      {id:'pi6q1',text:'doing / weekend / this / what / you / are → ___',answer:'What are you doing this weekend?'},
-      {id:'pi6q2',text:'English / year / you / next / going / study / to / are → ___',answer:'Are you going to study English next year?'},
-      {id:'pi6q3',text:'you / dreams / how / your / remember / do / often → ___',answer:'How often do you remember your dreams?'},
-    ]},
-    {id:'pi7',title:'Reading: True or False / O\'qish',type:'tf',
-     instructions:'Read and answer True or False.',
-     passage:"Lady Morton (100 years old) has driven for nearly 80 years without a driving test. Last week she had her first accident — she hit a traffic island in Edinburgh when she took her new Nissan Micra for a drive. The car had no lights. She wasn't badly hurt and the car wasn't badly damaged. She plans to continue driving.",
-     questions:[
-      {id:'pi7q1',text:'Lady Morton has had many accidents.',answer:false},
-      {id:'pi7q2',text:'She bought a Nissan Micra.',answer:true},
-      {id:'pi7q3',text:"She wasn't badly hurt.",answer:true},
-      {id:'pi7q4',text:"After the accident she needs a new car.",answer:false},
-      {id:'pi7q5',text:"She plans to continue driving.",answer:true},
-    ]},
-    {id:'pi8',title:'Writing / Yozish',type:'writing',
-     instructions:'Describe your favourite holiday. Min. 80 words.',
-     prompt:'Describe your favourite holiday:\n• Where did you go?\n• Who did you go with?\n• What did you do?\n• Why is it special/memorable?',
-     minWords:80},
-  ]
-},
-intermediate:{
-  id:'intermediate',name:'Intermediate',color:'#E07AC9',c2:'#FFB3EA',
-  desc:'Murakkab grammatika, matching va error correction.',
-  sections:[
-    {id:'im1',title:'Verb Tenses / Fe\'l Zamonlari',type:'fitb',instructions:'Put verbs into the correct tense.',
-     questions:[
-      {id:'im1q1',text:"Johanna _____ (speak) Portuguese.",answer:"doesn't speak"},
-      {id:'im1q2',text:"In the photo, she _____ (carry) some books.",answer:'is carrying'},
-      {id:'im1q3',text:"Garlen _____ (be) French.",answer:"isn't"},
-      {id:'im1q4',text:"At the moment he _____ (live) with friends.",answer:'is living'},
-      {id:'im1q5',text:"Garlen _____ (like) living alone.",answer:"doesn't like"},
-      {id:'im1q6',text:"Anna and Don _____ (live) in England.",answer:'are living'},
-      {id:'im1q7',text:"They _____ (finish) university last year.",answer:'finished'},
-    ]},
-    {id:'im2',title:'Adjective Matching / Sinonimlar',type:'matching',instructions:'Match the adjective in A with a synonym in B.',
-     pairs:[
-      {a:'difficult',b:'hard'},{a:'correct',b:'right'},{a:'happy',b:'pleased'},
-      {a:'clever',b:'intelligent'},{a:'scared',b:'frightened'},{a:'unusual',b:'strange'},
-      {a:'big',b:'large'},{a:'famous',b:'well-known'},
-    ]},
-    {id:'im3',title:'Past Continuous / O\'tgan davom',type:'fitb',instructions:'Complete with Past Continuous.',
-     questions:[
-      {id:'im3q1',text:"I _____ (watch) TV when my parents came home.",answer:'was watching'},
-      {id:'im3q2',text:"Tom _____ (study) for his test.",answer:'was studying'},
-      {id:'im3q3',text:"The boys _____ (play) football when it rained.",answer:'were playing'},
-      {id:'im3q4',text:"The baby _____ (not sleep) when we went to bed.",answer:"wasn't sleeping"},
-      {id:'im3q5',text:"When I phoned, she _____ (eat) supper.",answer:'was eating'},
-    ]},
-    {id:'im4',title:'Error Correction / Xatolarni Tuzatish',type:'error',instructions:'Find and correct the mistake.',
-     questions:[
-      {id:'im4q1',sentence:"I haven't seen that new film already.",instruction:"Adverb xatosi",answer:"I haven't seen that new film yet.",hint:"'already' → 'yet'"},
-      {id:'im4q2',sentence:"He works in the same school for 20 years.",instruction:"Zamon xatosi",answer:"He has worked in the same school for 20 years.",hint:"Duration → Present Perfect"},
-      {id:'im4q3',sentence:"I have studied here for September.",instruction:"Predlog xatosi",answer:"I have studied here since September.",hint:"Nuqta vaqt → 'since'"},
-      {id:'im4q4',sentence:"My grandfather died since ten years.",instruction:"Predlog/zamon xatosi",answer:"My grandfather died ten years ago.",hint:"Past Simple + ago"},
-      {id:'im4q5',sentence:"Dave's not here. He's been to Spain.",instruction:"Present Perfect shakli",answer:"Dave's not here. He's gone to Spain.",hint:"gone = hali u yerda"},
-    ]},
-    {id:'im5',title:'For / Since / Ago',type:'mc',instructions:'Complete with for, since, or ago.',
-     questions:[
-      {id:'im5q1',q:"I've known Justin _____ we were at school.",opts:['for','since','ago'],ans:1},
-      {id:'im5q2',q:"We met 20 years _____.",opts:['for','since','ago'],ans:2},
-      {id:'im5q3',q:"I haven't seen you _____ ages!",opts:['for','since','ago'],ans:0},
-      {id:'im5q4',q:"I've been on a diet _____ March.",opts:['for','since','ago'],ans:1},
-    ]},
-    {id:'im6',title:'Writing / Yozish',type:'writing',
-     instructions:'Write about your favourite holiday. Min. 120 words.',
-     prompt:'Write about your favourite holiday:\n• Where and when?\n• Who were you with?\n• What did you do?\n• Why was it special?\nUse a variety of tenses.',
-     minWords:120},
-  ]
-},
-cefr:{
-  id:'cefr',name:'CEFR Multilevel',color:'#E05252',c2:'#FF9A9A',
-  desc:"Xalqaro CEFR standartiga asoslangan daraja testi.",
-  sections:[
-    {id:'cf1',title:'Grammar & Vocabulary (1–15)',type:'mc',instructions:'Circle the correct answer.',
-     questions:[
-      {id:'cf1q1',q:"___ you interested in sport?",opts:['Be','Am','Is','Are'],ans:3},
-      {id:'cf1q2',q:"My ___ is a writer.",opts:['aunt','uncle','sister','mother'],ans:1},
-      {id:'cf1q3',q:"Paul is very ___. He's good at art.",opts:['honest','friendly','polite','creative'],ans:3},
-      {id:'cf1q4',q:"We live in the city centre — our house ___ a big garden.",opts:["doesn't","isn't","aren't","don't"],ans:0},
-      {id:'cf1q5',q:"I ___ arrive before nine.",opts:['has to','have to',"doesn't have to","haven't to"],ans:1},
-      {id:'cf1q6',q:"The beach was crowded ___ Monday.",opts:['in','on','at','to'],ans:1},
-      {id:'cf1q7',q:"You ___ eat all that cake!",opts:["don't","may not","shouldn't","will not"],ans:2},
-      {id:'cf1q8',q:"Cathy ___ a game at the moment.",opts:['plays','is playing','to play','play'],ans:1},
-      {id:'cf1q9',q:"There ___ a lot of people outside.",opts:['are','is','be','am'],ans:0},
-      {id:'cf1q10',q:"___ you like to come tonight?",opts:['Do','Would','Are','Will'],ans:1},
-      {id:'cf1q11',q:"How ___ time have we got?",opts:['long','many','much','quick'],ans:2},
-      {id:'cf1q12',q:"Turn ___ — museum on the left.",opts:['on the right','rightly','by the right','right'],ans:3},
-      {id:'cf1q13',q:"Get ___ the bus at Station Road.",opts:['out','off','over','down'],ans:1},
-      {id:'cf1q14',q:"Tom got the ___ marks in class.",opts:['worse','worst','baddest','most bad'],ans:1},
-      {id:'cf1q15',q:"There wasn't ___ milk.",opts:['a','some','the','any'],ans:3},
-    ]},
-    {id:'cf2',title:'Grammar (16–30)',type:'mc',instructions:'Continue.',
-     questions:[
-      {id:'cf2q1',q:"My sister ___ speak French at six.",opts:['was','should','could','had'],ans:2},
-      {id:'cf2q2',q:"Did you ___ shopping yesterday?",opts:['went','goed','going','go'],ans:3},
-      {id:'cf2q3',q:"I ___ five emails before school.",opts:['sent','sended','did send','was send'],ans:0},
-      {id:'cf2q4',q:"Our teacher speaks ___.",opts:['slow','slower','more slow','slowly'],ans:3},
-      {id:'cf2q5',q:"It ___ any moment.",opts:['rains','is raining','is going to rain','can rain'],ans:2},
-      {id:'cf2q6',q:"I ___ the Batman film yet.",opts:["haven't seen","didn't see","don't see","am not seen"],ans:0},
-      {id:'cf2q7',q:"I hope you ___ a good time in Greece!",opts:['are having','have','have had','had'],ans:0},
-      {id:'cf2q8',q:"How long ago ___?",opts:['he left','has he left','did he leave','could he leave'],ans:2},
-      {id:'cf2q9',q:"You ___ hurry — 20 minutes left.",opts:["mustn't","can't","may not","needn't"],ans:3},
-      {id:'cf2q10',q:"That car is ___ dangerous.",opts:['too','enough','not enough','the worst'],ans:0},
-      {id:'cf2q11',q:"I ___ you at the café at 4.30.",opts:["'ll see","am going to see","am seeing","see"],ans:0},
-      {id:'cf2q12',q:"My father has been a pilot ___ twenty years.",opts:['since','for','until','by'],ans:1},
-      {id:'cf2q13',q:"I enjoy ___ new languages.",opts:['to learn','learning','learn','learned'],ans:1},
-    ]},
-    {id:'cf3',title:'Reading: True or False',type:'tf',
-     instructions:'Read about female referees and answer T/F.',
-     passage:"Pat Dunn was the first woman in the UK to referee a men's football match. The Football Association refused her a certificate for a long time, even though she had passed the exams. She got permission in 1976. Bibiana Steinhaus refereed the Women's Football World Cup final.",
-     questions:[
-      {id:'cf3q1',text:"Pat didn't get her referee certificate immediately.",answer:true},
-      {id:'cf3q2',text:'Bibiana Steinhaus played in a football final.',answer:false},
-      {id:'cf3q3',text:'The writer says women are better referees than men.',answer:false},
-      {id:'cf3q4',text:'Pat Dunn got permission in 1976.',answer:true},
-    ]},
-    {id:'cf4',title:'Writing / Yozish',type:'writing',
-     instructions:'Describe a happy time. Min. 150 words.',
-     prompt:'Describe a time when you felt very happy.\n• When and where?\n• Who were you with?\n• What happened?\n• Why did it make you happy?',
-     minWords:150},
-  ]
-},
-'pre-ielts':{
-  id:'pre-ielts',name:'Pre-IELTS',color:'#FF8C5A',c2:'#FFBFA0',
-  desc:'IELTS imtihoniga tayyorlanish uchun maxsus test.',
-  sections:[
-    {id:'ielts1',title:'Vocabulary (1–15) / So\'z Boyligi',type:'mc',instructions:'Choose the most suitable answer.',
-     questions:[
-      {id:'ielts1q1',q:"The house is ______ wood.",opts:['made of','built by','looked like','got'],ans:0},
-      {id:'ielts1q2',q:"The man is very ________.",opts:['healthy','unique','wealthy','poor'],ans:2},
-      {id:'ielts1q3',q:"We need more ________ like Elon Musk.",opts:['poor people','frugal people','wealthy','generous'],ans:3},
-      {id:'ielts1q4',q:"We should _______ electricity use.",opts:['create','include','reduce','taste'],ans:2},
-      {id:'ielts1q5',q:"The body _______ well to healthy exercise.",opts:['care','respond','reaction','look after'],ans:1},
-      {id:'ielts1q6',q:"Most ______, like ants, are very strong.",opts:['mammals','insects','birds','reptiles'],ans:1},
-      {id:'ielts1q7',q:"Bill is a very _______ guy.",opts:['famous','well-known','popular','spectacular'],ans:2},
-      {id:'ielts1q8',q:"Locking the door was my _______.",opts:['activity','diversity','misery','responsibility'],ans:3},
-      {id:'ielts1q9',q:"Bob is a big film _____.",opts:['man','buff','fan','fancy'],ans:1},
-      {id:'ielts1q10',q:"Everyone has two _______.",opts:['intestines','stomachs','hobbies','kidneys'],ans:3},
-    ]},
-    {id:'ielts2',title:'Passive Voice / Majhul nisbat',type:'fitb',instructions:'Make these sentences Present Perfect Passive.',
-     questions:[
-      {id:'ielts2q1',text:"Hundreds of employees _____ redundant. (make)",answer:'have been made',hint:'have been + past participle'},
-      {id:'ielts2q2',text:"Has the tunnel _____ yet? (complete)",answer:'been completed'},
-      {id:'ielts2q3',text:"A new mayor _____. (choose)",answer:'has been chosen'},
-      {id:'ielts2q4',text:"Huge improvements _____. (make)",answer:'have been made'},
-      {id:'ielts2q5',text:"Michael Jackson _____ as one of the best. (vote)",answer:'has been voted'},
-    ]},
-    {id:'ielts3',title:'Vocabulary Matching / So\'z Moslashtirish',type:'matching',instructions:'Match the words to their meanings.',
-     pairs:[
-      {a:'slums',b:'very poor area to live in'},
-      {a:'frail',b:'weak, usually because of old age'},
-      {a:'passion',b:'a strong interest or hobby'},
-      {a:'extinct',b:'no longer existing as a species'},
-      {a:'chaos',b:'complete disorder and confusion'},
-      {a:'relaxing',b:'making you feel calm and less stressed'},
-      {a:'demanding',b:'needing a lot of effort or skill'},
-    ]},
-    {id:'ielts4',title:'Conditionals / Shartli gaplar',type:'fitb',instructions:'Fill in with the correct conditional form.',
-     questions:[
-      {id:'ielts4q1',text:"If the weather had been better, we _____ (come) by bike.",answer:'would have come',hint:'3rd conditional'},
-      {id:'ielts4q2',text:"If you were older, you _____ (go) to the party.",answer:'could go',hint:'2nd conditional'},
-      {id:'ielts4q3',text:"If Alice _____ (have) more money, she would go to Africa.",answer:'had',hint:'2nd conditional'},
-      {id:'ielts4q4',text:"John's mother _____ (have) more time if he does washing up.",answer:'will have',hint:'1st conditional'},
-      {id:'ielts4q5',text:"If Brian _____ (like) horses, he could ride well.",answer:'liked',hint:'2nd conditional'},
-      {id:'ielts4q6',text:"He can write stories if he _____ (feel) like it.",answer:'feels',hint:'1st conditional'},
-    ]},
-    {id:'ielts5',title:'Reading: True or False / O\'qish',type:'tf',
-     instructions:'Read about Bangkok and answer True or False.',
-     passage:"Bangkok is the capital of Thailand. Phra Kanong offers authentic street markets but it's not as convenient for tourist sites — though it has a Skytrain to the Grand Palace in 20 minutes. Bangkok's traffic is a nightmare. Better to use the express boat river taxi or the Skytrain. Thai street food is among the best in the world for around $5.",
-     questions:[
-      {id:'ielts5q1',text:"Phra Kanong is further from the main tourist sites.",answer:true},
-      {id:'ielts5q2',text:"The river boat taxis often get stuck in traffic too.",answer:false},
-      {id:'ielts5q3',text:"Taking the Skytrain is faster than going by taxi.",answer:true},
-      {id:'ielts5q4',text:"Thai street food is very cheap.",answer:true},
-    ]},
-    {id:'ielts6',title:'Writing: IELTS Task 2 / Yozish',type:'writing',
-     instructions:'Write at least 200 words. Discuss both views and give your opinion.',
-     prompt:'Some people think we have become more dependent on each other, while others think people have become more independent.\n• View 1: more dependent\n• View 2: more independent\n• Your opinion with examples\nMin. 200 words',
-     minWords:200},
-  ]
-}
+  elementary:{
+    id:'elementary', name:'Elementary', color:'#7EB3FF', c2:'#B0D4FF',
+    desc:'Asosiy grammatika va kundalik muloqot.',
+    sections:[
+      {id:'s1', title:'Grammar: is/are/have/has', type:'fitb',
+       instructions:'Complete the sentences. Use is/are or have/has.',
+       questions:[
+        {id:'e1q1', text:'My sisters ___ both very pretty.', answer:'are', hint:'plural → are'},
+        {id:'e1q2', text:'My little sister, Rosie, ___ only ten.', answer:'is', hint:'singular → is'},
+        {id:'e1q3', text:'Our house ___ a big garden.', answer:'has', hint:'possess → has'},
+        {id:'e1q4', text:'Our parents both ___ jobs in town.', answer:'have', hint:'plural → have'},
+        {id:'e1q5', text:'My school ___ 20 classrooms.', answer:'has', hint:'singular → has'},
+        {id:'e1q6', text:'I ___ a lot of friends.', answer:'have', hint:'I + have'},
+        {id:'e1q7', text:'We ___ all very happy at school.', answer:'are', hint:'We → are'},
+      ]},
+      {id:'s2', title:'Prepositions / Vaqt predloglari', type:'mc',
+       instructions:"Choose: at / in / on / last / yesterday",
+       questions:[
+        {id:'e2q1', q:'I went there ___ month.', opts:['at','in','on','last'], ans:3},
+        {id:'e2q2', q:'___ Wednesday', opts:['at','in','on','last'], ans:2},
+        {id:'e2q3', q:"___ 8 o'clock", opts:['at','in','on','last'], ans:0},
+        {id:'e2q4', q:'___ the morning', opts:['at','in','on','yesterday'], ans:1},
+        {id:'e2q5', q:'I went there ___ June 3rd', opts:['at','in','on','last'], ans:2},
+        {id:'e2q6', q:'___ the weekend', opts:['at','in','on','last'], ans:2},
+        {id:'e2q7', q:'___ Monday morning', opts:['at','in','on','last'], ans:2},
+      ]},
+      {id:'s3', title:"Question Words / So'roq so'zlari", type:'mc',
+       instructions:'Choose: when / where / what / who / how / how much / how long',
+       questions:[
+        {id:'e3q1', q:"'___ are you doing?' — planning holiday.", opts:['When','Where','What','Who'], ans:2},
+        {id:'e3q2', q:"'Oh, ___ are you going?'", opts:['when','where','what','who'], ans:1},
+        {id:'e3q3', q:"'___ are you leaving?'", opts:['When','Where','What','Who'], ans:0},
+        {id:'e3q4', q:"'___ are you going with?'", opts:['When','Where','What','Who'], ans:3},
+        {id:'e3q5', q:"'___ are you staying?'", opts:['When','Where','What','Who'], ans:1},
+        {id:'e3q6', q:"'___ is it going to cost?'", opts:['When','Where','How much','How long'], ans:2},
+        {id:'e3q7', q:"'___ are you going to travel?'", opts:['How','Where','When','What'], ans:0},
+      ]},
+      {id:'s4', title:'Find the Mistake / Xatoni Toping', type:'error',
+       instructions:'Each sentence has ONE mistake. Find the wrong word and write the correct answer.',
+       questions:[
+        {id:'e4q1', sentence:'What I you doing this evening?', instruction:'Find the mistake and write the correct word.', answer:'are', hint:'"I you" emas, "are you" kerak'},
+        {id:'e4q2', sentence:"I'm going see some friends tonight.", instruction:'Find the missing word.', answer:'to see', hint:'"going" dan keyin "to + verb" kerak'},
+        {id:'e4q3', sentence:'When they going to France?', instruction:'Find the missing word.', answer:'are they', hint:'Question: "are they" kerak'},
+        {id:'e4q4', sentence:'She seeing the doctor tomorrow.', instruction:'Find the mistake.', answer:'is seeing', hint:'Present continuous: is + verb-ing'},
+        {id:'e4q5', sentence:"I going to the cinema on Saturday.", instruction:'Find the missing word.', answer:"I'm going", hint:'"I going" emas → "I\'m going"'},
+      ]},
+      {id:'s5', title:"Past Simple / O'tgan zamon", type:'fitb',
+       instructions:'Write the Past Simple form of the verbs.',
+       questions:[
+        {id:'e5q1', text:'get → ___', answer:'got'},
+        {id:'e5q2', text:'buy → ___', answer:'bought'},
+        {id:'e5q3', text:'have → ___', answer:'had'},
+        {id:'e5q4', text:'meet → ___', answer:'met'},
+        {id:'e5q5', text:'do → ___', answer:'did'},
+        {id:'e5q6', text:'go → ___', answer:'went'},
+        {id:'e5q7', text:'see → ___', answer:'saw'},
+        {id:'e5q8', text:'leave → ___', answer:'left'},
+      ]},
+      {id:'s6', title:"True or False — Reading / O'qish", type:'tf',
+       instructions:'Read the text and choose True or False.',
+       passage:"David Beckham is a world famous footballer. His wife Victoria has a fashion business. They have four children: Brooklyn, Romeo, Cruz, and Harper. Victoria's sister Louise has a fashion boutique and Brooklyn works there on Saturdays. Romeo is a fashion model for Burberry. They have four houses in London, California, Dubai and France. David works for UNICEF.",
+       questions:[
+        {id:'e6q1', text:"The Beckhams' children are all boys.", answer:false},
+        {id:'e6q2', text:'David Beckham is a footballer and works for UNICEF.', answer:true},
+        {id:'e6q3', text:"David's wife Victoria is a fashion model.", answer:false},
+        {id:'e6q4', text:"Their daughter is a model for Burberry.", answer:false},
+        {id:'e6q5', text:"Brooklyn sometimes works in a shop.", answer:true},
+        {id:'e6q6', text:"Louise is David's sister.", answer:false},
+        {id:'e6q7', text:"They have houses in England and America.", answer:false},
+      ]},
+      {id:'s7', title:'Writing: A Letter / Yozish', type:'writing',
+       instructions:'Write a letter to your parents about your holiday. Min. 80 words.',
+       prompt:"Dear Mum and Dad,\nWrite about:\n• Where you are\n• What the weather is like\n• What you have done\n• What you plan to do\n• When you will come home",
+       minWords:80},
+    ]
+  },
+  'pre-intermediate':{
+    id:'pre-intermediate', name:'Pre-Intermediate', color:'#C9A84C', c2:'#E8C97A',
+    desc:"O'rta darajaga tayyorlanuvchilar uchun.",
+    sections:[
+      {id:'pi1', title:'Grammar / Grammatika', type:'mc', instructions:'Choose the correct answer.',
+       questions:[
+        {id:'pi1q1', q:"What's _____ job?", opts:['your','yours','you'], ans:0},
+        {id:'pi1q2', q:"The traffic is _____ than many years ago.", opts:['badder','more bad','worse'], ans:2},
+        {id:'pi1q3', q:"I've _____ washed the floor. It's wet.", opts:['already','just','yet'], ans:0},
+        {id:'pi1q4', q:"He has the same car _____ his sister.", opts:['as','like','than'], ans:0},
+        {id:'pi1q5', q:"The girl _____ a blue dress.", opts:['wears','wearing','is wearing'], ans:2},
+        {id:'pi1q6', q:"My mother doesn't enjoy _____ by plane.", opts:['travel','travelling','to travel'], ans:1},
+        {id:'pi1q7', q:"I can't come — I _____ to study.", opts:['must','have','has'], ans:1},
+        {id:'pi1q8', q:"What would you do if you _____ the Loch Ness monster?", opts:['saw','will see','see'], ans:0},
+        {id:'pi1q9', q:"My brother _____ glasses.", opts:['used to wear','use to wear','used to wearing'], ans:0},
+        {id:'pi1q10', q:'"My father loves Jazz" "_____!"', opts:['So I do','So am I','So do I'], ans:2},
+      ]},
+      {id:'pi2', title:'For or Since / For yoki Since', type:'mc', instructions:'Choose: For or Since.',
+       questions:[
+        {id:'pi2q1', q:"They've known each other _____ a long time.", opts:['For','Since'], ans:0},
+        {id:'pi2q2', q:"She's studied English _____ five years.", opts:['For','Since'], ans:0},
+        {id:'pi2q3', q:"He's been married _____ last September.", opts:['For','Since'], ans:1},
+        {id:'pi2q4', q:"You've worn these trainers _____ Christmas!", opts:['For','Since'], ans:1},
+        {id:'pi2q5', q:"I've been working in London _____ 1998.", opts:['For','Since'], ans:1},
+      ]},
+      {id:'pi3', title:"Irregular Verbs / Noto'g'ri fe'llar", type:'fitb', instructions:'Write the missing form.',
+       questions:[
+        {id:'pi3q1', text:'to ___ / broke / broken', answer:'break'},
+        {id:'pi3q2', text:'to come / ___ / come', answer:'came'},
+        {id:'pi3q3', text:'to cost / ___ / cost', answer:'cost'},
+        {id:'pi3q4', text:'to ___ / built / built', answer:'build'},
+        {id:'pi3q5', text:'to eat / ate / ___', answer:'eaten'},
+        {id:'pi3q6', text:'to find / ___ / found', answer:'found'},
+        {id:'pi3q7', text:'to ___ / took / taken', answer:'take'},
+        {id:'pi3q8', text:'to know / knew / ___', answer:'known'},
+        {id:'pi3q9', text:'to ___ / saw / seen', answer:'see'},
+        {id:'pi3q10', text:'to put / ___ / put', answer:'put'},
+      ]},
+      {id:'pi4', title:'Opposites / Antonimlar', type:'fitb', instructions:'Write the OPPOSITE adjective.',
+       questions:[
+        {id:'pi4q1', text:'rude → ___', answer:'polite'},
+        {id:'pi4q2', text:'noisy → ___', answer:'quiet'},
+        {id:'pi4q3', text:'possible → ___', answer:'impossible'},
+        {id:'pi4q4', text:'dangerous → ___', answer:'safe'},
+        {id:'pi4q5', text:'patient → ___', answer:'impatient'},
+      ]},
+      {id:'pi5', title:'Adjectives -ed/-ing', type:'fitb', instructions:'Complete with the correct adjective form.',
+       questions:[
+        {id:'pi5q1', text:'I saw a really i_____ TV programme.', answer:'interesting', hint:'-ing adjective'},
+        {id:'pi5q2', text:'She failed her exams — she feels d_____ .', answer:'disappointed', hint:'-ed adjective'},
+        {id:'pi5q3', text:'My job is very b_____ .', answer:'boring', hint:'-ing adjective'},
+        {id:'pi5q4', text:'We had a r_____ holiday in the sun.', answer:'relaxing', hint:'-ing adjective'},
+        {id:'pi5q5', text:'I work too much. I feel really t_____ .', answer:'tired', hint:'-ed adjective'},
+      ]},
+      {id:'pi6', title:"Word Order / So'z tartibi", type:'fitb', instructions:'Re-order the words to make correct questions.',
+       questions:[
+        {id:'pi6q1', text:'doing / weekend / this / what / you / are → ___', answer:'What are you doing this weekend?'},
+        {id:'pi6q2', text:'English / year / you / next / going / study / to / are → ___', answer:'Are you going to study English next year?'},
+        {id:'pi6q3', text:'you / dreams / how / your / remember / do / often → ___', answer:'How often do you remember your dreams?'},
+      ]},
+      {id:'pi7', title:"Reading: True or False / O'qish", type:'tf',
+       instructions:'Read and answer True or False.',
+       passage:"Lady Morton (100 years old) has driven for nearly 80 years without a driving test. Last week she had her first accident — she hit a traffic island in Edinburgh when she took her new Nissan Micra for a drive. The car had no lights. She wasn't badly hurt and the car wasn't badly damaged. She plans to continue driving.",
+       questions:[
+        {id:'pi7q1', text:'Lady Morton has had many accidents.', answer:false},
+        {id:'pi7q2', text:'She bought a Nissan Micra.', answer:true},
+        {id:'pi7q3', text:"She wasn't badly hurt.", answer:true},
+        {id:'pi7q4', text:"After the accident she needs a new car.", answer:false},
+        {id:'pi7q5', text:"She plans to continue driving.", answer:true},
+      ]},
+      {id:'pi8', title:'Writing / Yozish', type:'writing',
+       instructions:'Describe your favourite holiday. Min. 80 words.',
+       prompt:"Describe your favourite holiday:\n• Where did you go?\n• Who did you go with?\n• What did you do?\n• Why is it special/memorable?",
+       minWords:80},
+    ]
+  },
+  intermediate:{
+    id:'intermediate', name:'Intermediate', color:'#E07AC9', c2:'#FFB3EA',
+    desc:'Murakkab grammatika, matching va error correction.',
+    sections:[
+      {id:'im1', title:"Verb Tenses / Fe'l Zamonlari", type:'fitb', instructions:'Put verbs into the correct tense.',
+       questions:[
+        {id:'im1q1', text:"Johanna _____ (speak) Portuguese.", answer:"doesn't speak"},
+        {id:'im1q2', text:"In the photo, she _____ (carry) some books.", answer:'is carrying'},
+        {id:'im1q3', text:"Garlen _____ (be) French.", answer:"isn't"},
+        {id:'im1q4', text:"At the moment he _____ (live) with friends.", answer:'is living'},
+        {id:'im1q5', text:"Garlen _____ (like) living alone.", answer:"doesn't like"},
+        {id:'im1q6', text:"Anna and Don _____ (live) in England.", answer:'are living'},
+        {id:'im1q7', text:"They _____ (finish) university last year.", answer:'finished'},
+      ]},
+      {id:'im2', title:'Adjective Matching / Sinonimlar', type:'matching', instructions:'Match the adjective in A with a synonym in B.',
+       pairs:[
+        {a:'difficult', b:'hard'},{a:'correct', b:'right'},{a:'happy', b:'pleased'},
+        {a:'clever', b:'intelligent'},{a:'scared', b:'frightened'},{a:'unusual', b:'strange'},
+        {a:'big', b:'large'},{a:'famous', b:'well-known'},
+      ]},
+      {id:'im3', title:"Past Continuous / O'tgan davom", type:'fitb', instructions:'Complete with Past Continuous.',
+       questions:[
+        {id:'im3q1', text:"I _____ (watch) TV when my parents came home.", answer:'was watching'},
+        {id:'im3q2', text:"Tom _____ (study) for his test.", answer:'was studying'},
+        {id:'im3q3', text:"The boys _____ (play) football when it rained.", answer:'were playing'},
+        {id:'im3q4', text:"The baby _____ (not sleep) when we went to bed.", answer:"wasn't sleeping"},
+        {id:'im3q5', text:"When I phoned, she _____ (eat) supper.", answer:'was eating'},
+      ]},
+      {id:'im4', title:'Error Correction / Xatolarni Tuzatish', type:'error', instructions:'Find and correct the mistake.',
+       questions:[
+        {id:'im4q1', sentence:"I haven't seen that new film already.", instruction:"Adverb xatosi", answer:"I haven't seen that new film yet.", hint:"'already' → 'yet'"},
+        {id:'im4q2', sentence:"He works in the same school for 20 years.", instruction:"Zamon xatosi", answer:"He has worked in the same school for 20 years.", hint:"Duration → Present Perfect"},
+        {id:'im4q3', sentence:"I have studied here for September.", instruction:"Predlog xatosi", answer:"I have studied here since September.", hint:"Nuqta vaqt → 'since'"},
+        {id:'im4q4', sentence:"My grandfather died since ten years.", instruction:"Predlog/zamon xatosi", answer:"My grandfather died ten years ago.", hint:"Past Simple + ago"},
+        {id:'im4q5', sentence:"Dave's not here. He's been to Spain.", instruction:"Present Perfect shakli", answer:"Dave's not here. He's gone to Spain.", hint:"gone = hali u yerda"},
+      ]},
+      {id:'im5', title:'For / Since / Ago', type:'mc', instructions:'Complete with for, since, or ago.',
+       questions:[
+        {id:'im5q1', q:"I've known Justin _____ we were at school.", opts:['for','since','ago'], ans:1},
+        {id:'im5q2', q:"We met 20 years _____.", opts:['for','since','ago'], ans:2},
+        {id:'im5q3', q:"I haven't seen you _____ ages!", opts:['for','since','ago'], ans:0},
+        {id:'im5q4', q:"I've been on a diet _____ March.", opts:['for','since','ago'], ans:1},
+      ]},
+      {id:'im6', title:'Writing / Yozish', type:'writing',
+       instructions:'Write about your favourite holiday. Min. 120 words.',
+       prompt:"Write about your favourite holiday:\n• Where and when?\n• Who were you with?\n• What did you do?\n• Why was it special?\nUse a variety of tenses.",
+       minWords:120},
+    ]
+  },
+  cefr:{
+    id:'cefr', name:'CEFR Multilevel', color:'#E05252', c2:'#FF9A9A',
+    desc:"Xalqaro CEFR standartiga asoslangan daraja testi.",
+    sections:[
+      {id:'cf1', title:'Grammar & Vocabulary (1–15)', type:'mc', instructions:'Circle the correct answer.',
+       questions:[
+        {id:'cf1q1', q:"___ you interested in sport?", opts:['Be','Am','Is','Are'], ans:3},
+        {id:'cf1q2', q:"My ___ is a writer.", opts:['aunt','uncle','sister','mother'], ans:1},
+        {id:'cf1q3', q:"Paul is very ___. He's good at art.", opts:['honest','friendly','polite','creative'], ans:3},
+        {id:'cf1q4', q:"We live in the city centre — our house ___ a big garden.", opts:["doesn't","isn't","aren't","don't"], ans:0},
+        {id:'cf1q5', q:"I ___ arrive before nine.", opts:['has to','have to',"doesn't have to","haven't to"], ans:1},
+        {id:'cf1q6', q:"The beach was crowded ___ Monday.", opts:['in','on','at','to'], ans:1},
+        {id:'cf1q7', q:"You ___ eat all that cake!", opts:["don't","may not","shouldn't","will not"], ans:2},
+        {id:'cf1q8', q:"Cathy ___ a game at the moment.", opts:['plays','is playing','to play','play'], ans:1},
+        {id:'cf1q9', q:"There ___ a lot of people outside.", opts:['are','is','be','am'], ans:0},
+        {id:'cf1q10', q:"___ you like to come tonight?", opts:['Do','Would','Are','Will'], ans:1},
+        {id:'cf1q11', q:"How ___ time have we got?", opts:['long','many','much','quick'], ans:2},
+        {id:'cf1q12', q:"Turn ___ — museum on the left.", opts:['on the right','rightly','by the right','right'], ans:3},
+        {id:'cf1q13', q:"Get ___ the bus at Station Road.", opts:['out','off','over','down'], ans:1},
+        {id:'cf1q14', q:"Tom got the ___ marks in class.", opts:['worse','worst','baddest','most bad'], ans:1},
+        {id:'cf1q15', q:"There wasn't ___ milk.", opts:['a','some','the','any'], ans:3},
+      ]},
+      {id:'cf2', title:'Grammar (16–30)', type:'mc', instructions:'Continue.',
+       questions:[
+        {id:'cf2q1', q:"My sister ___ speak French at six.", opts:['was','should','could','had'], ans:2},
+        {id:'cf2q2', q:"Did you ___ shopping yesterday?", opts:['went','goed','going','go'], ans:3},
+        {id:'cf2q3', q:"I ___ five emails before school.", opts:['sent','sended','did send','was send'], ans:0},
+        {id:'cf2q4', q:"Our teacher speaks ___.", opts:['slow','slower','more slow','slowly'], ans:3},
+        {id:'cf2q5', q:"It ___ any moment.", opts:['rains','is raining','is going to rain','can rain'], ans:2},
+        {id:'cf2q6', q:"I ___ the Batman film yet.", opts:["haven't seen","didn't see","don't see","am not seen"], ans:0},
+        {id:'cf2q7', q:"I hope you ___ a good time in Greece!", opts:['are having','have','have had','had'], ans:0},
+        {id:'cf2q8', q:"How long ago ___?", opts:['he left','has he left','did he leave','could he leave'], ans:2},
+        {id:'cf2q9', q:"You ___ hurry — 20 minutes left.", opts:["mustn't","can't","may not","needn't"], ans:3},
+        {id:'cf2q10', q:"That car is ___ dangerous.", opts:['too','enough','not enough','the worst'], ans:0},
+        {id:'cf2q11', q:"I ___ you at the café at 4.30.", opts:["'ll see","am going to see","am seeing","see"], ans:0},
+        {id:'cf2q12', q:"My father has been a pilot ___ twenty years.", opts:['since','for','until','by'], ans:1},
+        {id:'cf2q13', q:"I enjoy ___ new languages.", opts:['to learn','learning','learn','learned'], ans:1},
+      ]},
+      {id:'cf3', title:'Reading: True or False', type:'tf',
+       instructions:'Read about female referees and answer T/F.',
+       passage:"Pat Dunn was the first woman in the UK to referee a men's football match. The Football Association refused her a certificate for a long time, even though she had passed the exams. She got permission in 1976. Bibiana Steinhaus refereed the Women's Football World Cup final.",
+       questions:[
+        {id:'cf3q1', text:"Pat didn't get her referee certificate immediately.", answer:true},
+        {id:'cf3q2', text:'Bibiana Steinhaus played in a football final.', answer:false},
+        {id:'cf3q3', text:'The writer says women are better referees than men.', answer:false},
+        {id:'cf3q4', text:'Pat Dunn got permission in 1976.', answer:true},
+      ]},
+      {id:'cf4', title:'Writing / Yozish', type:'writing',
+       instructions:'Describe a happy time. Min. 150 words.',
+       prompt:"Describe a time when you felt very happy.\n• When and where?\n• Who were you with?\n• What happened?\n• Why did it make you happy?",
+       minWords:150},
+    ]
+  },
+  'pre-ielts':{
+    id:'pre-ielts', name:'Pre-IELTS', color:'#FF8C5A', c2:'#FFBFA0',
+    desc:'IELTS imtihoniga tayyorlanish uchun maxsus test.',
+    sections:[
+      {id:'ielts1', title:"Vocabulary (1–15) / So'z Boyligi", type:'mc', instructions:'Choose the most suitable answer.',
+       questions:[
+        {id:'ielts1q1', q:"The house is ______ wood.", opts:['made of','built by','looked like','got'], ans:0},
+        {id:'ielts1q2', q:"The man is very ________.", opts:['healthy','unique','wealthy','poor'], ans:2},
+        {id:'ielts1q3', q:"We need more ________ like Elon Musk.", opts:['poor people','frugal people','wealthy','generous'], ans:3},
+        {id:'ielts1q4', q:"We should _______ electricity use.", opts:['create','include','reduce','taste'], ans:2},
+        {id:'ielts1q5', q:"The body _______ well to healthy exercise.", opts:['care','respond','reaction','look after'], ans:1},
+        {id:'ielts1q6', q:"Most ______, like ants, are very strong.", opts:['mammals','insects','birds','reptiles'], ans:1},
+        {id:'ielts1q7', q:"Bill is a very _______ guy.", opts:['famous','well-known','popular','spectacular'], ans:2},
+        {id:'ielts1q8', q:"Locking the door was my _______.", opts:['activity','diversity','misery','responsibility'], ans:3},
+        {id:'ielts1q9', q:"Bob is a big film _____.", opts:['man','buff','fan','fancy'], ans:1},
+        {id:'ielts1q10', q:"Everyone has two _______.", opts:['intestines','stomachs','hobbies','kidneys'], ans:3},
+      ]},
+      {id:'ielts2', title:'Passive Voice / Majhul nisbat', type:'fitb', instructions:'Make these sentences Present Perfect Passive.',
+       questions:[
+        {id:'ielts2q1', text:"Hundreds of employees _____ redundant. (make)", answer:'have been made', hint:'have been + past participle'},
+        {id:'ielts2q2', text:"Has the tunnel _____ yet? (complete)", answer:'been completed'},
+        {id:'ielts2q3', text:"A new mayor _____. (choose)", answer:'has been chosen'},
+        {id:'ielts2q4', text:"Huge improvements _____. (make)", answer:'have been made'},
+        {id:'ielts2q5', text:"Michael Jackson _____ as one of the best. (vote)", answer:'has been voted'},
+      ]},
+      {id:'ielts3', title:"Vocabulary Matching / So'z Moslashtirish", type:'matching', instructions:'Match the words to their meanings.',
+       pairs:[
+        {a:'slums', b:'very poor area to live in'},
+        {a:'frail', b:'weak, usually because of old age'},
+        {a:'passion', b:'a strong interest or hobby'},
+        {a:'extinct', b:'no longer existing as a species'},
+        {a:'chaos', b:'complete disorder and confusion'},
+        {a:'relaxing', b:'making you feel calm and less stressed'},
+        {a:'demanding', b:'needing a lot of effort or skill'},
+      ]},
+      {id:'ielts4', title:'Conditionals / Shartli gaplar', type:'fitb', instructions:'Fill in with the correct conditional form.',
+       questions:[
+        {id:'ielts4q1', text:"If the weather had been better, we _____ (come) by bike.", answer:'would have come', hint:'3rd conditional'},
+        {id:'ielts4q2', text:"If you were older, you _____ (go) to the party.", answer:'could go', hint:'2nd conditional'},
+        {id:'ielts4q3', text:"If Alice _____ (have) more money, she would go to Africa.", answer:'had', hint:'2nd conditional'},
+        {id:'ielts4q4', text:"John's mother _____ (have) more time if he does washing up.", answer:'will have', hint:'1st conditional'},
+        {id:'ielts4q5', text:"If Brian _____ (like) horses, he could ride well.", answer:'liked', hint:'2nd conditional'},
+        {id:'ielts4q6', text:"He can write stories if he _____ (feel) like it.", answer:'feels', hint:'1st conditional'},
+      ]},
+      {id:'ielts5', title:"Reading: True or False / O'qish", type:'tf',
+       instructions:'Read about Bangkok and answer True or False.',
+       passage:"Bangkok is the capital of Thailand. Phra Kanong offers authentic street markets but it's not as convenient for tourist sites — though it has a Skytrain to the Grand Palace in 20 minutes. Bangkok's traffic is a nightmare. Better to use the express boat river taxi or the Skytrain. Thai street food is among the best in the world for around $5.",
+       questions:[
+        {id:'ielts5q1', text:"Phra Kanong is further from the main tourist sites.", answer:true},
+        {id:'ielts5q2', text:"The river boat taxis often get stuck in traffic too.", answer:false},
+        {id:'ielts5q3', text:"Taking the Skytrain is faster than going by taxi.", answer:true},
+        {id:'ielts5q4', text:"Thai street food is very cheap.", answer:true},
+      ]},
+      {id:'ielts6', title:'Writing: IELTS Task 2 / Yozish', type:'writing',
+       instructions:'Write at least 200 words. Discuss both views and give your opinion.',
+       prompt:"Some people think we have become more dependent on each other, while others think people have become more independent.\n• View 1: more dependent\n• View 2: more independent\n• Your opinion with examples\nMin. 200 words",
+       minWords:200},
+    ]
+  }
 };
 
 // ==================== STATE ====================
-let currentUser=null,currentLevel=null,currentSectionIdx=0;
-let sectionAnswers={},writingTexts={},sectionChecked={};
-let timer=null,timeLeft=3600,testStarted=false,testFinished=false;
-let searchTerm='',levelFilter='',confirmCallback=null,adminLoggedIn=false;
-let currentTab='results';
-let _lastResults=[];
+let currentUser = null;
+let currentLevel = null;
+let currentSectionIdx = 0;
+let sectionAnswers = {};
+let writingTexts = {};
+let sectionChecked = {};
+let timer = null;
+let timeLeft = 3600;
+let testStarted = false;
+let testFinished = false;
+let searchTerm = '';
+let levelFilter = '';
+let confirmCallback = null;
+let adminLoggedIn = false;
+let currentTab = 'results';
+let _lastResults = [];
 
 // ==================== SECURITY ====================
-const _SC=(function(){
-  function _h(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0;}return h.toString(16);}
-  return{_u:_h('admin'),_p:_h('dreamzone2024')};
+const _SC = (function(){
+  function _h(s){
+    let h = 0x811c9dc5;
+    for(let i = 0; i < s.length; i++){
+      h ^= s.charCodeAt(i);
+      h = (h * 0x01000193) >>> 0;
+    }
+    return h.toString(16);
+  }
+  return { _u: _h('admin'), _p: _h('dreamzone2024') };
 })();
-document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('keydown',e=>{
-  if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(e.key))||(e.ctrlKey&&e.key==='U'))e.preventDefault();
+
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+  if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) || (e.ctrlKey && e.key === 'U'))
+    e.preventDefault();
 });
 
 // ==================== STARS ====================
 (function(){
-  const c=document.getElementById('stars');
-  for(let i=0;i<120;i++){
-    const s=document.createElement('div');s.className='star';
-    const sz=Math.random()*2.5+0.4;
-    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;opacity:${Math.random()*0.4+0.08}`;
+  const c = document.getElementById('stars');
+  for(let i = 0; i < 120; i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 0.4;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s;opacity:${Math.random()*0.4+0.08}`;
     c.appendChild(s);
   }
 })();
 
 // ==================== UTILS ====================
-function showToast(msg,type='default'){
-  const t=document.getElementById('toast');
-  document.getElementById('toast-icon').textContent=type==='success'?'✓':type==='error'?'✗':'ℹ';
-  document.getElementById('toast-msg').textContent=msg;
-  t.className='toast '+type;
-  setTimeout(()=>t.classList.add('show'),10);
-  setTimeout(()=>t.classList.remove('show'),3200);
+function showToast(msg, type='default'){
+  const t = document.getElementById('toast');
+  document.getElementById('toast-icon').textContent = type==='success'?'✓':type==='error'?'✗':'ℹ';
+  document.getElementById('toast-msg').textContent = msg;
+  t.className = 'toast ' + type;
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => t.classList.remove('show'), 3200);
 }
-function showConfirm(title,text,cb){
-  confirmCallback=cb;
-  document.getElementById('confirm-title').textContent=title;
-  document.getElementById('confirm-text').textContent=text;
+
+function showConfirm(title, text, cb){
+  confirmCallback = cb;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-text').textContent = text;
   document.getElementById('confirm-modal').classList.add('show');
 }
+
 function closeConfirm(ok){
   document.getElementById('confirm-modal').classList.remove('show');
-  if(confirmCallback)confirmCallback(ok);
-  confirmCallback=null;
+  if(confirmCallback) confirmCallback(ok);
+  confirmCallback = null;
 }
-function norm(s){return String(s).toLowerCase().trim().replace(/[?.!,]/g,'').replace(/\s+/g,' ');}
-function checkAns(u,c){
-  const un=norm(u),cn=norm(c);
-  if(un===cn)return true;
-  return cn.split('|').some(a=>un===a.trim());
+
+function norm(s){
+  return String(s).toLowerCase().trim().replace(/[?.!,]/g,'').replace(/\s+/g,' ');
 }
+
+function checkAns(u, c){
+  const un = norm(u), cn = norm(c);
+  if(un === cn) return true;
+  return cn.split('|').some(a => un === a.trim());
+}
+
 function showLoading(show){
-  document.getElementById('loading-overlay').style.display=show?'flex':'none';
+  document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
 }
 
 // ==================== NAVIGATION ====================
 async function showPage(id){
-  if(id==='pg-admin'&&!adminLoggedIn){id='pg-admin-login';}
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  if(id === 'pg-admin' && !adminLoggedIn){ id = 'pg-admin-login'; }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-  if(id==='pg-levels')renderLevels();
-  if(id==='pg-admin')await renderAdmin();
+  window.scrollTo(0, 0);
+  if(id === 'pg-levels') renderLevels();
+  if(id === 'pg-admin') await renderAdmin();
 }
 
 // ==================== REGISTER ====================
 function registerUser(){
-  let ok=true;
-  const first=document.getElementById('reg-first').value.trim();
-  const last=document.getElementById('reg-last').value.trim();
-  const age=parseInt(document.getElementById('reg-age').value);
-  const phone=document.getElementById('reg-phone').value.trim();
-  const setE=(id,show)=>document.getElementById(id).classList[show?'add':'remove']('show');
-  setE('err-first',!first);if(!first)ok=false;
-  setE('err-last',!last);if(!last)ok=false;
-  setE('err-age',!age||age<5||age>80);if(!age||age<5||age>80)ok=false;
-  setE('err-phone',!phone||phone.length<7);if(!phone||phone.length<7)ok=false;
-  if(!ok)return;
-  currentUser={first,last,age,phone,fullName:`${first} ${last}`};
-  document.getElementById('welcome-txt').textContent=`Xush kelibsiz, ${first}!`;
-  showToast("Ro'yxatdan o'tdingiz!",'success');
+  let ok = true;
+  const first = document.getElementById('reg-first').value.trim();
+  const last = document.getElementById('reg-last').value.trim();
+  const age = parseInt(document.getElementById('reg-age').value);
+  const phone = document.getElementById('reg-phone').value.trim();
+  const setE = (id, show) => document.getElementById(id).classList[show?'add':'remove']('show');
+  setE('err-first', !first); if(!first) ok = false;
+  setE('err-last', !last); if(!last) ok = false;
+  setE('err-age', !age || age<5 || age>80); if(!age || age<5 || age>80) ok = false;
+  setE('err-phone', !phone || phone.length<7); if(!phone || phone.length<7) ok = false;
+  if(!ok) return;
+  currentUser = { first, last, age, phone, fullName:`${first} ${last}` };
+  document.getElementById('welcome-txt').textContent = `Xush kelibsiz, ${first}!`;
+  showToast("Ro'yxatdan o'tdingiz!", 'success');
   showPage('pg-levels');
 }
 
 // ==================== LEVELS ====================
-const LEVELS_LIST=[
-  {id:'elementary',name:'Elementary',desc:'Asosiy grammatika va kundalik muloqot.',color:'#7EB3FF',c2:'#B0D4FF'},
-  {id:'pre-intermediate',name:'Pre-Intermediate',desc:"O'rta darajaga tayyorlanuvchilar uchun.",color:'#C9A84C',c2:'#E8C97A'},
-  {id:'intermediate',name:'Intermediate',desc:'Murakkab grammatika, matching va error correction.',color:'#E07AC9',c2:'#FFB3EA'},
-  {id:'cefr',name:'CEFR Multilevel',desc:"Xalqaro standart bo'yicha daraja testi.",color:'#E05252',c2:'#FF9A9A'},
-  {id:'pre-ielts',name:'Pre-IELTS',desc:"IELTS imtihoniga tayyorlanish uchun.",color:'#FF8C5A',c2:'#FFBFA0'},
+const LEVELS_LIST = [
+  {id:'elementary', name:'Elementary', desc:'Asosiy grammatika va kundalik muloqot.', color:'#7EB3FF', c2:'#B0D4FF'},
+  {id:'pre-intermediate', name:'Pre-Intermediate', desc:"O'rta darajaga tayyorlanuvchilar uchun.", color:'#C9A84C', c2:'#E8C97A'},
+  {id:'intermediate', name:'Intermediate', desc:'Murakkab grammatika, matching va error correction.', color:'#E07AC9', c2:'#FFB3EA'},
+  {id:'cefr', name:'CEFR Multilevel', desc:"Xalqaro standart bo'yicha daraja testi.", color:'#E05252', c2:'#FF9A9A'},
+  {id:'pre-ielts', name:'Pre-IELTS', desc:"IELTS imtihoniga tayyorlanish uchun.", color:'#FF8C5A', c2:'#FFBFA0'},
 ];
+
 function renderLevels(){
-  const g=document.getElementById('levels-grid');
-  g.innerHTML=LEVELS_LIST.map((l,i)=>`
+  const g = document.getElementById('levels-grid');
+  g.innerHTML = LEVELS_LIST.map((l, i) => `
   <div class="level-card" onclick="startTest('${l.id}')" style="--card-color:${l.color};--c1:${l.color};--c2:${l.c2};animation:fadeUp 0.5s ${i*0.07}s ease both;opacity:0;">
     <div class="level-number"><span class="level-dot" style="background:${l.color}"></span>Daraja ${i+1}</div>
     <div class="level-name">${l.name}</div>
@@ -922,82 +957,111 @@ function renderLevels(){
     <div class="level-arrow" style="color:${l.color};background:${l.color}22;">→</div>
   </div>`).join('');
 }
+
 function logoutUser(){
-  showConfirm("Chiqishni xohlaysizmi?","Bosh sahifaga qaytasiz.",(ok)=>{if(ok){currentUser=null;showPage('pg-landing');}});
+  showConfirm("Chiqishni xohlaysizmi?", "Bosh sahifaga qaytasiz.", (ok) => {
+    if(ok){ currentUser = null; showPage('pg-landing'); }
+  });
 }
 
 // ==================== TEST ====================
 function startTest(levelId){
-  currentLevel=JSON.parse(JSON.stringify(TESTS[levelId]));
-  currentSectionIdx=0;sectionAnswers={};writingTexts={};sectionChecked={};
-  timeLeft=3600;testFinished=false;testStarted=true;
-  currentLevel.sections.forEach(s=>{sectionAnswers[s.id]={};if(s.type==='writing')writingTexts[s.id]='';});
-  document.getElementById('test-level-title').textContent=currentLevel.name;
+  currentLevel = JSON.parse(JSON.stringify(TESTS[levelId]));
+  currentSectionIdx = 0;
+  sectionAnswers = {};
+  writingTexts = {};
+  sectionChecked = {};
+  timeLeft = 3600;
+  testFinished = false;
+  testStarted = true;
+  currentLevel.sections.forEach(s => {
+    sectionAnswers[s.id] = {};
+    if(s.type === 'writing') writingTexts[s.id] = '';
+  });
+  document.getElementById('test-level-title').textContent = currentLevel.name;
   showPage('pg-test');
-  renderSection();startTimer();setupAntiCheat();
+  renderSection();
+  startTimer();
+  setupAntiCheat();
 }
+
 function renderSection(){
-  const sec=currentLevel.sections[currentSectionIdx];
-  const total=currentLevel.sections.length;
-  document.getElementById('test-q-count').textContent=`Bo'lim ${currentSectionIdx+1} / ${total}`;
-  document.getElementById('progress-fill').style.width=((currentSectionIdx+1)/total*100)+'%';
-  const body=document.getElementById('test-body-content');
-  const pips=currentLevel.sections.map((_,i)=>`<div class="sec-pip ${i<currentSectionIdx?'done':i===currentSectionIdx?'active':''}"></div>`).join('');
-  const uzNames={fitb:"To'ldirish / Fill in the Blank",mc:"Ko'p tanlov / Multiple Choice",tf:"Rost-Yolg'on / True or False",matching:"Moslashtirish / Matching",error:"Xatoni Toping / Find the Mistake",writing:"Yozish / Writing"};
-  const isChecked=sectionChecked[sec.id]===true;
-  const isLast=currentSectionIdx===total-1;
-  let html=`<div class="section-progress">${pips}</div>
+  const sec = currentLevel.sections[currentSectionIdx];
+  const total = currentLevel.sections.length;
+  document.getElementById('test-q-count').textContent = `Bo'lim ${currentSectionIdx+1} / ${total}`;
+  document.getElementById('progress-fill').style.width = ((currentSectionIdx+1)/total*100) + '%';
+  const body = document.getElementById('test-body-content');
+  const pips = currentLevel.sections.map((_,i) =>
+    `<div class="sec-pip ${i<currentSectionIdx?'done':i===currentSectionIdx?'active':''}"></div>`
+  ).join('');
+  const uzNames = {
+    fitb:"To'ldirish / Fill in the Blank",
+    mc:"Ko'p tanlov / Multiple Choice",
+    tf:"Rost-Yolg'on / True or False",
+    matching:"Moslashtirish / Matching",
+    error:"Xatoni Toping / Find the Mistake",
+    writing:"Yozish / Writing"
+  };
+  const isChecked = sectionChecked[sec.id] === true;
+  const isLast = currentSectionIdx === total - 1;
+
+  let html = `<div class="section-progress">${pips}</div>
   <div class="section-header">
     <div class="section-title">Bo'lim ${currentSectionIdx+1}: ${sec.title}</div>
     <div style="font-size:11px;color:var(--gold);letter-spacing:1px;margin-bottom:6px;opacity:0.8;">${uzNames[sec.type]||''}</div>
     <div class="section-desc">${sec.instructions}</div>
   </div>`;
-  // Reading passage for TF
-  if(sec.type==='tf'&&sec.passage){
-    html+=`<div class="tf-reading-passage">${sec.passage}</div>`;
+
+  if(sec.type === 'tf' && sec.passage){
+    html += `<div class="tf-reading-passage">${sec.passage}</div>`;
   }
-  if(sec.type==='mc') html+=renderMC(sec);
-  else if(sec.type==='fitb') html+=renderFITB(sec);
-  else if(sec.type==='matching') html+=renderMatching(sec);
-  else if(sec.type==='error') html+=renderError(sec);
-  else if(sec.type==='tf') html+=renderTF(sec);
-  else if(sec.type==='writing') html+=renderWriting(sec);
-  if(!['writing','matching'].includes(sec.type)){
-    html+=`<button class="btn-check-section" id="btn-check-sec" onclick="checkSection('${sec.id}')" ${isChecked?'disabled':''}>
-      ${isChecked?'✅ Bo\'lim Tekshirildi':'✓ Bo\'limni Tekshirish'}
+
+  if(sec.type === 'mc')       html += renderMC(sec);
+  else if(sec.type === 'fitb')    html += renderFITB(sec);
+  else if(sec.type === 'matching') html += renderMatching(sec);
+  else if(sec.type === 'error')   html += renderError(sec);
+  else if(sec.type === 'tf')     html += renderTF(sec);
+  else if(sec.type === 'writing')  html += renderWriting(sec);
+
+  // Check button for non-matching, non-writing sections
+  if(!['writing', 'matching'].includes(sec.type)){
+    html += `<button class="btn-check-section" id="btn-check-sec" onclick="checkSection('${sec.id}')" ${isChecked?'disabled':''}>
+      ${isChecked ? "✅ Bo'lim Tekshirildi" : "✓ Bo'limni Tekshirish"}
     </button>`;
     if(isChecked){
-      const sc=calcSectionScore(sec);
-      html+=`<div class="section-checked-banner show">
+      const sc = calcSectionScore(sec);
+      html += `<div class="section-checked-banner show">
         <div><span style="color:var(--muted);font-size:13px;">Natija: </span><span class="section-score-big">${sc.earned}/${sc.total}</span> <span style="color:var(--muted);">(${sc.pct}%)</span></div>
         <span class="badge ${sc.pct>=70?'badge-green':sc.pct>=50?'badge-gold':'badge-red'}">${sc.pct>=70?'Yaxshi!':sc.pct>=50?"O'rtacha":'Kam'}</span>
       </div>`;
     }
   }
-  html+=`<div class="test-nav">
+
+  html += `<div class="test-nav">
     <button class="btn-nav" onclick="prevSection()" ${currentSectionIdx===0?'disabled':''}>← Oldingi</button>
     <button class="btn-nav primary" onclick="nextSection()">${isLast?'Testni Yakunlash ✓':'Keyingi →'}</button>
   </div>`;
-  body.innerHTML=html;
+
+  body.innerHTML = html;
   restoreAnswers(sec);
 }
 
 // ===== MC =====
 function renderMC(sec){
-  const isChecked=sectionChecked[sec.id]===true;
-  return sec.questions.map((q,qi)=>{
-    const saved=sectionAnswers[sec.id][q.id];
-    const letters=['A','B','C','D','E'];
-    const opts=q.opts.map((o,oi)=>{
-      let cls='option';
+  const isChecked = sectionChecked[sec.id] === true;
+  return sec.questions.map((q, qi) => {
+    const saved = sectionAnswers[sec.id][q.id];
+    const letters = ['A','B','C','D','E'];
+    const opts = q.opts.map((o, oi) => {
+      let cls = 'option';
       if(isChecked){
-        if(oi===q.ans)cls+=' correct';
-        else if(oi===saved)cls+=' wrong';
-        else cls+=' disabled';
+        if(oi === q.ans)       cls += ' correct';
+        else if(oi === saved)  cls += ' wrong';
+        else                   cls += ' disabled';
       } else {
-        if(saved===oi)cls+=' selected';
+        if(saved === oi) cls += ' selected';
       }
-      const click=!isChecked?`onclick="selectMC('${sec.id}','${q.id}',${oi})"` :'';
+      const click = !isChecked ? `onclick="selectMC('${sec.id}','${q.id}',${oi})"` : '';
       return `<div class="${cls}" ${click}><div class="opt-letter">${letters[oi]}</div><span>${o}</span></div>`;
     }).join('');
     return `<div class="mc-question">
@@ -1006,38 +1070,44 @@ function renderMC(sec){
     </div>`;
   }).join('');
 }
-function selectMC(secId,qId,chosen){
-  if(sectionChecked[secId])return;
-  sectionAnswers[secId][qId]=chosen;
-  const sec=currentLevel.sections.find(s=>s.id===secId);
-  const q=sec.questions.find(q=>q.id===qId);
-  const wrap=document.getElementById('opts-'+qId);
-  if(!wrap)return;
-  const letters=['A','B','C','D','E'];
-  wrap.innerHTML=q.opts.map((o,oi)=>`<div class="option${oi===chosen?' selected':''}" onclick="selectMC('${secId}','${qId}',${oi})">
-    <div class="opt-letter">${letters[oi]}</div><span>${o}</span></div>`).join('');
+
+function selectMC(secId, qId, chosen){
+  if(sectionChecked[secId]) return;
+  sectionAnswers[secId][qId] = chosen;
+  const sec = currentLevel.sections.find(s => s.id === secId);
+  const q = sec.questions.find(q => q.id === qId);
+  const wrap = document.getElementById('opts-' + qId);
+  if(!wrap) return;
+  const letters = ['A','B','C','D','E'];
+  wrap.innerHTML = q.opts.map((o, oi) =>
+    `<div class="option${oi===chosen?' selected':''}" onclick="selectMC('${secId}','${qId}',${oi})">
+      <div class="opt-letter">${letters[oi]}</div><span>${o}</span></div>`
+  ).join('');
 }
 
 // ===== FITB =====
 function renderFITB(sec){
-  const isChecked=sectionChecked[sec.id]===true;
-  return sec.questions.map((q,qi)=>{
-    const saved=sectionAnswers[sec.id][q.id]||'';
-    let cls='fitb-question';let fbHtml='';
+  const isChecked = sectionChecked[sec.id] === true;
+  return sec.questions.map((q, qi) => {
+    const saved = sectionAnswers[sec.id][q.id] || '';
+    let cls = 'fitb-question';
+    let fbHtml = '';
     if(isChecked){
-      const ok=saved&&checkAns(saved,q.answer);
-      cls+=saved?(ok?' answered-correct':' answered-wrong'):' answered-wrong';
+      const ok = saved && checkAns(saved, q.answer);
+      cls += saved ? (ok ? ' answered-correct' : ' answered-wrong') : ' answered-wrong';
       if(saved){
-        fbHtml=ok?`<div class="fitb-feedback"><span style="color:var(--success);font-weight:600;">✓ To'g'ri!</span></div>`
-          :`<div class="fitb-feedback">✗ To'g'ri javob: <span class="correct-word">${q.answer}</span>${q.hint?` — <em style="color:var(--muted)">${q.hint}</em>`:''}</div>`;
+        fbHtml = ok
+          ? `<div class="fitb-feedback"><span style="color:var(--success);font-weight:600;">✓ To'g'ri!</span></div>`
+          : `<div class="fitb-feedback">✗ To'g'ri javob: <span class="correct-word">${q.answer}</span>${q.hint?` — <em style="color:var(--muted)">${q.hint}</em>`:''}</div>`;
       } else {
-        fbHtml=`<div class="fitb-feedback"><span style="color:var(--danger);">✗ Javob berilmadi. To'g'ri: </span><span class="correct-word">${q.answer}</span></div>`;
+        fbHtml = `<div class="fitb-feedback"><span style="color:var(--danger);">✗ Javob berilmadi. To'g'ri: </span><span class="correct-word">${q.answer}</span></div>`;
       }
     }
-    const inpCls='blank-input'+(isChecked?(saved&&checkAns(saved,q.answer)?' correct-ans':' wrong-ans'):'');
+    const inpCls = 'blank-input' + (isChecked ? (saved && checkAns(saved,q.answer) ? ' correct-ans' : ' wrong-ans') : '');
+    const safeVal = saved.replace(/"/g,'&quot;');
     return `<div class="${cls}" id="fitb-${q.id}">
       <div class="fitb-text">${qi+1}. ${q.text.replace('___',
-        `<input class="${inpCls}" id="inp-${q.id}" placeholder="..." value="${saved.replace(/"/g,'&quot;')}" ${isChecked?'disabled':''} oninput="sectionAnswers['${sec.id}']['${q.id}']=this.value">`
+        `<input class="${inpCls}" id="inp-${q.id}" placeholder="..." value="${safeVal}" ${isChecked?'disabled':''} oninput="sectionAnswers['${sec.id}']['${q.id}']=this.value">`
       )}</div>
       ${fbHtml}
     </div>`;
@@ -1046,58 +1116,72 @@ function renderFITB(sec){
 
 // ===== MATCHING =====
 function renderMatching(sec){
-  if(!sec._shuffledB)sec._shuffledB=[...sec.pairs.map(p=>p.b)].sort(()=>Math.random()-0.5);
-  const shuffledB=sec._shuffledB;
-  const isChecked=sectionChecked[sec.id]===true;
-  const leftCols=sec.pairs.map((p,i)=>{
-    const saved=sectionAnswers[sec.id][i];
-    let selCls='match-select';
-    if(isChecked){const ci=shuffledB.indexOf(p.b);selCls+=parseInt(saved)===ci?' correct-sel':' wrong-sel';}
+  if(!sec._shuffledB){
+    sec._shuffledB = [...sec.pairs.map(p => p.b)].sort(() => Math.random() - 0.5);
+  }
+  const shuffledB = sec._shuffledB;
+  const isChecked = sectionChecked[sec.id] === true;
+
+  const leftCols = sec.pairs.map((p, i) => {
+    const saved = sectionAnswers[sec.id][i];
+    let selCls = 'match-select';
+    if(isChecked){
+      const ci = shuffledB.indexOf(p.b);
+      selCls += parseInt(saved) === ci ? ' correct-sel' : ' wrong-sel';
+    }
     return `<div class="match-item-a">
       <div class="match-num">${i+1}</div>
       <span style="flex:1;font-size:14px;">${p.a}</span>
       <select class="${selCls}" id="match-${sec.id}-${i}" ${isChecked?'disabled':''} onchange="sectionAnswers['${sec.id}'][${i}]=this.value">
         <option value="">— tanlang —</option>
-        ${shuffledB.map((b,bi)=>`<option value="${bi}" ${saved==bi?'selected':''}>${b}</option>`).join('')}
+        ${shuffledB.map((b,bi) => `<option value="${bi}" ${saved==bi?'selected':''}>${b}</option>`).join('')}
       </select>
     </div>`;
   }).join('');
-  const rightCols=shuffledB.map((b,i)=>`<div class="match-item-b" style="display:flex;align-items:center;">
-    <div class="match-letter">${'abcdefghij'[i]}</div><span>${b}</span></div>`).join('');
-  let banner='';
+
+  const rightCols = shuffledB.map((b, i) =>
+    `<div class="match-item-b" style="display:flex;align-items:center;">
+      <div class="match-letter">${'abcdefghij'[i]}</div><span>${b}</span></div>`
+  ).join('');
+
+  let banner = '';
   if(isChecked){
-    const sc=calcSectionScore(sec);
-    banner=`<div class="section-checked-banner show">
-      <div><span style="color:var(--muted);font-size:13px;">Natija: </span><span class="section-score-big">${sc.earned}/${sc.total}</span></div>
+    const sc = calcSectionScore(sec);
+    banner = `<div class="section-checked-banner show" style="margin-top:16px;">
+      <div><span style="color:var(--muted);font-size:13px;">Natija: </span><span class="section-score-big">${sc.earned}/${sc.total}</span> <span style="color:var(--muted);">(${sc.pct}%)</span></div>
       <span class="badge ${sc.pct>=70?'badge-green':sc.pct>=50?'badge-gold':'badge-red'}">${sc.pct>=70?'Yaxshi!':sc.pct>=50?"O'rtacha":'Kam'}</span>
     </div>`;
   }
+
   return `<div class="matching-wrap">
     <div class="match-col"><div class="match-col-title">A</div>${leftCols}</div>
     <div class="match-col"><div class="match-col-title">B</div>${rightCols}</div>
   </div>
-  ${!isChecked?`<button class="btn-check-section" onclick="checkSection('${sec.id}')">✓ Bo'limni Tekshirish</button>`:''}
+  ${!isChecked ? `<button class="btn-check-section" onclick="checkSection('${sec.id}')">✓ Bo'limni Tekshirish</button>` : ''}
   ${banner}`;
 }
 
 // ===== ERROR =====
 function renderError(sec){
-  const isChecked=sectionChecked[sec.id]===true;
-  return sec.questions.map((q,qi)=>{
-    const saved=sectionAnswers[sec.id][q.id]||'';
-    let cls='error-q';let fbHtml='';
+  const isChecked = sectionChecked[sec.id] === true;
+  return sec.questions.map((q, qi) => {
+    const saved = sectionAnswers[sec.id][q.id] || '';
+    let cls = 'error-q';
+    let fbHtml = '';
     if(isChecked){
-      const ok=saved&&checkAns(saved,q.answer);
-      cls+=saved?(ok?' answered-correct':' answered-wrong'):' answered-wrong';
-      fbHtml=ok?`<div class="fitb-feedback" style="margin-top:8px;"><span style="color:var(--success);font-weight:600;">✓ To'g'ri!</span></div>`
-        :`<div class="fitb-feedback" style="margin-top:8px;">✗ To'g'ri javob: <span class="correct-word">${q.answer}</span>${q.hint?` — <em style="color:var(--muted)">${q.hint}</em>`:''}</div>`;
+      const ok = saved && checkAns(saved, q.answer);
+      cls += saved ? (ok ? ' answered-correct' : ' answered-wrong') : ' answered-wrong';
+      fbHtml = ok
+        ? `<div class="fitb-feedback" style="margin-top:8px;"><span style="color:var(--success);font-weight:600;">✓ To'g'ri!</span></div>`
+        : `<div class="fitb-feedback" style="margin-top:8px;">✗ To'g'ri javob: <span class="correct-word">${q.answer}</span>${q.hint?` — <em style="color:var(--muted)">${q.hint}</em>`:''}</div>`;
     }
-    const inpCls='error-input'+(isChecked?(saved&&checkAns(saved,q.answer)?' correct-ans':' wrong-ans'):'');
+    const inpCls = 'error-input' + (isChecked ? (saved && checkAns(saved,q.answer) ? ' correct-ans' : ' wrong-ans') : '');
+    const safeVal = saved.replace(/"/g,'&quot;');
     return `<div class="${cls}">
       <div class="error-label">${qi+1}. Xatoni toping va to'g'rilang:</div>
       <div class="error-sentence">${q.sentence}</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">${q.instruction||''}</div>
-      <input class="${inpCls}" id="err-inp-${q.id}" placeholder="To'g'ri javobingizni yozing..." value="${saved.replace(/"/g,'&quot;')}" ${isChecked?'disabled':''} oninput="sectionAnswers['${sec.id}']['${q.id}']=this.value">
+      <input class="${inpCls}" id="err-inp-${q.id}" placeholder="To'g'ri javobingizni yozing..." value="${safeVal}" ${isChecked?'disabled':''} oninput="sectionAnswers['${sec.id}']['${q.id}']=this.value">
       ${fbHtml}
     </div>`;
   }).join('');
@@ -1105,23 +1189,29 @@ function renderError(sec){
 
 // ===== TF =====
 function renderTF(sec){
-  const isChecked=sectionChecked[sec.id]===true;
-  return sec.questions.map((q,qi)=>{
-    const saved=sectionAnswers[sec.id][q.id];
-    const answered=saved!==undefined;
-    let cls='tf-question';let fbHtml='';
-    if(isChecked&&answered){
-      const ok=saved===q.answer;
-      cls+=ok?' answered-correct':' answered-wrong';
-      fbHtml=`<div style="font-size:13px;margin-top:6px;">${ok?'<span style="color:var(--success);">✓ To\'g\'ri!</span>':`<span style="color:var(--danger);">✗ To'g'ri javob: ${q.answer?'TRUE':'FALSE'}</span>`}</div>`;
-    } else if(isChecked&&!answered){
-      fbHtml=`<div style="font-size:13px;margin-top:6px;color:var(--danger);">✗ Javob berilmadi. To'g'ri: ${q.answer?'TRUE':'FALSE'}</div>`;
+  const isChecked = sectionChecked[sec.id] === true;
+  return sec.questions.map((q, qi) => {
+    const saved = sectionAnswers[sec.id][q.id];
+    const answered = saved !== undefined;
+    let cls = 'tf-question';
+    let fbHtml = '';
+    if(isChecked && answered){
+      const ok = saved === q.answer;
+      cls += ok ? ' answered-correct' : ' answered-wrong';
+      fbHtml = `<div style="font-size:13px;margin-top:6px;">${ok
+        ? "<span style=\"color:var(--success);\">✓ To'g'ri!</span>"
+        : `<span style="color:var(--danger);">✗ To'g'ri javob: ${q.answer?'TRUE':'FALSE'}</span>`}</div>`;
+    } else if(isChecked && !answered){
+      fbHtml = `<div style="font-size:13px;margin-top:6px;color:var(--danger);">✗ Javob berilmadi. To'g'ri: ${q.answer?'TRUE':'FALSE'}</div>`;
     }
-    let tCls='tf-btn',fCls='tf-btn';
-    if(!isChecked&&answered){if(saved===true)tCls+=' sel-true';if(saved===false)fCls+=' sel-false';}
+    let tCls = 'tf-btn', fCls = 'tf-btn';
+    if(!isChecked && answered){
+      if(saved === true) tCls += ' sel-true';
+      if(saved === false) fCls += ' sel-false';
+    }
     if(isChecked){
-      tCls+=(q.answer===true?' correct-tf':answered&&saved===true?' wrong-tf':'');
-      fCls+=(q.answer===false?' correct-tf':answered&&saved===false?' wrong-tf':'');
+      tCls += (q.answer===true ? ' correct-tf' : answered&&saved===true ? ' wrong-tf' : '');
+      fCls += (q.answer===false ? ' correct-tf' : answered&&saved===false ? ' wrong-tf' : '');
     }
     return `<div class="${cls}" id="tf-${q.id}">
       <div class="tf-text"><strong>${qi+1}.</strong> ${q.text}</div>
@@ -1133,219 +1223,362 @@ function renderTF(sec){
     </div>`;
   }).join('');
 }
-function selectTF(secId,qId,chosen){
-  if(sectionChecked[secId])return;
-  sectionAnswers[secId][qId]=chosen;
-  const wrap=document.getElementById('tf-'+qId);
-  if(!wrap)return;
-  const tCls='tf-btn'+(chosen===true?' sel-true':'');
-  const fCls='tf-btn'+(chosen===false?' sel-false':'');
-  wrap.querySelector('.tf-btns').innerHTML=`
+
+function selectTF(secId, qId, chosen){
+  if(sectionChecked[secId]) return;
+  sectionAnswers[secId][qId] = chosen;
+  const wrap = document.getElementById('tf-' + qId);
+  if(!wrap) return;
+  const tCls = 'tf-btn' + (chosen===true ? ' sel-true' : '');
+  const fCls = 'tf-btn' + (chosen===false ? ' sel-false' : '');
+  wrap.querySelector('.tf-btns').innerHTML = `
     <button class="${tCls}" onclick="selectTF('${secId}','${qId}',true)">TRUE</button>
     <button class="${fCls}" onclick="selectTF('${secId}','${qId}',false)">FALSE</button>`;
 }
 
 // ===== WRITING =====
 function renderWriting(sec){
-  const saved=writingTexts[sec.id]||'';
-  const wc=saved.trim().split(/\s+/).filter(w=>w).length;
+  const saved = writingTexts[sec.id] || '';
+  const wc = saved.trim().split(/\s+/).filter(w => w).length;
   return `<div class="writing-wrap">
     <div class="writing-prompt">${sec.prompt.replace(/\n/g,'<br>')}</div>
     <textarea class="writing-area" id="writing-${sec.id}" placeholder="Bu yerda javobingizni yozing..." oninput="saveWriting('${sec.id}',this)">${saved}</textarea>
     <div class="writing-counter" id="wc-${sec.id}">${wc} so'z <span style="color:${wc>=sec.minWords?'var(--success)':'var(--muted)'}">(minimum: ${sec.minWords}${wc>=sec.minWords?' ✓':''})</span></div>
   </div>`;
 }
-function saveWriting(secId,el){
-  writingTexts[secId]=el.value;
-  const words=el.value.trim().split(/\s+/).filter(w=>w).length;
-  const sec=currentLevel.sections.find(s=>s.id===secId);
-  const min=sec?sec.minWords:80;
-  const wc=document.getElementById('wc-'+secId);
-  if(wc)wc.innerHTML=`${words} so'z <span style="color:${words>=min?'var(--success)':'var(--muted)'}">(minimum: ${min}${words>=min?' ✓':''})</span>`;
+
+function saveWriting(secId, el){
+  writingTexts[secId] = el.value;
+  const words = el.value.trim().split(/\s+/).filter(w => w).length;
+  const sec = currentLevel.sections.find(s => s.id === secId);
+  const min = sec ? sec.minWords : 80;
+  const wc = document.getElementById('wc-' + secId);
+  if(wc) wc.innerHTML = `${words} so'z <span style="color:${words>=min?'var(--success)':'var(--muted)'}">(minimum: ${min}${words>=min?' ✓':''})</span>`;
 }
 
 // ===== CHECK SECTION =====
 function checkSection(secId){
-  const sec=currentLevel.sections.find(s=>s.id===secId);
-  if(!sec)return;
-  // Collect final values before checking
-  if(sec.type==='fitb'){
-    sec.questions.forEach(q=>{const el=document.getElementById('inp-'+q.id);if(el)sectionAnswers[secId][q.id]=el.value;});
+  const sec = currentLevel.sections.find(s => s.id === secId);
+  if(!sec) return;
+
+  // Collect final values from DOM before checking
+  if(sec.type === 'fitb'){
+    sec.questions.forEach(q => {
+      const el = document.getElementById('inp-' + q.id);
+      if(el) sectionAnswers[secId][q.id] = el.value;
+    });
   }
-  if(sec.type==='error'){
-    sec.questions.forEach(q=>{const el=document.getElementById('err-inp-'+q.id);if(el)sectionAnswers[secId][q.id]=el.value;});
+  if(sec.type === 'error'){
+    sec.questions.forEach(q => {
+      const el = document.getElementById('err-inp-' + q.id);
+      if(el) sectionAnswers[secId][q.id] = el.value;
+    });
   }
-  if(sec.type==='matching'){
-    let correct=0;
-    sec.pairs.forEach((p,i)=>{
-      const sel=document.getElementById(`match-${secId}-${i}`);
+  if(sec.type === 'matching'){
+    let correct = 0;
+    sec.pairs.forEach((p, i) => {
+      const sel = document.getElementById(`match-${secId}-${i}`);
       if(sel){
-        const ci=sec._shuffledB.indexOf(p.b);
-        sectionAnswers[secId][i]=sel.value;
-        if(parseInt(sel.value)===ci)correct++;
+        const ci = sec._shuffledB.indexOf(p.b);
+        sectionAnswers[secId][i] = sel.value;
+        if(parseInt(sel.value) === ci) correct++;
       }
     });
-    sectionAnswers[secId]._score=correct;
-    sectionAnswers[secId]._total=sec.pairs.length;
+    sectionAnswers[secId]._score = correct;
+    sectionAnswers[secId]._total = sec.pairs.length;
   }
-  sectionChecked[secId]=true;
+
+  sectionChecked[secId] = true;
   renderSection();
-  window.scrollTo(0,0);
-  showToast("Bo'lim tekshirildi!",'success');
+  window.scrollTo(0, 0);
+  showToast("Bo'lim tekshirildi!", 'success');
 }
 
 // ==================== SCORE ====================
 function calcSectionScore(sec){
-  let earned=0,total=0;
-  if(sec.type==='mc'){sec.questions.forEach(q=>{total++;if(sectionAnswers[sec.id][q.id]===q.ans)earned++;});}
-  else if(sec.type==='fitb'){sec.questions.forEach(q=>{total++;const v=sectionAnswers[sec.id][q.id];if(v&&checkAns(v,q.answer))earned++;});}
-  else if(sec.type==='tf'){sec.questions.forEach(q=>{total++;if(sectionAnswers[sec.id][q.id]===q.answer)earned++;});}
-  else if(sec.type==='matching'){earned=sectionAnswers[sec.id]._score||0;total=sectionAnswers[sec.id]._total||sec.pairs.length;}
-  else if(sec.type==='error'){sec.questions.forEach(q=>{total++;const v=sectionAnswers[sec.id][q.id];if(v&&checkAns(v,q.answer))earned++;});}
-  return{earned,total,pct:total?Math.round(earned/total*100):0};
+  let earned = 0, total = 0;
+  if(sec.type === 'mc'){
+    sec.questions.forEach(q => {
+      total++;
+      if(sectionAnswers[sec.id][q.id] === q.ans) earned++;
+    });
+  } else if(sec.type === 'fitb'){
+    sec.questions.forEach(q => {
+      total++;
+      const v = sectionAnswers[sec.id][q.id];
+      if(v && checkAns(v, q.answer)) earned++;
+    });
+  } else if(sec.type === 'tf'){
+    sec.questions.forEach(q => {
+      total++;
+      if(sectionAnswers[sec.id][q.id] === q.answer) earned++;
+    });
+  } else if(sec.type === 'matching'){
+    earned = sectionAnswers[sec.id]._score || 0;
+    total = sectionAnswers[sec.id]._total || sec.pairs.length;
+  } else if(sec.type === 'error'){
+    sec.questions.forEach(q => {
+      total++;
+      const v = sectionAnswers[sec.id][q.id];
+      if(v && checkAns(v, q.answer)) earned++;
+    });
+  }
+  return { earned, total, pct: total ? Math.round(earned/total*100) : 0 };
 }
+
 function restoreAnswers(sec){
-  if(sec.type==='writing'){const v=writingTexts[sec.id];if(v){const el=document.getElementById('writing-'+sec.id);if(el){el.value=v;saveWriting(sec.id,el);}}}
+  if(sec.type === 'writing'){
+    const v = writingTexts[sec.id];
+    if(v){
+      const el = document.getElementById('writing-' + sec.id);
+      if(el){ el.value = v; saveWriting(sec.id, el); }
+    }
+  }
 }
 
 // ==================== NAV ====================
-function prevSection(){if(currentSectionIdx>0){currentSectionIdx--;renderSection();window.scrollTo(0,0);}}
+function prevSection(){
+  if(currentSectionIdx > 0){ currentSectionIdx--; renderSection(); window.scrollTo(0,0); }
+}
+
 function nextSection(){
-  const total=currentLevel.sections.length;
-  if(currentSectionIdx===total-1){
-    showConfirm('Testni yakunlash',"Barcha bo'limlarni topshirdingizmi?",(ok)=>{if(ok)finishTest();});
-  } else {currentSectionIdx++;renderSection();window.scrollTo(0,0);}
+  const total = currentLevel.sections.length;
+  if(currentSectionIdx === total - 1){
+    showConfirm("Testni yakunlash", "Barcha bo'limlarni topshirdingizmi?", (ok) => {
+      if(ok) finishTest();
+    });
+  } else {
+    currentSectionIdx++;
+    renderSection();
+    window.scrollTo(0, 0);
+  }
 }
 
 // ==================== TIMER ====================
 function startTimer(){
-  if(timer)clearInterval(timer);
-  timer=setInterval(()=>{
-    if(testFinished){clearInterval(timer);return;}
+  if(timer) clearInterval(timer);
+  timer = setInterval(() => {
+    if(testFinished){ clearInterval(timer); return; }
     timeLeft--;
-    const m=Math.floor(timeLeft/60),s=timeLeft%60;
-    const el=document.getElementById('timer-display');
+    const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+    const el = document.getElementById('timer-display');
     if(el){
-      el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-      el.className='timer-display'+(timeLeft<=120?' danger':timeLeft<=300?' warn':'');
+      el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      el.className = 'timer-display' + (timeLeft<=120?' danger':timeLeft<=300?' warn':'');
     }
-    if(timeLeft<=0){clearInterval(timer);finishTest();}
-  },1000);
+    if(timeLeft <= 0){ clearInterval(timer); finishTest(); }
+  }, 1000);
 }
 
 // ==================== ANTI-CHEAT ====================
-function setupAntiCheat(){document.addEventListener('visibilitychange',handleVis);}
-function handleVis(){if(!testStarted||testFinished)return;if(document.hidden)showCheatOverlay("Siz boshqa tabga o'tdingiz. Test avtomatik tugadi.");}
-function showCheatOverlay(msg){if(testFinished)return;clearInterval(timer);document.getElementById('cheat-message').textContent=msg;document.getElementById('cheat-overlay').classList.add('show');}
-function finishTestEarly(){document.getElementById('cheat-overlay').classList.remove('show');finishTest(true);}
+function setupAntiCheat(){
+  document.addEventListener('visibilitychange', handleVis);
+}
 
-// ==================== FINISH ====================
-async function finishTest(cheated=false){
-  if(testFinished)return;
-  testFinished=true;testStarted=false;clearInterval(timer);
-  document.removeEventListener('visibilitychange',handleVis);
-  let totalPoints=0,earnedPoints=0;
-  currentLevel.sections.forEach(sec=>{const sc=calcSectionScore(sec);totalPoints+=sc.total;earnedPoints+=sc.earned;});
-  const pct=totalPoints?Math.round(earnedPoints/totalPoints*100):0;
-  const timeUsed=3600-timeLeft;
-  const mins=Math.floor(timeUsed/60),secs=timeUsed%60;
-  const now=new Date();
-  const writings={};
-  currentLevel.sections.filter(s=>s.type==='writing').forEach(s=>{writings[s.title]=writingTexts[s.id]||'(Yozilmadi)';});
-  // Save section answers snapshot (for admin detail view)
-  const answersSnapshot={};
-  currentLevel.sections.forEach(sec=>{answersSnapshot[sec.id]=JSON.parse(JSON.stringify(sectionAnswers[sec.id]||{}));});
-  const result={
-    id:Date.now(),name:currentUser.fullName,first:currentUser.first,last:currentUser.last,
-    age:currentUser.age,phone:currentUser.phone,level:currentLevel.name,levelId:currentLevel.id,
-    earned:earnedPoints,total:totalPoints,pct,
-    timeUsed:`${mins}:${String(secs).padStart(2,'0')}`,
-    cheated,writings,
-    date:now.toLocaleDateString('uz-UZ')+' '+now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'}),
-    raw:now.toISOString()
+function handleVis(){
+  if(!testStarted || testFinished) return;
+  if(document.hidden) showCheatOverlay("Siz boshqa tabga o'tdingiz. Test avtomatik tugadi.");
+}
+
+function showCheatOverlay(msg){
+  if(testFinished) return;
+  clearInterval(timer);
+  document.getElementById('cheat-message').textContent = msg;
+  document.getElementById('cheat-overlay').classList.add('show');
+}
+
+function finishTestEarly(){
+  document.getElementById('cheat-overlay').classList.remove('show');
+  finishTest(true);
+}
+
+// ==================== FINISH TEST ====================
+async function finishTest(cheated = false){
+  if(testFinished) return;
+  testFinished = true;
+  testStarted = false;
+  clearInterval(timer);
+  document.removeEventListener('visibilitychange', handleVis);
+
+  // Collect any remaining unsaved inputs from current section
+  const curSec = currentLevel.sections[currentSectionIdx];
+  if(curSec){
+    if(curSec.type === 'fitb'){
+      curSec.questions.forEach(q => {
+        const el = document.getElementById('inp-' + q.id);
+        if(el) sectionAnswers[curSec.id][q.id] = el.value;
+      });
+    }
+    if(curSec.type === 'error'){
+      curSec.questions.forEach(q => {
+        const el = document.getElementById('err-inp-' + q.id);
+        if(el) sectionAnswers[curSec.id][q.id] = el.value;
+      });
+    }
+    if(curSec.type === 'writing'){
+      const el = document.getElementById('writing-' + curSec.id);
+      if(el) writingTexts[curSec.id] = el.value;
+    }
+  }
+
+  // Calculate scores
+  let totalPoints = 0, earnedPoints = 0;
+  currentLevel.sections.forEach(sec => {
+    const sc = calcSectionScore(sec);
+    totalPoints += sc.total;
+    earnedPoints += sc.earned;
+  });
+  const pct = totalPoints ? Math.round(earnedPoints / totalPoints * 100) : 0;
+
+  const timeUsed = 3600 - timeLeft;
+  const mins = Math.floor(timeUsed / 60);
+  const secs = timeUsed % 60;
+
+  const now = new Date();
+
+  // Collect writings
+  const writings = {};
+  currentLevel.sections.filter(s => s.type === 'writing').forEach(s => {
+    writings[s.title] = writingTexts[s.id] || '(Yozilmadi)';
+  });
+
+  // ✅ FIX: Save sectionAnswers snapshot for admin detail view
+  const answersSnapshot = {};
+  currentLevel.sections.forEach(sec => {
+    answersSnapshot[sec.id] = JSON.parse(JSON.stringify(sectionAnswers[sec.id] || {}));
+  });
+
+  const result = {
+    id: Date.now(),
+    name: currentUser.fullName,
+    first: currentUser.first,
+    last: currentUser.last,
+    age: currentUser.age,
+    phone: currentUser.phone,
+    level: currentLevel.name,
+    levelId: currentLevel.id,
+    earned: earnedPoints,
+    total: totalPoints,
+    pct,
+    timeUsed: `${mins}:${String(secs).padStart(2,'0')}`,
+    cheated,
+    writings,
+    sectionAnswers: answersSnapshot,  // ✅ FIXED: Bu yerda saqlanadi
+    date: now.toLocaleDateString('uz-UZ') + ' ' + now.toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'}),
+    raw: now.toISOString()
   };
+
   showLoading(true);
-  await saveResult(result);
+  const saved = await saveResult(result);
   showLoading(false);
+
+  if(!saved){
+    showToast("Firebase saqlashda xato yuz berdi!", 'error');
+  }
+
   showResult(result);
 }
 
 function showResult(r){
-  const icon=r.pct>=90?'💎':r.pct>=75?'🏆':r.pct>=60?'🥇':r.pct>=45?'🥈':r.pct>=30?'🥉':'📚';
-  const title=r.pct>=75?'Ajoyib natija!':r.pct>=60?'Tabriklaymiz!':r.pct>=40?'Yaxshi harakat!':"Ko'proq mashq qiling!";
-  document.getElementById('result-icon').textContent=icon;
-  document.getElementById('result-title').textContent=title;
-  document.getElementById('result-score').textContent=r.earned;
-  document.getElementById('result-total').textContent=`/ ${r.total} ball • ${r.pct}%`;
-  document.getElementById('result-meta').innerHTML=`
+  const icon = r.pct>=90?'💎':r.pct>=75?'🏆':r.pct>=60?'🥇':r.pct>=45?'🥈':r.pct>=30?'🥉':'📚';
+  const title = r.pct>=75?'Ajoyib natija!':r.pct>=60?'Tabriklaymiz!':r.pct>=40?'Yaxshi harakat!':"Ko'proq mashq qiling!";
+  document.getElementById('result-icon').textContent = icon;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-score').textContent = r.earned;
+  document.getElementById('result-total').textContent = `/ ${r.total} ball • ${r.pct}%`;
+  document.getElementById('result-meta').innerHTML = `
     <div class="meta-row"><span>Ism Familya</span><span>${r.name}</span></div>
     <div class="meta-row"><span>Telefon</span><span>${r.phone}</span></div>
     <div class="meta-row"><span>Daraja</span><span>${r.level}</span></div>
     <div class="meta-row"><span>Sarflangan vaqt</span><span>${r.timeUsed}</span></div>
-    <div class="meta-row"><span>Holat</span><span style="color:${r.cheated?'var(--danger)':'var(--success)'}">${r.cheated?'⚠️ Buzilgan':'✅ To\'liq'}</span></div>`;
+    <div class="meta-row"><span>Holat</span><span style="color:${r.cheated?'var(--danger)':'var(--success)'}">${r.cheated?"⚠️ Buzilgan":"✅ To'liq"}</span></div>`;
   showPage('pg-result');
 }
 
 // ==================== ADMIN ====================
 function adminLogin(){
-  const u=document.getElementById('admin-user').value.trim();
-  const p=document.getElementById('admin-pass').value;
-  const err=document.getElementById('admin-err');
-  if(!u||!p){err.textContent='⚠ Login va parolni kiriting.';return;}
-  function _h(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0;}return h.toString(16);}
-  if(_h(u)===_SC._u&&_h(p)===_SC._p){
-    adminLoggedIn=true;err.textContent='';
-    document.getElementById('admin-pass').value='';
-    showToast('Admin panelga xush kelibsiz!','success');
+  const u = document.getElementById('admin-user').value.trim();
+  const p = document.getElementById('admin-pass').value;
+  const err = document.getElementById('admin-err');
+  if(!u || !p){ err.textContent = '⚠ Login va parolni kiriting.'; return; }
+  function _h(s){
+    let h = 0x811c9dc5;
+    for(let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+    return h.toString(16);
+  }
+  if(_h(u) === _SC._u && _h(p) === _SC._p){
+    adminLoggedIn = true;
+    err.textContent = '';
+    document.getElementById('admin-pass').value = '';
+    showToast('Admin panelga xush kelibsiz!', 'success');
     showPage('pg-admin');
-  } else {err.textContent="⚠ Login yoki parol noto'g'ri.";document.getElementById('admin-pass').value='';}
+  } else {
+    err.textContent = "⚠ Login yoki parol noto'g'ri.";
+    document.getElementById('admin-pass').value = '';
+  }
 }
+
 function adminLogout(){
-  showConfirm('Chiqishni xohlaysizmi?','Admin paneldan chiqasiz.',(ok)=>{if(ok){adminLoggedIn=false;showPage('pg-landing');}});
+  showConfirm("Chiqishni xohlaysizmi?", "Admin paneldan chiqasiz.", (ok) => {
+    if(ok){ adminLoggedIn = false; showPage('pg-landing'); }
+  });
 }
+
 function switchTab(tab){
-  currentTab=tab;
-  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tab-'+tab).classList.add('active');
-  ['results','writing'].forEach(t=>{document.getElementById('tab-content-'+t).style.display=t===tab?'block':'none';});
-  if(tab==='writing')renderWritingPanel();
+  currentTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  ['results','writing'].forEach(t => {
+    document.getElementById('tab-content-' + t).style.display = t===tab ? 'block' : 'none';
+  });
+  if(tab === 'writing') renderWritingPanel();
 }
+
 async function renderAdmin(){
-  if(!adminLoggedIn){showPage('pg-admin-login');return;}
-  document.getElementById('admin-stats').innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);">⏳ Firebase dan yuklanmoqda...</div>`;
-  const all=await getResults();
-  _lastResults=all;
-  const today=new Date().toDateString();
-  const avgPct=all.length?Math.round(all.reduce((a,r)=>a+r.pct,0)/all.length):0;
-  const cheated=all.filter(r=>r.cheated).length;
-  const todayCount=all.filter(r=>r.raw&&new Date(r.raw).toDateString()===today).length;
-  const best=all.length?Math.max(...all.map(r=>r.pct)):0;
-  const writingCount=all.filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).length;
-  document.getElementById('admin-stats').innerHTML=`
+  if(!adminLoggedIn){ showPage('pg-admin-login'); return; }
+  document.getElementById('admin-stats').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:24px;color:var(--muted);">⏳ Firebase dan yuklanmoqda...</div>`;
+  const all = await getResults();
+  _lastResults = all;
+
+  const today = new Date().toDateString();
+  const avgPct = all.length ? Math.round(all.reduce((a,r) => a+r.pct, 0) / all.length) : 0;
+  const cheated = all.filter(r => r.cheated).length;
+  const todayCount = all.filter(r => r.raw && new Date(r.raw).toDateString()===today).length;
+  const best = all.length ? Math.max(...all.map(r => r.pct)) : 0;
+  const writingCount = all.filter(r => r.writings && Object.keys(r.writings).some(k => r.writings[k] && r.writings[k] !== '(Yozilmadi)')).length;
+
+  document.getElementById('admin-stats').innerHTML = `
     <div class="stat-card animate-1"><div class="stat-label">Jami Testlar</div><div class="stat-value">${all.length}</div></div>
     <div class="stat-card animate-2"><div class="stat-label">O'rtacha Ball</div><div class="stat-value gold">${avgPct}%</div></div>
     <div class="stat-card animate-3"><div class="stat-label">Bugungi</div><div class="stat-value blue">${todayCount}</div></div>
     <div class="stat-card animate-4"><div class="stat-label">Eng Yuqori</div><div class="stat-value success">${best}%</div></div>
     <div class="stat-card animate-5"><div class="stat-label">Writing Ishlari</div><div class="stat-value gold">${writingCount}</div></div>
     <div class="stat-card animate-6"><div class="stat-label">Buzilgan</div><div class="stat-value danger">${cheated}</div></div>`;
+
   renderResultsTable(all);
 }
+
 function renderResultsTable(all){
-  if(!all)all=_lastResults;
-  const filtered=all.filter(r=>{
-    const ms=!searchTerm||r.name.toLowerCase().includes(searchTerm)||(r.phone&&r.phone.includes(searchTerm));
-    const ml=!levelFilter||r.level===levelFilter;
-    return ms&&ml;
+  if(!all) all = _lastResults;
+  const filtered = all.filter(r => {
+    const ms = !searchTerm || r.name.toLowerCase().includes(searchTerm) || (r.phone && r.phone.includes(searchTerm));
+    const ml = !levelFilter || r.level === levelFilter;
+    return ms && ml;
   });
-  document.getElementById('admin-result-count').textContent=`${filtered.length} ta natija`;
-  const tbody=document.getElementById('results-tbody');
+  document.getElementById('admin-result-count').textContent = `${filtered.length} ta natija`;
+  const tbody = document.getElementById('results-tbody');
   if(!filtered.length){
-    tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">📋</div><div>Hozircha natijalar yo'q</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">📋</div><div>Hozircha natijalar yo'q</div></div></td></tr>`;
     return;
   }
-  const lc={'Elementary':'badge-blue','Pre-Intermediate':'badge-gold','Intermediate':'badge-purple','CEFR Multilevel':'badge-red','Pre-IELTS':'badge-red'};
-  tbody.innerHTML=filtered.map((r,i)=>{
-    const sc=r.pct>=80?'badge-green':r.pct>=60?'badge-blue':r.pct>=40?'badge-gold':'badge-red';
+  const lc = {
+    'Elementary':'badge-blue','Pre-Intermediate':'badge-gold',
+    'Intermediate':'badge-purple','CEFR Multilevel':'badge-red','Pre-IELTS':'badge-red'
+  };
+  tbody.innerHTML = filtered.map((r, i) => {
+    const sc = r.pct>=80?'badge-green':r.pct>=60?'badge-blue':r.pct>=40?'badge-gold':'badge-red';
+    // Safely encode result for onclick
+    const rEncoded = encodeURIComponent(JSON.stringify(r));
     return `<tr>
       <td style="color:var(--muted);font-size:12px;font-weight:600;">${i+1}</td>
       <td><strong>${r.name}</strong></td>
@@ -1357,68 +1590,96 @@ function renderResultsTable(all){
         <div class="score-bar-track"><div class="score-bar-fill" style="width:${r.pct}%;background:${r.pct>=60?'var(--success)':r.pct>=40?'var(--gold)':'var(--danger)'};"></div></div></div></td>
       <td>${r.cheated?'<span class="badge badge-red">⚠ Buzilgan</span>':'<span class="badge badge-green">✅ To\'liq</span>'}</td>
       <td style="color:var(--muted);font-size:11px;white-space:nowrap;">${r.date||''}</td>
-      <td><button onclick='showResultDetail(${JSON.stringify(r).replace(/'/g,"&#39;")})' style="background:var(--gold-dim);border:1px solid var(--border);color:var(--gold);padding:6px 14px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:12px;cursor:pointer;">📊 Ko'rish</button></td>
+      <td><button onclick="showResultDetail(decodeURIComponent('${rEncoded}'))" style="background:var(--gold-dim);border:1px solid var(--border);color:var(--gold);padding:6px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">📊 Ko'rish</button></td>
     </tr>`;
   }).join('');
 }
 
 // ==================== RESULT DETAIL MODAL ====================
-function showResultDetail(r){
-  document.getElementById('detail-modal-name').textContent=`${r.name} — ${r.level} (${r.pct}%)`;
-  const lv=TESTS[r.levelId];
-  let html='';
+function showResultDetail(rStr){
+  let r;
+  try {
+    r = typeof rStr === 'string' ? JSON.parse(rStr) : rStr;
+  } catch(e) {
+    showToast("Ma'lumot o'qishda xato", 'error');
+    return;
+  }
+
+  document.getElementById('detail-modal-name').textContent = `${r.name} — ${r.level} (${r.pct}%)`;
+  const lv = TESTS[r.levelId];
+  let html = '';
+
   if(!lv){
-    html=`<div style="color:var(--muted);text-align:center;padding:20px;">Ma'lumot topilmadi.</div>`;
+    html = `<div style="color:var(--muted);text-align:center;padding:20px;">Test ma'lumotlari topilmadi.</div>`;
   } else {
-    lv.sections.forEach(sec=>{
-      if(sec.type==='writing'){
-        const txt=r.writings&&r.writings[sec.title];
-        if(txt&&txt!=='(Yozilmadi)'){
-          html+=`<div class="detail-section-block">
+    lv.sections.forEach(sec => {
+      if(sec.type === 'writing'){
+        const txt = r.writings && r.writings[sec.title];
+        if(txt && txt !== '(Yozilmadi)'){
+          html += `<div class="detail-section-block">
             <div class="detail-section-title">✍️ ${sec.title}</div>
             <div style="padding:14px 18px;font-size:14px;line-height:1.7;color:var(--text-soft);white-space:pre-wrap;">${txt}</div>
           </div>`;
         }
         return;
       }
-      html+=`<div class="detail-section-block"><div class="detail-section-title">${sec.title}</div>`;
-      const sc=sec.questions||sec.pairs||[];
-      if(sec.type==='mc'){
-        sec.questions.forEach((q,qi)=>{
-          const given=r.sectionAnswers?.[sec.id]?.[q.id];
-          const ok=given===q.ans;
-          html+=`<div class="detail-q-row">
+
+      html += `<div class="detail-section-block"><div class="detail-section-title">${sec.title}</div>`;
+      const secAnswers = (r.sectionAnswers && r.sectionAnswers[sec.id]) || {};
+
+      if(sec.type === 'mc'){
+        sec.questions.forEach((q, qi) => {
+          const given = secAnswers[q.id];
+          const ok = given === q.ans;
+          html += `<div class="detail-q-row">
             <div class="detail-q-status ${ok?'ok':'nok'}">${ok?'✓':'✗'}</div>
             <div class="detail-q-text">${qi+1}. ${q.q}</div>
-            <div class="detail-q-ans">${given!==undefined?q.opts[given]:'—'} ${!ok?`→ <span style="color:var(--success)">${q.opts[q.ans]}</span>`:''}</div>
+            <div class="detail-q-ans">${given !== undefined ? q.opts[given] : '—'} ${!ok ? `→ <span style="color:var(--success)">${q.opts[q.ans]}</span>` : ''}</div>
           </div>`;
         });
-      } else if(sec.type==='fitb'||sec.type==='error'){
-        (sec.questions||[]).forEach((q,qi)=>{
-          const given=r.sectionAnswers?.[sec.id]?.[q.id];
-          const ok=given&&checkAns(given,q.answer);
-          html+=`<div class="detail-q-row">
-            <div class="detail-q-status ${ok?'ok':'nok'}">${ok?'✓':'✗'}</div>
-            <div class="detail-q-text">${qi+1}. ${q.text||q.sentence||''}</div>
-            <div class="detail-q-ans">${given||'—'} ${!ok?`→ <span style="color:var(--success)">${q.answer}</span>`:''}</div>
-          </div>`;
-        });
-      } else if(sec.type==='tf'){
-        sec.questions.forEach((q,qi)=>{
-          const given=r.sectionAnswers?.[sec.id]?.[q.id];
-          const ok=given===q.answer;
-          html+=`<div class="detail-q-row">
+      } else if(sec.type === 'fitb'){
+        sec.questions.forEach((q, qi) => {
+          const given = secAnswers[q.id];
+          const ok = given && checkAns(given, q.answer);
+          html += `<div class="detail-q-row">
             <div class="detail-q-status ${ok?'ok':'nok'}">${ok?'✓':'✗'}</div>
             <div class="detail-q-text">${qi+1}. ${q.text}</div>
-            <div class="detail-q-ans">${given===undefined?'—':given?'TRUE':'FALSE'} ${!ok?`→ <span style="color:var(--success)">${q.answer?'TRUE':'FALSE'}</span>`:''}</div>
+            <div class="detail-q-ans">${given || '—'} ${!ok ? `→ <span style="color:var(--success)">${q.answer}</span>` : ''}</div>
           </div>`;
         });
+      } else if(sec.type === 'error'){
+        sec.questions.forEach((q, qi) => {
+          const given = secAnswers[q.id];
+          const ok = given && checkAns(given, q.answer);
+          html += `<div class="detail-q-row">
+            <div class="detail-q-status ${ok?'ok':'nok'}">${ok?'✓':'✗'}</div>
+            <div class="detail-q-text">${qi+1}. ${q.sentence}</div>
+            <div class="detail-q-ans">${given || '—'} ${!ok ? `→ <span style="color:var(--success)">${q.answer}</span>` : ''}</div>
+          </div>`;
+        });
+      } else if(sec.type === 'tf'){
+        sec.questions.forEach((q, qi) => {
+          const given = secAnswers[q.id];
+          const ok = given === q.answer;
+          html += `<div class="detail-q-row">
+            <div class="detail-q-status ${ok?'ok':'nok'}">${ok?'✓':'✗'}</div>
+            <div class="detail-q-text">${qi+1}. ${q.text}</div>
+            <div class="detail-q-ans">${given === undefined ? '—' : given ? 'TRUE' : 'FALSE'} ${!ok ? `→ <span style="color:var(--success)">${q.answer?'TRUE':'FALSE'}</span>` : ''}</div>
+          </div>`;
+        });
+      } else if(sec.type === 'matching'){
+        const sc = calcMatchingScoreFromData(sec, secAnswers);
+        html += `<div class="detail-q-row" style="justify-content:center;">
+          <span style="color:var(--gold);font-weight:700;">Matching natija: ${sc.earned}/${sc.total}</span>
+        </div>`;
       }
-      html+='</div>';
+
+      html += '</div>';
     });
   }
-  // Summary
-  html=`<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+
+  // Summary header
+  const summary = `<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
     <div style="background:var(--dark3);border-radius:12px;padding:14px 20px;flex:1;text-align:center;">
       <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Ball</div>
       <div style="font-size:28px;font-weight:800;color:var(--gold);">${r.earned}/${r.total}</div>
@@ -1432,20 +1693,39 @@ function showResultDetail(r){
       <div style="font-size:28px;font-weight:800;">${r.timeUsed}</div>
     </div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:16px;text-align:center;">📌 Qaysi savolga noto'g'ri javob berganini ko'ring. "✗" — xato, "✓" — to'g'ri.</p>`+html;
-  document.getElementById('detail-modal-body').innerHTML=html;
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px;text-align:center;">📌 Qaysi savolga noto'g'ri javob berganini ko'ring. "✗" — xato, "✓" — to'g'ri.</p>`;
+
+  document.getElementById('detail-modal-body').innerHTML = summary + html;
   document.getElementById('detail-modal').classList.add('show');
 }
-function closeDetailModal(){document.getElementById('detail-modal').classList.remove('show');}
+
+function calcMatchingScoreFromData(sec, secAnswers){
+  if(!sec._shuffledB) return { earned: secAnswers._score||0, total: sec.pairs.length };
+  let earned = 0;
+  sec.pairs.forEach((p, i) => {
+    const ci = sec._shuffledB.indexOf(p.b);
+    if(parseInt(secAnswers[i]) === ci) earned++;
+  });
+  return { earned, total: sec.pairs.length };
+}
+
+function closeDetailModal(){
+  document.getElementById('detail-modal').classList.remove('show');
+}
 
 async function renderWritingPanel(){
-  const panel=document.getElementById('writing-panel');
-  panel.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);">⏳ Yuklanmoqda...</div>';
-  const all=(await getResults()).filter(r=>r.writings&&Object.keys(r.writings).some(k=>r.writings[k]&&r.writings[k]!=='(Yozilmadi)')).reverse();
-  if(!all.length){panel.innerHTML='<div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">✍️</div><div>Hali writing ishlari yo\'q</div></div>';return;}
-  panel.innerHTML=all.map(r=>{
-    const writings=Object.entries(r.writings||{}).filter(([k,v])=>v&&v!=='(Yozilmadi)');
-    return writings.map(([title,text])=>`<div class="writing-entry">
+  const panel = document.getElementById('writing-panel');
+  panel.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);">⏳ Yuklanmoqda...</div>';
+  const all = (await getResults()).filter(r =>
+    r.writings && Object.keys(r.writings).some(k => r.writings[k] && r.writings[k] !== '(Yozilmadi)')
+  ).reverse();
+  if(!all.length){
+    panel.innerHTML = '<div class="empty-state"><div style="font-size:40px;opacity:0.3;margin-bottom:12px;">✍️</div><div>Hali writing ishlari yo\'q</div></div>';
+    return;
+  }
+  panel.innerHTML = all.map(r => {
+    const writings = Object.entries(r.writings || {}).filter(([k,v]) => v && v !== '(Yozilmadi)');
+    return writings.map(([title, text]) => `<div class="writing-entry">
       <div class="writing-entry-header">
         <div><div class="writing-entry-name">${r.name}</div><div class="writing-entry-meta">${r.level} • ${r.date} • ${r.phone}</div></div>
         <div style="text-align:right;"><span class="badge badge-blue">${title}</span><div style="font-size:12px;color:var(--muted);margin-top:4px;">${text.trim().split(/\s+/).filter(w=>w).length} so'z</div></div>
@@ -1455,43 +1735,62 @@ async function renderWritingPanel(){
   }).join('');
 }
 
-function filterResults(val){searchTerm=val.toLowerCase();renderResultsTable(_lastResults);}
-function filterLevel(val){levelFilter=val;renderResultsTable(_lastResults);}
+function filterResults(val){
+  searchTerm = val.toLowerCase();
+  renderResultsTable(_lastResults);
+}
+
+function filterLevel(val){
+  levelFilter = val;
+  renderResultsTable(_lastResults);
+}
 
 async function confirmClear(){
-  showConfirm("Barcha ma'lumotlarni o'chirish","Bu amalni ortga qaytarib bo'lmaydi.",async(ok)=>{
+  showConfirm("Barcha ma'lumotlarni o'chirish", "Bu amalni ortga qaytarib bo'lmaydi.", async (ok) => {
     if(ok){
       showLoading(true);
       await db.ref('results').remove();
-      _lastResults=[];
+      _lastResults = [];
       showLoading(false);
-      searchTerm='';levelFilter='';
+      searchTerm = '';
+      levelFilter = '';
       await renderAdmin();
-      showToast("Barcha natijalar o'chirildi.",'error');
+      showToast("Barcha natijalar o'chirildi.", 'error');
     }
   });
 }
 
 async function exportCSV(){
-  const all=await getResults();
-  if(!all.length){showToast("Ma'lumot yo'q",'error');return;}
-  const rows=[['#','Ism','Familya','Yosh','Telefon','Daraja','Ball','Jami','Foiz','Holat','Sana']];
-  all.forEach((r,i)=>{rows.push([i+1,r.first||'',r.last||'',r.age||'',r.phone||'',r.level||'',r.earned||0,r.total||0,r.pct+'%',r.cheated?'Buzilgan':"To'liq",r.date||'']);});
-  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='dreamzone_results.csv';a.click();
+  const all = await getResults();
+  if(!all.length){ showToast("Ma'lumot yo'q", 'error'); return; }
+  const rows = [['#','Ism','Familya','Yosh','Telefon','Daraja','Ball','Jami','Foiz','Holat','Sana']];
+  all.forEach((r, i) => {
+    rows.push([i+1, r.first||'', r.last||'', r.age||'', r.phone||'', r.level||'', r.earned||0, r.total||0, r.pct+'%', r.cheated?'Buzilgan':"To'liq", r.date||'']);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'dreamzone_results.csv';
+  a.click();
   URL.revokeObjectURL(url);
-  showToast('CSV fayl yuklab olindi','success');
+  showToast('CSV fayl yuklab olindi', 'success');
 }
 
 // ==================== INIT ====================
-window.addEventListener('load',()=>{
-  // Hide loading when Firebase ready
-  db.ref('.info/connected').on('value',snap=>{
+window.addEventListener('load', () => {
+  let fbConnected = false;
+  // Firebase connection check
+  db.ref('.info/connected').on('value', snap => {
+    fbConnected = true;
     showLoading(false);
   });
-  setTimeout(()=>showLoading(false),3000); // max 3 sec fallback
+  // Fallback: hide loading after 4 seconds max
+  setTimeout(() => {
+    if(!fbConnected) showToast("Firebase ulanishda muammo bor!", 'error');
+    showLoading(false);
+  }, 4000);
 });
 </script>
 </body>
