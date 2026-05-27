@@ -270,6 +270,9 @@ tbody tr:hover td{background:rgba(201,168,76,0.03);}
 .loading-spinner{width:48px;height:48px;border:3px solid var(--dark3);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-text{color:var(--muted);font-size:14px;letter-spacing:1px;}
+/* Firebase xato banneri */
+.fb-error-banner{background:rgba(224,82,82,0.12);border:1px solid rgba(224,82,82,0.35);border-radius:14px;padding:16px 20px;margin-bottom:20px;font-size:13px;color:var(--danger);line-height:1.6;display:none;}
+.fb-error-banner.show{display:block;}
 @media(max-width:640px){
 .form-row{grid-template-columns:1fr;}
 .form-card,.result-card,.admin-login-card{padding:32px 24px;}
@@ -291,7 +294,7 @@ th,td{padding:10px 12px;}
 
 <div class="loading-overlay" id="loading-overlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text">Firebase ulanmoqda...</div>
+  <div class="loading-text" id="loading-text">Firebase ulanmoqda...</div>
 </div>
 
 <div class="toast" id="toast"><span id="toast-icon">✓</span><span id="toast-msg"></span></div>
@@ -394,7 +397,12 @@ th,td{padding:10px 12px;}
 
 <!-- RESULT -->
 <div class="page" id="pg-result">
-  <div style="position:relative;z-index:1;margin:auto;padding:40px 20px;display:flex;justify-content:center;align-items:center;width:100%;">
+  <div style="position:relative;z-index:1;margin:auto;padding:40px 20px;display:flex;justify-content:center;align-items:center;width:100%;flex-direction:column;gap:16px;">
+    <!-- Firebase xato banneri -->
+    <div class="fb-error-banner" id="fb-save-error">
+      ⚠️ <strong>Firebase saqlashda xato:</strong> <span id="fb-error-msg"></span><br>
+      <small style="opacity:0.8;margin-top:4px;display:block;">Firebase Console → Realtime Database → Rules bo'limida <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:4px;">"write": true</code> qilib qo'ying.</small>
+    </div>
     <div class="result-card">
       <span class="result-icon" id="result-icon">🏆</span>
       <h2 class="result-title" id="result-title">Natija</h2>
@@ -402,7 +410,7 @@ th,td{padding:10px 12px;}
       <div class="result-total" id="result-total">/ 0 ball</div>
       <div class="result-meta" id="result-meta"></div>
       <button class="btn-full" onclick="showPage('pg-levels')" style="margin-top:0;">Boshqa Daraja →</button>
-      <div class="result-note">✓ Natijangiz admin paneliga saqlandi.</div>
+      <div class="result-note" id="result-save-note">⏳ Natija saqlanmoqda...</div>
     </div>
   </div>
 </div>
@@ -480,27 +488,66 @@ const firebaseConfig = {
   messagingSenderId: "964131703377",
   appId: "1:964131703377:web:3b1f3a03805734ed600670"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
 
+// Firebase init
+let db;
+let fbReady = false;
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  fbReady = true;
+} catch(e) {
+  console.error('Firebase init xatosi:', e);
+}
+
+// ==================== FIREBASE YOZISH FUNKSIYASI (TUZATILGAN) ====================
 async function saveResult(r) {
-  try {
-    await db.ref('results').push(r);
-    return true;
-  } catch(e) {
-    console.error('Firebase saqlash xatosi:', e);
-    return false;
+  if (!fbReady || !db) {
+    console.error('Firebase tayyor emas!');
+    return { success: false, error: 'Firebase ulanmagan' };
   }
+
+  // Natijadan undefined/circular qiymatlarni tozalash
+  const cleanResult = JSON.parse(JSON.stringify(r));
+
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      resolve({ success: false, error: 'Vaqt tugadi (timeout). Internet aloqasini tekshiring.' });
+    }, 10000); // 10 sekund kutamiz
+
+    db.ref('results').push(cleanResult)
+      .then(() => {
+        clearTimeout(timeout);
+        resolve({ success: true });
+      })
+      .catch((error) => {
+        clearTimeout(timeout);
+        console.error('Firebase push xatosi:', error.code, error.message);
+
+        let userMsg = error.message;
+        if (error.code === 'PERMISSION_DENIED') {
+          userMsg = 'Ruxsat berilmagan (PERMISSION_DENIED). Firebase Rules ni tekshiring.';
+        } else if (error.code === 'NETWORK_ERROR') {
+          userMsg = 'Internet aloqasi yo\'q.';
+        } else if (error.message && error.message.includes('permission')) {
+          userMsg = 'Firebase Rules: write ruxsati yo\'q. Console → Rules → ".write": true qiling.';
+        }
+        resolve({ success: false, error: userMsg, code: error.code });
+      });
+  });
 }
 
 async function getResults() {
+  if (!fbReady || !db) return [];
   try {
     const snap = await db.ref('results').once('value');
     if (!snap.exists()) return [];
     const data = snap.val();
     return Object.values(data).sort((a,b) => new Date(b.raw||0) - new Date(a.raw||0));
   } catch(e) {
-    console.error('Firebase o\'qish xatosi:', e);
+    console.error('Firebase o\'qish xatosi:', e.code, e.message);
+    showToast('Ma\'lumot o\'qishda xato: ' + (e.message||''), 'error');
     return [];
   }
 }
@@ -878,7 +925,7 @@ function showToast(msg, type='default'){
   document.getElementById('toast-msg').textContent = msg;
   t.className = 'toast ' + type;
   setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => t.classList.remove('show'), 3200);
+  setTimeout(() => t.classList.remove('show'), 4000);
 }
 
 function showConfirm(title, text, cb){
@@ -904,8 +951,10 @@ function checkAns(u, c){
   return cn.split('|').some(a => un === a.trim());
 }
 
-function showLoading(show){
-  document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+function showLoading(show, text){
+  const el = document.getElementById('loading-overlay');
+  el.style.display = show ? 'flex' : 'none';
+  if(text) document.getElementById('loading-text').textContent = text;
 }
 
 // ==================== NAVIGATION ====================
@@ -1023,7 +1072,6 @@ function renderSection(){
   else if(sec.type === 'tf')     html += renderTF(sec);
   else if(sec.type === 'writing')  html += renderWriting(sec);
 
-  // Check button for non-matching, non-writing sections
   if(!['writing', 'matching'].includes(sec.type)){
     html += `<button class="btn-check-section" id="btn-check-sec" onclick="checkSection('${sec.id}')" ${isChecked?'disabled':''}>
       ${isChecked ? "✅ Bo'lim Tekshirildi" : "✓ Bo'limni Tekshirish"}
@@ -1046,7 +1094,6 @@ function renderSection(){
   restoreAnswers(sec);
 }
 
-// ===== MC =====
 function renderMC(sec){
   const isChecked = sectionChecked[sec.id] === true;
   return sec.questions.map((q, qi) => {
@@ -1085,7 +1132,6 @@ function selectMC(secId, qId, chosen){
   ).join('');
 }
 
-// ===== FITB =====
 function renderFITB(sec){
   const isChecked = sectionChecked[sec.id] === true;
   return sec.questions.map((q, qi) => {
@@ -1114,7 +1160,6 @@ function renderFITB(sec){
   }).join('');
 }
 
-// ===== MATCHING =====
 function renderMatching(sec){
   if(!sec._shuffledB){
     sec._shuffledB = [...sec.pairs.map(p => p.b)].sort(() => Math.random() - 0.5);
@@ -1161,7 +1206,6 @@ function renderMatching(sec){
   ${banner}`;
 }
 
-// ===== ERROR =====
 function renderError(sec){
   const isChecked = sectionChecked[sec.id] === true;
   return sec.questions.map((q, qi) => {
@@ -1187,7 +1231,6 @@ function renderError(sec){
   }).join('');
 }
 
-// ===== TF =====
 function renderTF(sec){
   const isChecked = sectionChecked[sec.id] === true;
   return sec.questions.map((q, qi) => {
@@ -1236,7 +1279,6 @@ function selectTF(secId, qId, chosen){
     <button class="${fCls}" onclick="selectTF('${secId}','${qId}',false)">FALSE</button>`;
 }
 
-// ===== WRITING =====
 function renderWriting(sec){
   const saved = writingTexts[sec.id] || '';
   const wc = saved.trim().split(/\s+/).filter(w => w).length;
@@ -1256,12 +1298,10 @@ function saveWriting(secId, el){
   if(wc) wc.innerHTML = `${words} so'z <span style="color:${words>=min?'var(--success)':'var(--muted)'}">(minimum: ${min}${words>=min?' ✓':''})</span>`;
 }
 
-// ===== CHECK SECTION =====
 function checkSection(secId){
   const sec = currentLevel.sections.find(s => s.id === secId);
   if(!sec) return;
 
-  // Collect final values from DOM before checking
   if(sec.type === 'fitb'){
     sec.questions.forEach(q => {
       const el = document.getElementById('inp-' + q.id);
@@ -1294,7 +1334,6 @@ function checkSection(secId){
   showToast("Bo'lim tekshirildi!", 'success');
 }
 
-// ==================== SCORE ====================
 function calcSectionScore(sec){
   let earned = 0, total = 0;
   if(sec.type === 'mc'){
@@ -1336,7 +1375,6 @@ function restoreAnswers(sec){
   }
 }
 
-// ==================== NAV ====================
 function prevSection(){
   if(currentSectionIdx > 0){ currentSectionIdx--; renderSection(); window.scrollTo(0,0); }
 }
@@ -1354,7 +1392,6 @@ function nextSection(){
   }
 }
 
-// ==================== TIMER ====================
 function startTimer(){
   if(timer) clearInterval(timer);
   timer = setInterval(() => {
@@ -1370,7 +1407,6 @@ function startTimer(){
   }, 1000);
 }
 
-// ==================== ANTI-CHEAT ====================
 function setupAntiCheat(){
   document.addEventListener('visibilitychange', handleVis);
 }
@@ -1392,7 +1428,7 @@ function finishTestEarly(){
   finishTest(true);
 }
 
-// ==================== FINISH TEST ====================
+// ==================== FINISH TEST (TUZATILGAN) ====================
 async function finishTest(cheated = false){
   if(testFinished) return;
   testFinished = true;
@@ -1400,7 +1436,7 @@ async function finishTest(cheated = false){
   clearInterval(timer);
   document.removeEventListener('visibilitychange', handleVis);
 
-  // Collect any remaining unsaved inputs from current section
+  // DOM dan oxirgi qiymatlarni olish
   const curSec = currentLevel.sections[currentSectionIdx];
   if(curSec){
     if(curSec.type === 'fitb'){
@@ -1421,7 +1457,7 @@ async function finishTest(cheated = false){
     }
   }
 
-  // Calculate scores
+  // Ball hisoblash
   let totalPoints = 0, earnedPoints = 0;
   currentLevel.sections.forEach(sec => {
     const sc = calcSectionScore(sec);
@@ -1433,19 +1469,24 @@ async function finishTest(cheated = false){
   const timeUsed = 3600 - timeLeft;
   const mins = Math.floor(timeUsed / 60);
   const secs = timeUsed % 60;
-
   const now = new Date();
 
-  // Collect writings
+  // Writing matinlarini yig'ish
   const writings = {};
   currentLevel.sections.filter(s => s.type === 'writing').forEach(s => {
     writings[s.title] = writingTexts[s.id] || '(Yozilmadi)';
   });
 
-  // ✅ FIX: Save sectionAnswers snapshot for admin detail view
+  // sectionAnswers snapshot — undefined qiymatlarni tozalash
   const answersSnapshot = {};
   currentLevel.sections.forEach(sec => {
-    answersSnapshot[sec.id] = JSON.parse(JSON.stringify(sectionAnswers[sec.id] || {}));
+    const raw = sectionAnswers[sec.id] || {};
+    // JSON.parse/stringify — undefined, function, circular ni olib tashlaydi
+    try {
+      answersSnapshot[sec.id] = JSON.parse(JSON.stringify(raw));
+    } catch(e) {
+      answersSnapshot[sec.id] = {};
+    }
   });
 
   const result = {
@@ -1459,24 +1500,40 @@ async function finishTest(cheated = false){
     levelId: currentLevel.id,
     earned: earnedPoints,
     total: totalPoints,
-    pct,
+    pct: pct,
     timeUsed: `${mins}:${String(secs).padStart(2,'0')}`,
-    cheated,
-    writings,
-    sectionAnswers: answersSnapshot,  // ✅ FIXED: Bu yerda saqlanadi
+    cheated: cheated,
+    writings: writings,
+    sectionAnswers: answersSnapshot,
     date: now.toLocaleDateString('uz-UZ') + ' ' + now.toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'}),
     raw: now.toISOString()
   };
 
-  showLoading(true);
-  const saved = await saveResult(result);
-  showLoading(false);
-
-  if(!saved){
-    showToast("Firebase saqlashda xato yuz berdi!", 'error');
-  }
-
+  // Avval natijani ko'rsatamiz, keyin saqlaymiz
   showResult(result);
+
+  // Firebase ga saqlash (background)
+  const saveNote = document.getElementById('result-save-note');
+  const saveErrBanner = document.getElementById('fb-save-error');
+
+  if(saveNote) saveNote.innerHTML = '⏳ Natija saqlanmoqda...';
+  if(saveErrBanner) saveErrBanner.classList.remove('show');
+
+  const saveRes = await saveResult(result);
+
+  if(saveRes.success){
+    if(saveNote) saveNote.innerHTML = '✅ Natijangiz muvaffaqiyatli saqlandi.';
+    showToast("Natija saqlandi!", 'success');
+  } else {
+    // Xatoni ko'rsat
+    if(saveNote) saveNote.innerHTML = '❌ Saqlashda xato yuz berdi.';
+    if(saveErrBanner){
+      document.getElementById('fb-error-msg').textContent = saveRes.error || 'Noma\'lum xato';
+      saveErrBanner.classList.add('show');
+    }
+    showToast("Saqlashda xato: " + (saveRes.error || ''), 'error');
+    console.error('Firebase saqlash xatosi:', saveRes);
+  }
 }
 
 function showResult(r){
@@ -1577,7 +1634,6 @@ function renderResultsTable(all){
   };
   tbody.innerHTML = filtered.map((r, i) => {
     const sc = r.pct>=80?'badge-green':r.pct>=60?'badge-blue':r.pct>=40?'badge-gold':'badge-red';
-    // Safely encode result for onclick
     const rEncoded = encodeURIComponent(JSON.stringify(r));
     return `<tr>
       <td style="color:var(--muted);font-size:12px;font-weight:600;">${i+1}</td>
@@ -1595,7 +1651,6 @@ function renderResultsTable(all){
   }).join('');
 }
 
-// ==================== RESULT DETAIL MODAL ====================
 function showResultDetail(rStr){
   let r;
   try {
@@ -1678,7 +1733,6 @@ function showResultDetail(rStr){
     });
   }
 
-  // Summary header
   const summary = `<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
     <div style="background:var(--dark3);border-radius:12px;padding:14px 20px;flex:1;text-align:center;">
       <div style="font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Ball</div>
@@ -1693,7 +1747,7 @@ function showResultDetail(rStr){
       <div style="font-size:28px;font-weight:800;">${r.timeUsed}</div>
     </div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:16px;text-align:center;">📌 Qaysi savolga noto'g'ri javob berganini ko'ring. "✗" — xato, "✓" — to'g'ri.</p>`;
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px;text-align:center;">📌 Qaysi savolga noto'g'ri javob berganini ko'ring.</p>`;
 
   document.getElementById('detail-modal-body').innerHTML = summary + html;
   document.getElementById('detail-modal').classList.add('show');
@@ -1748,14 +1802,18 @@ function filterLevel(val){
 async function confirmClear(){
   showConfirm("Barcha ma'lumotlarni o'chirish", "Bu amalni ortga qaytarib bo'lmaydi.", async (ok) => {
     if(ok){
-      showLoading(true);
-      await db.ref('results').remove();
-      _lastResults = [];
+      showLoading(true, "O'chirilmoqda...");
+      try {
+        await db.ref('results').remove();
+        _lastResults = [];
+        showToast("Barcha natijalar o'chirildi.", 'error');
+      } catch(e) {
+        showToast("O'chirishda xato: " + e.message, 'error');
+      }
       showLoading(false);
       searchTerm = '';
       levelFilter = '';
       await renderAdmin();
-      showToast("Barcha natijalar o'chirildi.", 'error');
     }
   });
 }
@@ -1780,17 +1838,30 @@ async function exportCSV(){
 
 // ==================== INIT ====================
 window.addEventListener('load', () => {
+  if(!fbReady){
+    showLoading(false);
+    showToast("Firebase ulanishda xato!", 'error');
+    return;
+  }
+
   let fbConnected = false;
-  // Firebase connection check
+  const connTimeout = setTimeout(() => {
+    if(!fbConnected){
+      showLoading(false);
+      showToast("Firebase sekin ulanmoqda. Internet aloqangizni tekshiring.", 'error');
+    }
+  }, 6000);
+
   db.ref('.info/connected').on('value', snap => {
-    fbConnected = true;
-    showLoading(false);
+    if(snap.val() === true){
+      fbConnected = true;
+      clearTimeout(connTimeout);
+      showLoading(false);
+    }
   });
-  // Fallback: hide loading after 4 seconds max
-  setTimeout(() => {
-    if(!fbConnected) showToast("Firebase ulanishda muammo bor!", 'error');
-    showLoading(false);
-  }, 4000);
+
+  // Fallback: 3 sekunddan keyin ham yopamiz
+  setTimeout(() => showLoading(false), 3000);
 });
 </script>
 </body>
